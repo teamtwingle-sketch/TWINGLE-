@@ -103,6 +103,12 @@ export const Privacy = () => (
 
         <h3>3. Data Sharing</h3>
         <p>We do not sell your personal data. We may share data with third-party service providers (like payment processors) only as necessary.</p>
+
+        <h3>4. Grievance Officer (India)</h3>
+        <p>In accordance with the Information Technology Act, 2000 and rules made thereunder, the name and contact details of the Grievance Officer are provided below:</p>
+        <p><strong>Name:</strong> Adarsh (Head of Support)</p>
+        <p><strong>Email:</strong> grievance@twingle.com</p>
+        <p><strong>Address:</strong> Twingle HQ, Kerala, India</p>
     </LegalLayout>
 );
 

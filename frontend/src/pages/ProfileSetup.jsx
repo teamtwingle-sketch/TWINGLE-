@@ -94,12 +94,29 @@ const ProfileSetup = () => {
                     <h1 className="text-2xl font-black text-slate-800 font-outfit tracking-tight">Edit Profile</h1>
                     <p className="text-xs font-semibold text-slate-500 tracking-wide">Customize your public card</p>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    className="p-2.5 bg-red-50 text-red-500 rounded-full hover:bg-red-100 active:scale-95 transition-all"
-                >
-                    <LogOut size={18} strokeWidth={2.5} />
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={async () => {
+                            if (window.confirm("Are you sure you want to PERMANENTLY delete your account? This action cannot be undone.")) {
+                                try {
+                                    await api.delete('/auth/delete/');
+                                    localStorage.clear();
+                                    window.location.href = '/';
+                                } catch (e) { toast.error("Failed to delete account"); }
+                            }
+                        }}
+                        className="p-2.5 bg-red-50 text-red-500 rounded-full hover:bg-red-100 active:scale-95 transition-all"
+                        title="Delete Account"
+                    >
+                        <X size={18} strokeWidth={2.5} />
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="p-2.5 bg-slate-50 text-slate-500 rounded-full hover:bg-slate-100 active:scale-95 transition-all"
+                    >
+                        <LogOut size={18} strokeWidth={2.5} />
+                    </button>
+                </div>
             </div>
 
             <div className="p-5 pb-32 space-y-8 max-w-lg mx-auto">

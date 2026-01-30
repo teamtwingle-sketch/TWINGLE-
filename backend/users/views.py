@@ -26,6 +26,14 @@ class UserDetailView(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+class UserDeleteView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response({"status": "deleted"}, status=status.HTTP_204_NO_CONTENT)
+
 # --- Admin API Views ---
 
 class IsAdminUser(permissions.BasePermission):
