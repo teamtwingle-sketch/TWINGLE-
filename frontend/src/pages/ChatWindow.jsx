@@ -46,7 +46,7 @@ const ChatWindow = () => {
         fetchMessages();
         fetchOtherUser();
 
-        // PeerJS Init
+        // 1. PeerJS Init
         const peer = new Peer(`mallu_user_${myId}`, {
             debug: 2,
             config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
@@ -60,7 +60,6 @@ const ChatWindow = () => {
 
             setCallStatus((prev) => {
                 if (prev === 'dialing') {
-                    // Auto Answer (I called them, they called back logic, or clash)
                     stopRingtone();
                     answerPeerCall(call);
                     return 'connected';
@@ -80,16 +79,59 @@ const ChatWindow = () => {
 
         peerRef.current = peer;
 
+        // 2. WebSocket Init (Replacing Message Polling)
+        const token = localStorage.getItem('token');
+        let ws = null;
+        if (token) {
+            // Calculate WS URL
+            const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+            const wsUrl = apiBase.replace('http', 'ws').replace('/api', '') + '/ws/chat/?token=' + token;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => {
+                console.log("Connected to Chat WebSocket");
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.message) {
+                    const newMsg = data.message;
+                    // Only append if it belongs to THIS chat (userId matches sender or receiver)
+                    // The 'userId' from useParams is a string, compare safely
+                    const partnerId = parseInt(userId);
+
+                    if (newMsg.sender === partnerId || (newMsg.sender === myId && newMsg.receiver === partnerId)) {
+                        setMessages((prev) => {
+                            // Deduplicate just in case (e.g. if we sent it and got echo)
+                            if (prev.some(m => m.id === newMsg.id)) return prev;
+                            return [...prev, newMsg];
+                        });
+
+                        // If we are looking at bottom, scroll to new message
+                        if (!showScrollButton) setTimeout(scrollToBottom, 50);
+
+                        // If partner is typing, clear it since they sent a message
+                        setPartnerStatus(prev => ({ ...prev, is_typing: false }));
+                    }
+                }
+            };
+
+            ws.onclose = () => console.log("Chat WebSocket Disconnected");
+        }
+
+        // 3. Keep Polling only for Calls & Presence (Every 2s is enough)
         const interval = setInterval(() => {
-            fetchMessages();
             pollCalls();
-        }, 1000);
+            // fetchMessages(); // DISABLED: Using WebSocket now
+        }, 2000);
 
         return () => {
             clearInterval(interval);
             stopRingtone();
             handleEndCallLocal();
             peer.destroy();
+            if (ws) ws.close();
         };
     }, [userId, myId]);
 
