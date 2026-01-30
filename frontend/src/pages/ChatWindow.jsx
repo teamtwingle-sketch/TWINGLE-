@@ -369,7 +369,7 @@ const ChatWindow = () => {
                         <div className="relative">
                             <img
                                 src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'}
-                                className="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100 shadow-md"
+                                className="w-10 h-10 rounded-2xl object-cover ring-2 ring-slate-100 shadow-md"
                                 alt=""
                             />
                             {partnerStatus?.is_online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>}
@@ -463,7 +463,7 @@ const ChatWindow = () => {
                                 </div>
 
                                 {!isMe && (
-                                    <div className={`w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 shadow-sm border border-white ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
+                                    <div className={`w-8 h-8 rounded-2xl bg-slate-200 overflow-hidden flex-shrink-0 shadow-sm border border-white ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
                                         <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
                                     </div>
                                 )}
