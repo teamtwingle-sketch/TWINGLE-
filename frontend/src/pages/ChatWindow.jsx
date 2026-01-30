@@ -312,12 +312,12 @@ const ChatWindow = () => {
     const formatLastSeen = (d) => { if (!d) return 'Offline'; const diff = (new Date() - new Date(d)) / 60000; return diff < 60 ? `${Math.floor(diff)}m ago` : 'offline'; };
 
     return (
-        <div className="flex flex-col h-[100dvh] bg-slate-100 relative overflow-hidden">
+        <div className="fixed inset-0 bg-slate-100 overflow-hidden touch-none h-[100dvh]">
             {/* Hidden Audio */}
             <audio ref={remoteAudioRef} autoPlay playsInline style={{ width: 0, height: 0, opacity: 0 }} />
 
-            {/* Header */}
-            <header className="h-[60px] px-4 bg-white/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between border-b border-slate-200/60 shadow-sm shrink-0">
+            {/* Header - Fixed Top */}
+            <header className="fixed top-0 left-0 right-0 h-[60px] px-4 bg-white/80 backdrop-blur-xl z-50 flex items-center justify-between border-b border-slate-200/60 shadow-sm pt-[env(safe-area-inset-top)]">
                 <div className="flex items-center gap-3">
                     <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors active:scale-95">
                         <ChevronLeft size={24} strokeWidth={2.5} />
@@ -377,11 +377,12 @@ const ChatWindow = () => {
                 </div>
             </header>
 
-            {/* Chat Body */}
+            {/* Chat Body - Absolute Between Header & Footer */}
             <div
-                className="flex-1 overflow-y-auto px-4 py-6 space-y-4 overscroll-contain bg-[#f2f4f7]"
+                className="absolute top-[60px] bottom-[90px] left-0 right-0 overflow-y-auto px-4 py-6 space-y-4 overscroll-y-contain bg-[#f2f4f7] z-0"
                 style={{
-                    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 50%), radial-gradient(circle at 0% 0%, rgba(244,63,94,0.03) 0%, transparent 30%)'
+                    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 50%), radial-gradient(circle at 0% 0%, rgba(244,63,94,0.03) 0%, transparent 30%)',
+                    WebkitOverflowScrolling: 'touch'
                 }}
                 onScroll={handleScroll}
             >
@@ -437,7 +438,7 @@ const ChatWindow = () => {
                         </div>
                     );
                 })}
-                <div ref={scrollRef} />
+                <div ref={scrollRef} style={{ height: 20 }} />
             </div>
 
             {/* Scroll to bottom button */}
@@ -448,15 +449,15 @@ const ChatWindow = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         onClick={scrollToBottom}
-                        className="absolute bottom-28 right-5 bg-white p-3 rounded-full shadow-xl border border-slate-100 text-rose-500 z-20 hover:bg-rose-50 transition-colors"
+                        className="fixed bottom-28 right-5 bg-white p-3 rounded-full shadow-xl border border-slate-100 text-rose-500 z-40 hover:bg-rose-50 transition-colors"
                     >
                         <ChevronDown size={24} strokeWidth={3} />
                     </motion.button>
                 )}
             </AnimatePresence>
 
-            {/* Input Area - Strong & Grounded at Bottom */}
-            <div className="shrink-0 bg-white/90 backdrop-blur-xl border-t border-slate-200/60 pb-safe z-40 relative shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+            {/* Input Area - Fixed Bottom */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-200/60 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)]">
                 {replyTo && (
                     <div className="flex justify-between items-center mb-0 bg-slate-50/80 p-2.5 mx-3 mt-2 rounded-xl border border-slate-200 backdrop-blur-sm">
                         <div className="flex flex-col text-xs">
