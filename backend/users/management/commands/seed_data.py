@@ -13,17 +13,22 @@ class Command(BaseCommand):
             Interest.objects.get_or_create(name=name)
         
         # Plans
-        SubscriptionPlan.objects.get_or_create(
+        # Plans
+        SubscriptionPlan.objects.update_or_create(
             name='Gold', 
-            price=199, 
-            duration_days=30, 
-            description='Unlimited swipes, rewind, no ads'
+            defaults={
+                'price': 20, 
+                'duration_days': 30, 
+                'description': '60 swipes/day, rewind, no ads'
+            }
         )
-        SubscriptionPlan.objects.get_or_create(
+        SubscriptionPlan.objects.update_or_create(
             name='Platinum', 
-            price=499, 
-            duration_days=90, 
-            description='Priority likes, profile boost, all gold features'
+            defaults={
+                'price': 400, 
+                'duration_days': 90, 
+                'description': 'Unlimited swipes, priority likes, profile boost'
+            }
         )
         
         # Superuser

@@ -36,7 +36,7 @@ class User(AbstractUser):
     
     # Daily Swipe Limits
     swipes_today = models.IntegerField(default=0)
-    daily_swipe_limit = models.IntegerField(default=5) # 5 for free, 60 for Gold, 10000 for Platinum
+    daily_swipe_limit = models.IntegerField(default=8) # 8 for free, 60 for Gold, 10000 for Platinum
     last_swipe_date = models.DateField(auto_now_add=True)
     last_activity = models.DateTimeField(null=True, blank=True)
 
