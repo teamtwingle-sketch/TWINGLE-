@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Send, Mic, Phone, PhoneIncoming, PhoneOff, MoreVertical, X, AlertTriangle, Ban, ChevronDown, Volume2, MicOff, Video, Image as ImageIcon, Smile } from 'lucide-react';
+import { ChevronLeft, Send, Mic, Phone, PhoneIncoming, PhoneOff, MoreVertical, X, AlertTriangle, Ban, ChevronDown, Volume2, MicOff, Video, Image as ImageIcon, Smile, Check, CheckCheck } from 'lucide-react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -540,9 +540,18 @@ const ChatWindow = () => {
                                         {msg.content}
                                     </div>
 
-                                    <span className={`text-[9px] font-bold mt-1.5 block ${isMe ? 'text-right text-slate-400 pr-1' : 'text-left text-slate-400 pl-1'}`}>
-                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </span>
+                                    <div className={`flex items-center gap-1 mt-1.5 ${isMe ? 'justify-end pr-1' : 'justify-start pl-1'}`}>
+                                        <span className="text-[9px] font-bold text-slate-400">
+                                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                        {isMe && (
+                                            msg.is_read ? (
+                                                <CheckCheck size={14} className="text-blue-500 ml-0.5" strokeWidth={2.5} />
+                                            ) : (
+                                                <CheckCheck size={14} className="text-slate-300 ml-0.5" strokeWidth={2.5} />
+                                            )
+                                        )}
+                                    </div>
                                 </div>
                             </motion.div>
                         );
