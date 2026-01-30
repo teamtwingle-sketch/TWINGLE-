@@ -1,1 +1,11 @@
--r backend/requirements.txt
+django
+djangorestframework
+django-cors-headers
+pillow
+djangorestframework-simplejwt
+python-dateutil
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary
+python-dotenv
