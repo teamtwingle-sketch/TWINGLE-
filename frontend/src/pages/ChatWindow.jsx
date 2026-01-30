@@ -397,8 +397,14 @@ const ChatWindow = () => {
             setTimeout(scrollToBottom, 50);
         } catch (e) {
             console.error("Send failed", e);
-            toast.error("Message may not have sent");
-            setInput(msgContent); // Restore on error
+            // If it's a server error (500), the message likely saved but signal failed.
+            // Don't restore text to input, just warn.
+            if (!e.response || e.response.status >= 500) {
+                toast.warn("Message sent, but connection unstable");
+            } else {
+                toast.error("Send failed");
+                setInput(msgContent); // Only restore if it was a client/400 error
+            }
         }
     };
     const handleReport = async () => { await api.post('/report/', { reported_user: userId, reason: reportReason, explanation: reportExplanation }); setShowReportModal(false); toast.success("User reported"); };
