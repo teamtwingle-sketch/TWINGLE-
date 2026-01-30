@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Shield, Zap, MessageCircle, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Landing = () => {
-    const [started, setStarted] = useState(false);
 
     return (
         <div className="min-h-screen bg-white">
@@ -24,40 +23,17 @@ const Landing = () => {
                         The Number 1 Dating Platform For Malayalis. Find Your Special Someone In Kerala.
                     </p>
 
-                    <AnimatePresence mode="wait">
-                        {!started ? (
-                            <motion.button
-                                key="start-btn"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                onClick={() => setStarted(true)}
-                                className="bg-white text-brand-primary font-black py-4 px-12 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all text-xl tracking-wide"
-                            >
-                                GET STARTED
-                            </motion.button>
-                        ) : (
-                            <motion.div
-                                key="auth-buttons"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="flex flex-col gap-4 w-full max-w-xs mx-auto"
-                            >
-                                <Link
-                                    to="/register"
-                                    className="bg-white text-brand-primary font-bold py-4 rounded-2xl shadow-xl hover:scale-105 transition-transform text-lg"
-                                >
-                                    Create Account
-                                </Link>
-                                <Link
-                                    to="/login"
-                                    className="bg-brand-primary/20 backdrop-blur-sm border border-white/30 text-white font-bold py-4 rounded-2xl hover:bg-white/10 transition-colors text-lg"
-                                >
-                                    Sign In
-                                </Link>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    <div className="flex flex-col gap-4 w-full max-w-xs mx-auto">
+                        <Link
+                            to="/login"
+                            className="bg-white text-brand-primary font-black py-4 px-12 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all text-xl tracking-wide uppercase"
+                        >
+                            Get Started
+                        </Link>
+                        <p className="text-sm font-medium opacity-80">
+                            New here? <Link to="/register" className="underline hover:text-white font-bold">Create Account</Link>
+                        </p>
+                    </div>
                 </motion.div>
 
                 {/* Decorative elements */}
