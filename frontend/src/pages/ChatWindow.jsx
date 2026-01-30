@@ -312,45 +312,45 @@ const ChatWindow = () => {
     const formatLastSeen = (d) => { if (!d) return 'Offline'; const diff = (new Date() - new Date(d)) / 60000; return diff < 60 ? `${Math.floor(diff)}m ago` : 'offline'; };
 
     return (
-        <div className="flex flex-col h-full bg-white relative">
+        <div className="flex flex-col h-[100dvh] bg-slate-100 relative overflow-hidden">
             {/* Hidden Audio */}
             <audio ref={remoteAudioRef} autoPlay playsInline style={{ width: 0, height: 0, opacity: 0 }} />
 
             {/* Header */}
-            <header className="h-16 px-4 bg-white/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between border-b border-slate-50 shadow-sm">
+            <header className="h-[60px] px-4 bg-white/80 backdrop-blur-xl sticky top-0 z-30 flex items-center justify-between border-b border-slate-200/60 shadow-sm shrink-0">
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-50 text-slate-500 transition-colors">
-                        <ChevronLeft size={24} />
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors active:scale-95">
+                        <ChevronLeft size={24} strokeWidth={2.5} />
                     </button>
 
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/profile/${userId}`)}>
                         <div className="relative">
                             <img
                                 src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'}
-                                className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
+                                className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md"
                                 alt=""
                             />
-                            {partnerStatus?.is_online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>}
+                            {partnerStatus?.is_online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>}
                         </div>
                         <div className="flex flex-col">
-                            <h3 className="font-bold text-slate-900 leading-tight">{otherUser?.first_name || 'User'}</h3>
-                            <span className={`text-[11px] font-bold tracking-wide ${partnerStatus?.is_typing ? 'text-rose-500 animate-pulse' : partnerStatus?.is_online ? 'text-green-600' : 'text-slate-400'}`}>
+                            <h3 className="font-bold text-slate-900 leading-tight text-[15px]">{otherUser?.first_name || 'User'}</h3>
+                            <span className={`text-[11px] font-bold tracking-wide uppercase ${partnerStatus?.is_typing ? 'text-rose-500 animate-pulse' : partnerStatus?.is_online ? 'text-green-600' : 'text-slate-400'}`}>
                                 {partnerStatus?.is_typing ? 'Typing...' : (partnerStatus?.is_online ? 'Active now' : `Seen ${formatLastSeen(partnerStatus?.last_seen)}`)}
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <button onClick={startCall} className="p-2 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors">
-                        <Phone size={20} />
+                <div className="flex items-center gap-2">
+                    <button onClick={startCall} className="p-2.5 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95">
+                        <Phone size={20} strokeWidth={2.5} />
                     </button>
-                    <button onClick={() => toast.info("Video call coming soon!")} className="p-2 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors">
-                        <Video size={20} />
+                    <button onClick={() => toast.info("Video call coming soon!")} className="p-2.5 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95">
+                        <Video size={20} strokeWidth={2.5} />
                     </button>
                     <div className="relative">
-                        <button onClick={() => setShowSafetyMenu(!showSafetyMenu)} className={`p-2 rounded-full transition-colors ${showSafetyMenu ? "bg-slate-100 text-slate-800" : "text-slate-400 hover:text-slate-600"}`}>
-                            <MoreVertical size={20} />
+                        <button onClick={() => setShowSafetyMenu(!showSafetyMenu)} className={`p-2.5 rounded-full transition-all active:scale-95 ${showSafetyMenu ? "bg-slate-200 text-slate-900" : "text-slate-500 hover:text-slate-800"}`}>
+                            <MoreVertical size={20} strokeWidth={2.5} />
                         </button>
 
                         <AnimatePresence>
@@ -359,16 +359,16 @@ const ChatWindow = () => {
                                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                    className="absolute top-12 right-0 w-48 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden z-50 origin-top-right py-1"
+                                    className="absolute top-12 right-0 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-50 origin-top-right py-1.5 ring-1 ring-black/5"
                                 >
-                                    <button onClick={() => navigate(`/profile/${userId}`)} className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+                                    <button onClick={() => navigate(`/profile/${userId}`)} className="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-slate-50 text-slate-700 flex items-center gap-3">
                                         View Profile
                                     </button>
-                                    <button onClick={() => { setShowReportModal(true); setShowSafetyMenu(false); }} className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-50 text-orange-500 flex items-center gap-2">
+                                    <button onClick={() => { setShowReportModal(true); setShowSafetyMenu(false); }} className="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-slate-50 text-orange-500 flex items-center gap-3">
                                         <AlertTriangle size={16} /> Report
                                     </button>
-                                    <button onClick={handleBlock} className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-red-50 text-red-500 flex items-center gap-2">
-                                        <Ban size={16} /> Block
+                                    <button onClick={handleBlock} className="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-red-50 text-red-600 flex items-center gap-3">
+                                        <Ban size={16} /> Block User
                                     </button>
                                 </motion.div>
                             )}
@@ -379,15 +379,18 @@ const ChatWindow = () => {
 
             {/* Chat Body */}
             <div
-                className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50 overscroll-contain"
+                className="flex-1 overflow-y-auto px-4 py-6 space-y-4 overscroll-contain bg-[#f2f4f7]"
+                style={{
+                    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 50%), radial-gradient(circle at 0% 0%, rgba(244,63,94,0.03) 0%, transparent 30%)'
+                }}
                 onScroll={handleScroll}
             >
                 {messages.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-20 opacity-50">
-                        <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mb-4">
-                            <Smile size={32} className="text-slate-400" />
+                    <div className="flex flex-col items-center justify-center py-24 opacity-60">
+                        <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-slate-100 transform rotate-3">
+                            <Smile size={40} className="text-rose-400" strokeWidth={1.5} />
                         </div>
-                        <p className="text-slate-500 font-medium text-sm">Say hello to start the conversation!</p>
+                        <p className="text-slate-500 font-semibold text-sm tracking-wide">Start the conversation!</p>
                     </div>
                 )}
 
@@ -397,9 +400,9 @@ const ChatWindow = () => {
                     const showAvatar = !isMe && (idx === 0 || messages[idx - 1].sender !== msg.sender);
 
                     return (
-                        <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start items-end gap-2'}`}>
+                        <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start items-end gap-2.5'}`}>
                             {!isMe && (
-                                <div className={`w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
+                                <div className={`w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 shadow-sm border border-white ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
                                     <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
                                 </div>
                             )}
@@ -408,26 +411,26 @@ const ChatWindow = () => {
                                 drag="x"
                                 dragConstraints={{ left: 0, right: 0 }}
                                 onDragEnd={(e, { offset }) => { if (offset.x > 50) setReplyTo(msg); }}
-                                className={`relative max-w-[75%] group`}
+                                className={`relative max-w-[80%] group`}
                             >
                                 {msg.reply_to && (
-                                    <div className="text-[10px] mb-1 p-2 rounded-lg bg-black/5 opacity-70 border-l-2 border-slate-400">
+                                    <div className="text-[10px] mb-1.5 p-2 rounded-xl bg-black/5 border-l-[3px] border-slate-400 backdrop-blur-sm">
                                         <p className="font-bold text-slate-700">{msg.reply_to.sender}</p>
-                                        <p className="truncate text-slate-500">{msg.reply_to.content}</p>
+                                        <p className="truncate text-slate-600 font-medium">{msg.reply_to.content}</p>
                                     </div>
                                 )}
 
                                 <div className={`
-                                    px-4 py-2.5 text-[15px] leading-relaxed shadow-sm
+                                    px-4 py-3 text-[15px] leading-relaxed shadow-lg backdrop-blur-sm
                                     ${isMe
-                                        ? 'bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-2xl rounded-tr-sm'
-                                        : 'bg-white text-slate-800 rounded-2xl rounded-tl-sm border border-slate-100'
+                                        ? 'bg-gradient-to-br from-rose-500 to-red-600 text-white rounded-2xl rounded-tr-sm '
+                                        : 'bg-white text-slate-800 rounded-2xl rounded-tl-sm border border-transparent ring-1 ring-black/5'
                                     }
                                 `}>
                                     {msg.content}
                                 </div>
 
-                                <span className={`text-[9px] font-bold mt-1 block opacity-0 group-hover:opacity-100 transition-opacity ${isMe ? 'text-right text-slate-400' : 'text-left text-slate-400'}`}>
+                                <span className={`text-[9px] font-bold mt-1.5 block opacity-0 group-hover:opacity-100 transition-opacity ${isMe ? 'text-right text-slate-400 pr-1' : 'text-left text-slate-400 pl-1'}`}>
                                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </motion.div>
@@ -445,33 +448,33 @@ const ChatWindow = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         onClick={scrollToBottom}
-                        className="absolute bottom-24 right-4 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-rose-500 z-10"
+                        className="absolute bottom-28 right-5 bg-white p-3 rounded-full shadow-xl border border-slate-100 text-rose-500 z-20 hover:bg-rose-50 transition-colors"
                     >
-                        <ChevronDown size={24} />
+                        <ChevronDown size={24} strokeWidth={3} />
                     </motion.button>
                 )}
             </AnimatePresence>
 
-            {/* Input Area */}
-            <div className="p-3 bg-white border-t border-slate-100 pb-safe">
+            {/* Input Area - Strong & Grounded at Bottom */}
+            <div className="shrink-0 bg-white/90 backdrop-blur-xl border-t border-slate-200/60 pb-safe z-40 relative shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                 {replyTo && (
-                    <div className="flex justify-between items-center mb-2 bg-slate-50 p-2 rounded-lg border border-slate-100 mx-2">
+                    <div className="flex justify-between items-center mb-0 bg-slate-50/80 p-2.5 mx-3 mt-2 rounded-xl border border-slate-200 backdrop-blur-sm">
                         <div className="flex flex-col text-xs">
-                            <span className="font-bold text-rose-500">Replying to message</span>
-                            <span className="text-slate-500 line-clamp-1">{replyTo.content}</span>
+                            <span className="font-bold text-rose-500 mb-0.5">Replying to message</span>
+                            <span className="text-slate-600 font-medium line-clamp-1">{replyTo.content}</span>
                         </div>
-                        <button onClick={() => setReplyTo(null)} className="p-1 hover:bg-slate-200 rounded-full"><X size={14} /></button>
+                        <button onClick={() => setReplyTo(null)} className="p-1.5 hover:bg-slate-200 rounded-full transition-colors"><X size={14} /></button>
                     </div>
                 )}
 
-                <div className="flex items-end gap-2 px-2">
-                    <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors mb-1">
-                        <ImageIcon size={22} />
+                <div className="flex items-end gap-2.5 p-3">
+                    <button className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all active:scale-95">
+                        <ImageIcon size={24} strokeWidth={2} />
                     </button>
 
-                    <div className="flex-1 bg-slate-100 rounded-[20px] px-4 py-2 min-h-[44px] flex items-center border border-transparent focus-within:border-rose-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-rose-500/10 transition-all">
+                    <div className="flex-1 bg-slate-100/80 hover:bg-slate-100 transition-colors rounded-[24px] px-4 py-2.5 min-h-[50px] flex items-center border border-transparent focus-within:border-rose-200 focus-within:bg-white focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:shadow-sm">
                         <input
-                            className="flex-1 bg-transparent border-none outline-none text-slate-800 placeholder:text-slate-400"
+                            className="flex-1 bg-transparent border-none outline-none text-slate-800 placeholder:text-slate-400 text-[15px] font-medium"
                             placeholder="Message..."
                             value={input}
                             onChange={handleInput}
@@ -481,9 +484,10 @@ const ChatWindow = () => {
 
                     <button
                         onClick={handleSend}
-                        className={`p-3 rounded-full mb-1 transition-all ${input.trim() ? 'bg-rose-500 text-white shadow-md hover:bg-rose-600 transform hover:scale-105' : 'bg-slate-100 text-slate-400'}`}
+                        disabled={!input.trim()}
+                        className={`p-3.5 rounded-2xl transition-all duration-200 transform ${input.trim() ? 'bg-gradient-to-tr from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-200 hover:shadow-rose-300 active:scale-95 rotate-3' : 'bg-slate-100 text-slate-300 scale-100'}`}
                     >
-                        {input.trim() ? <Send size={20} className="ml-0.5" /> : <Mic size={20} />}
+                        {input.trim() ? <Send size={22} className="ml-0.5" strokeWidth={2.5} /> : <Mic size={24} strokeWidth={2} />}
                     </button>
                 </div>
             </div>
