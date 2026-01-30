@@ -490,7 +490,7 @@ const ChatWindow = () => {
                     </div>
                 )}
 
-                <div className="space-y-4 pb-4">
+                <div className="space-y-4 pb-8">
                     {messages.map((msg, idx) => {
                         const isMe = msg.sender === parseInt(localStorage.getItem('user_id'));
                         const showAvatar = !isMe && (idx === 0 || messages[idx - 1].sender !== msg.sender);
@@ -561,7 +561,7 @@ const ChatWindow = () => {
             </AnimatePresence>
 
             {/* Input Area - Pinned to Bottom via Flex */}
-            <div className="shrink-0 bg-white border-t border-slate-200 pb-safe z-30 relative shadow-[-4px_-5px_20px_rgba(0,0,0,0.05)] w-full">
+            <div className="shrink-0 bg-white border-t border-slate-100 pb-safe z-30 relative shadow-[0_-1px_10px_rgba(0,0,0,0.03)] w-full">
                 {replyTo && (
                     <div className="flex justify-between items-center mb-0 bg-slate-50 p-2.5 mx-3 mt-2 rounded-xl border border-slate-200">
                         <div className="flex flex-col text-xs">
