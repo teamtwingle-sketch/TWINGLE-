@@ -498,6 +498,20 @@ const ChatWindow = () => {
 
                 <div className="space-y-4 pb-8">
                     {messages.map((msg, idx) => {
+                        // Handle Call Notifications
+                        if (msg.message_type === 'call') {
+                            return (
+                                <div key={idx} className="flex justify-center my-6 opacity-70">
+                                    <div className="bg-slate-200/60 backdrop-blur-sm border border-slate-300 text-slate-600 text-[11px] font-bold px-4 py-1.5 rounded-full flex items-center gap-2 shadow-sm">
+                                        <Phone size={12} strokeWidth={2.5} />
+                                        <span>{msg.content}</span>
+                                        <span className="w-1 h-1 rounded-full bg-slate-400" />
+                                        <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    </div>
+                                </div>
+                            );
+                        }
+
                         const isMe = msg.sender === parseInt(localStorage.getItem('user_id'));
                         const showAvatar = !isMe && (idx === 0 || messages[idx - 1].sender !== msg.sender);
 

@@ -196,6 +196,15 @@ class CallViewSet(viewsets.ModelViewSet):
             sdp_offer=sdp_offer,
             status='initiated'
         )
+        
+        # Create Chat History Item
+        ChatMessage.objects.create(
+            sender=request.user,
+            receiver_id=receiver_id,
+            message_type='call',
+            content='Call started'
+        )
+        
         return response.Response(CallSerializer(call).data)
 
     @action(detail=True, methods=['post'])
