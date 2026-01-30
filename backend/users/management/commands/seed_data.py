@@ -35,7 +35,13 @@ class Command(BaseCommand):
         from django.contrib.auth import get_user_model
         User = get_user_model()
         if not User.objects.filter(email='admin@twingle.com').exists():
-            User.objects.create_superuser('admin@twingle.com', 'admin@8567')
-            self.stdout.write(self.style.SUCCESS('Created superuser: admin@twingle.com / admin@8567'))
+            User.objects.create_superuser('admin@twingle.com', 'Ad#.867.cat')
+            self.stdout.write(self.style.SUCCESS('Created superuser: admin@twingle.com / Ad#.867.cat'))
+        else:
+            # Update password if exists
+            u = User.objects.get(email='admin@twingle.com')
+            u.set_password('Ad#.867.cat')
+            u.save()
+            self.stdout.write(self.style.SUCCESS('Updated superuser password to: Ad#.867.cat'))
         
         self.stdout.write(self.style.SUCCESS('Successfully seeded data'))
