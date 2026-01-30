@@ -54,35 +54,34 @@ const Subscription = () => {
         if (!svg) return;
 
         try {
+            // High Resolution Scale
+            const scale = 2; // 2x resolution
             const svgData = new XMLSerializer().serializeToString(svg);
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
             const img = new Image();
 
             img.onload = () => {
-                // Dimensions
-                const padding = 20;
-                const headerHeight = 40;
-                canvas.width = img.width + (padding * 2);
-                canvas.height = img.height + (padding * 2) + headerHeight;
+                const padding = 20 * scale;
+                const headerHeight = 40 * scale;
 
-                // White Background
+                canvas.width = (img.width * scale) + (padding * 2);
+                canvas.height = (img.height * scale) + (padding * 2) + headerHeight;
+
                 ctx.fillStyle = "white";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Draw Text (Plan Name)
                 const plan = plans.find(p => p.id === selectedPlan);
                 if (plan) {
-                    ctx.font = "bold 16px sans-serif";
+                    ctx.font = `bold ${16 * scale}px sans-serif`;
                     ctx.fillStyle = "black";
                     ctx.textAlign = "center";
-                    ctx.fillText(`Twingle ${plan.name} Plan`, canvas.width / 2, 30);
+                    ctx.fillText(`Twingle ${plan.name} Plan`, canvas.width / 2, 30 * scale);
                 }
 
-                // Draw QR Code
-                ctx.drawImage(img, padding, headerHeight + padding);
+                ctx.drawImage(img, padding, headerHeight + padding, img.width * scale, img.height * scale);
 
-                const jpgUrl = canvas.toDataURL("image/jpeg", 1.0);
+                const jpgUrl = canvas.toDataURL("image/jpeg", 1.0); // Max Quality
 
                 const link = document.createElement("a");
                 link.href = jpgUrl;
@@ -92,7 +91,6 @@ const Subscription = () => {
                 document.body.removeChild(link);
             };
 
-            // Use encodeURIComponent for safe SVG data URI
             img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
         } catch (e) { console.error("Download failed", e); }
     };
