@@ -14,7 +14,32 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Upgrade all HTTP links to HTTPS in the response data
+        const upgradeToHttps = (obj) => {
+            if (typeof obj === 'string') {
+                if (obj.startsWith('http://') && !obj.includes('localhost') && !obj.includes('127.0.0.1')) {
+                    return obj.replace('http://', 'https://');
+                }
+                return obj;
+            }
+            if (Array.isArray(obj)) {
+                return obj.map(upgradeToHttps);
+            }
+            if (obj && typeof obj === 'object') {
+                Object.keys(obj).forEach(key => {
+                    obj[key] = upgradeToHttps(obj[key]);
+                });
+                return obj;
+            }
+            return obj;
+        };
+
+        if (response.data) {
+            response.data = upgradeToHttps(response.data);
+        }
+        return response;
+    },
     (error) => {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('token');

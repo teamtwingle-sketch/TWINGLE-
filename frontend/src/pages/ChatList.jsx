@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { toast } from 'react-toastify';
-import { Search, MoreHorizontal } from 'lucide-react';
+import { Search, MoreHorizontal, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const ChatList = () => {
@@ -112,11 +112,20 @@ const ChatList = () => {
             </div>
 
             {filteredChats.length === 0 && (
-                <div className="flex flex-col items-center justify-center pt-20 text-slate-400">
-                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                        <Search size={24} className="opacity-50" />
+                <div className="flex flex-col items-center justify-center pt-32 px-10 text-center">
+                    <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-6 shadow-sm border border-slate-50 transform -rotate-3">
+                        <MessageCircle size={40} className="text-slate-300" strokeWidth={1.5} />
                     </div>
-                    <p className="font-bold">No conversations found</p>
+                    <h3 className="text-xl font-black text-slate-800 mb-2">No conversations yet</h3>
+                    <p className="text-slate-500 font-medium leading-relaxed mb-8">
+                        Match with new people to start chatting with them!
+                    </p>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="px-8 py-3.5 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold rounded-2xl shadow-lg shadow-rose-200 active:scale-95 transition-all text-sm tracking-wide"
+                    >
+                        START DISCOVERING
+                    </button>
                 </div>
             )}
         </div>
