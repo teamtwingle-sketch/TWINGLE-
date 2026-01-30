@@ -354,14 +354,14 @@ const ChatWindow = () => {
     const formatLastSeen = (d) => { if (!d) return 'Offline'; const diff = (new Date() - new Date(d)) / 60000; return diff < 60 ? `${Math.floor(diff)}m ago` : 'offline'; };
 
     return (
-        <div className="fixed inset-0 w-full h-full bg-[#f2f4f7] z-50 flex flex-col overflow-hidden supports-[height:100dvh]:h-[100dvh]">
+        <div className="fixed inset-0 w-full h-full bg-[#eaeff5] z-50 flex flex-col overflow-hidden supports-[height:100dvh]:h-[100dvh]">
             {/* Hidden Audio */}
             <audio ref={remoteAudioRef} autoPlay playsInline style={{ width: 0, height: 0, opacity: 0 }} />
 
             {/* Header - Fixed & Stable */}
-            <header className="shrink-0 h-[60px] px-4 bg-white/90 backdrop-blur-xl border-b border-slate-200/60 shadow-sm flex items-center justify-between z-10 safe-top">
+            <header className="shrink-0 h-[60px] px-4 bg-white border-b border-slate-200 shadow-md flex items-center justify-between z-20 safe-top">
                 <div className="flex items-center gap-2">
-                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors active:scale-95 touch-manipulation">
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-700 transition-colors active:scale-95 touch-manipulation">
                         <ChevronLeft size={24} strokeWidth={2.5} />
                     </button>
 
@@ -369,14 +369,14 @@ const ChatWindow = () => {
                         <div className="relative">
                             <img
                                 src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'}
-                                className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md"
+                                className="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100 shadow-md"
                                 alt=""
                             />
                             {partnerStatus?.is_online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>}
                         </div>
                         <div className="flex flex-col">
                             <h3 className="font-bold text-slate-900 leading-tight text-[15px]">{otherUser?.first_name || 'User'}</h3>
-                            <span className={`text-[11px] font-bold tracking-wide uppercase ${partnerStatus?.is_typing ? 'text-rose-500 animate-pulse' : partnerStatus?.is_online ? 'text-green-600' : 'text-slate-400'}`}>
+                            <span className={`text-[11px] font-bold tracking-wide uppercase ${partnerStatus?.is_typing ? 'text-rose-500 animate-pulse' : partnerStatus?.is_online ? 'text-green-600' : 'text-slate-500'}`}>
                                 {partnerStatus?.is_typing ? 'Typing...' : (partnerStatus?.is_online ? 'Active now' : `Seen ${formatLastSeen(partnerStatus?.last_seen)}`)}
                             </span>
                         </div>
@@ -384,14 +384,14 @@ const ChatWindow = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <button onClick={startCall} className="p-2.5 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 touch-manipulation">
+                    <button onClick={startCall} className="p-2.5 rounded-full text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 touch-manipulation">
                         <Phone size={20} strokeWidth={2.5} />
                     </button>
-                    <button onClick={() => toast.info("Video call coming soon!")} className="p-2.5 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 touch-manipulation">
+                    <button onClick={() => toast.info("Video call coming soon!")} className="p-2.5 rounded-full text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 touch-manipulation">
                         <Video size={20} strokeWidth={2.5} />
                     </button>
                     <div className="relative">
-                        <button onClick={() => setShowSafetyMenu(!showSafetyMenu)} className={`p-2.5 rounded-full transition-all active:scale-95 touch-manipulation ${showSafetyMenu ? "bg-slate-200 text-slate-900" : "text-slate-500 hover:text-slate-800"}`}>
+                        <button onClick={() => setShowSafetyMenu(!showSafetyMenu)} className={`p-2.5 rounded-full transition-all active:scale-95 touch-manipulation ${showSafetyMenu ? "bg-slate-200 text-slate-900" : "text-slate-600 hover:text-slate-800"}`}>
                             <MoreVertical size={20} strokeWidth={2.5} />
                         </button>
 
@@ -424,14 +424,14 @@ const ChatWindow = () => {
                 className="flex-1 overflow-y-auto w-full px-4 pt-4 pb-2 overscroll-contain touch-pan-y"
                 id="chat-container"
                 style={{
-                    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 50%), radial-gradient(circle at 0% 0%, rgba(244,63,94,0.03) 0%, transparent 30%)',
+                    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 60%)',
                     WebkitOverflowScrolling: 'touch'
                 }}
                 onScroll={handleScroll}
             >
                 {messages.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-24 opacity-60">
-                        <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-slate-100 transform rotate-3">
+                        <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-md border border-slate-200 transform rotate-3">
                             <Smile size={40} className="text-rose-400" strokeWidth={1.5} />
                         </div>
                         <p className="text-slate-500 font-semibold text-sm tracking-wide">Start the conversation!</p>
@@ -462,8 +462,8 @@ const ChatWindow = () => {
                                     <div className={`
                                         px-4 py-3 text-[15px] leading-relaxed shadow-sm
                                         ${isMe
-                                            ? 'bg-gradient-to-br from-rose-500 to-red-600 text-white rounded-2xl rounded-tr-sm shadow-rose-200/50'
-                                            : 'bg-white text-slate-800 rounded-2xl rounded-tl-sm border border-transparent shadow-slate-200/50 ring-1 ring-black/5'
+                                            ? 'bg-gradient-to-br from-rose-500 to-red-600 text-white rounded-2xl rounded-tr-sm shadow-md shadow-rose-200/50'
+                                            : 'bg-white text-slate-800 rounded-2xl rounded-tl-sm border border-slate-100 shadow-md shadow-slate-200/40'
                                         }
                                     `}>
                                         {msg.content}
@@ -496,9 +496,9 @@ const ChatWindow = () => {
             </AnimatePresence>
 
             {/* Input Area - Pinned to Bottom via Flex */}
-            <div className="shrink-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 pb-safe z-30 relative shadow-[-4px_0_30px_rgba(0,0,0,0.03)] w-full">
+            <div className="shrink-0 bg-white border-t border-slate-200 pb-safe z-30 relative shadow-[-4px_-5px_20px_rgba(0,0,0,0.05)] w-full">
                 {replyTo && (
-                    <div className="flex justify-between items-center mb-0 bg-slate-50/80 p-2.5 mx-3 mt-2 rounded-xl border border-slate-200 backdrop-blur-sm">
+                    <div className="flex justify-between items-center mb-0 bg-slate-50 p-2.5 mx-3 mt-2 rounded-xl border border-slate-200">
                         <div className="flex flex-col text-xs">
                             <span className="font-bold text-rose-500 mb-0.5">Replying to message</span>
                             <span className="text-slate-600 font-medium line-clamp-1">{replyTo.content}</span>

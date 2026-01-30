@@ -43,20 +43,20 @@ const AppLayout = () => {
         <div className="flex flex-col h-[100dvh] bg-slate-50">
             {/* Top Header - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
-                <header className="h-16 px-6 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between">
+                <header className="h-16 px-6 border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-10 flex items-center justify-between shadow-sm">
                     <Link to="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl shadow-lg flex items-center justify-center transform rotate-3">
-                            <Sparkles className="text-white w-5 h-5 fill-white/50" />
+                        <div className="w-9 h-9 bg-gradient-to-br from-pink-600 to-rose-700 rounded-xl shadow-lg flex items-center justify-center transform rotate-0 hover:rotate-3 transition-transform">
+                            <Sparkles className="text-white w-5 h-5 fill-white/80" />
                         </div>
-                        <span className="font-black text-xl tracking-tight text-slate-800">TWINGLE</span>
+                        <span className="font-black text-xl tracking-tight text-slate-800 drop-shadow-sm">TWINGLE</span>
                     </Link>
                     <div className="flex gap-2">
                         {isStaff && (
-                            <NavLink to="/admin-dashboard" className="px-3 py-1.5 bg-slate-800 text-white text-xs font-bold rounded-full border border-slate-700 flex items-center gap-1">
+                            <NavLink to="/admin-dashboard" className="px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-full border border-slate-800 flex items-center gap-1 shadow-md">
                                 <ShieldAlert size={12} /> Admin
                             </NavLink>
                         )}
-                        <NavLink to="/subscription" className="px-3 py-1.5 bg-rose-50 text-rose-600 text-xs font-bold rounded-full border border-rose-100 shadow-sm">
+                        <NavLink to="/subscription" className="px-3.5 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-full border border-rose-200 shadow-sm hover:bg-rose-100 transition-colors">
                             GO PREMIUM
                         </NavLink>
                     </div>
@@ -64,13 +64,13 @@ const AppLayout = () => {
             )}
 
             {/* Main Container */}
-            <main className={`flex-1 overflow-y-auto flex flex-col ${!isFullScreenPage ? 'pb-0' : ''}`}>
+            <main className={`flex-1 overflow-y-auto flex flex-col bg-[#eaeff5] ${!isFullScreenPage ? 'pb-0' : ''}`}>
                 <Outlet />
             </main>
 
             {/* Bottom Nav - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
-                <nav className="h-20 bg-white border-t border-slate-100 flex items-center justify-around px-2 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-10">
+                <nav className="h-20 bg-white border-t border-slate-200 flex items-center justify-around px-2 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.04)] z-20">
                     <NavItem to="/" icon={<Flame />} label="Discover" />
                     <NavItem to="/matches" icon={<Star />} label="Matches" />
                     <NavItem to="/chats" icon={<MessageCircle />} label="Chats" badgeCount={unreadCount} />
