@@ -49,6 +49,35 @@ const Subscription = () => {
         }
     };
 
+    const downloadQR = () => {
+        const svg = document.getElementById("qr-code-svg");
+        if (!svg) return;
+
+        try {
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `twingle-upi-qr-${Date.now()}.svg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (e) { console.error("Download failed", e); }
+    };
+
+    // Auto-download when plan changes (except initial load)
+    useEffect(() => {
+        if (selectedPlan && plans.length > 0) {
+            const timer = setTimeout(() => {
+                downloadQR();
+                toast.info("QR Code downloaded!");
+            }, 500); // 500ms delay to ensure render
+            return () => clearTimeout(timer);
+        }
+    }, [selectedPlan]);
+
     return (
         <div className="p-6 pb-24 space-y-8">
             <div>
@@ -105,6 +134,7 @@ const Subscription = () => {
                 </h4>
                 <div className="bg-white p-4 rounded-2xl w-40 mx-auto aspect-square flex items-center justify-center">
                     <QRCode
+                        id="qr-code-svg"
                         value={`upi://pay?pa=twingle@upi&pn=Twingle&am=${plans.find(p => p.id === selectedPlan)?.price || 0}&cu=INR`}
                         size={128}
                         style={{ height: "auto", maxWidth: "100%", width: "100%" }}

@@ -17,7 +17,7 @@ class Command(BaseCommand):
         SubscriptionPlan.objects.update_or_create(
             name='Gold', 
             defaults={
-                'price': 20, 
+                'price': 30, 
                 'duration_days': 30, 
                 'description': '60 swipes/day, rewind, no ads'
             }
