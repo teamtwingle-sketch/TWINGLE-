@@ -6,6 +6,7 @@ class ChatMessage(models.Model):
     MESSAGE_TYPES = (
         ('text', 'Text'),
         ('voice', 'Voice'),
+        ('call', 'Call Notification'),
     )
     
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_messages')
