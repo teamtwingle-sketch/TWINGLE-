@@ -382,23 +382,37 @@ const ChatWindow = () => {
     };
     const handleSend = async () => {
         if (!input.trim()) return;
-        const msgContent = input; // capture for rollback
+        const msgContent = input;
+        const tempId = Date.now();
+        const tempMsg = {
+            id: tempId,
+            content: msgContent,
+            sender: myId,
+            receiver: parseInt(userId),
+            timestamp: new Date().toISOString(),
+            is_read: false,
+            message_type: 'text',
+            reply_to: replyTo ? { id: replyTo.id, content: replyTo.content, sender: replyTo.sender } : null
+        };
+
         try {
             setInput(''); // Optimistic clear
             setReplyTo(null);
 
+            // Optimistic Add
+            setMessages(prev => [...prev, tempMsg]);
+            setTimeout(scrollToBottom, 50);
+
             const payload = { receiver: userId, content: msgContent, message_type: 'text', parent_message: replyTo?.id };
             const res = await api.post('/messages/', payload);
 
-            setMessages(prev => {
-                if (prev.some(m => m.id === res.data.id)) return prev;
-                return [...prev, res.data];
-            });
-            setTimeout(scrollToBottom, 50);
+            // Replace temp message with real one
+            setMessages(prev => prev.map(m => m.id === tempId ? res.data : m));
         } catch (e) {
             console.error("Send failed", e);
-            // If it's a server error (500), the message likely saved but signal failed.
-            // Don't restore text to input, just warn.
+            // Remove temp message on error
+            setMessages(prev => prev.filter(m => m.id !== tempId));
+
             // If it's a server error (500) or network glitch, the message likely saved.
             // Suppress "unstable connection" toast to avoid annoying the user.
             if (!e.response || e.response.status >= 500) {
