@@ -37,10 +37,10 @@ const AppLayout = () => {
     }, []);
 
     return (
-        <div className="relative h-full w-full bg-slate-50 overflow-hidden">
-            {/* Top Header - Fixed */}
+        <div className="flex flex-col h-[100dvh] bg-slate-50">
+            {/* Top Header - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
-                <header className="fixed top-0 left-0 right-0 h-16 px-6 border-b border-slate-100 bg-white/80 backdrop-blur-md z-30 flex items-center justify-between pt-[env(safe-area-inset-top)] shadow-sm">
+                <header className="h-16 px-6 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between">
                     <Link to="/" className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl shadow-lg flex items-center justify-center transform rotate-3">
                             <Sparkles className="text-white w-5 h-5 fill-white/50" />
@@ -60,23 +60,14 @@ const AppLayout = () => {
                 </header>
             )}
 
-            {/* Main Content Area - Scrollable */}
-            <main
-                className={`
-                    absolute left-0 right-0 overflow-y-auto overscroll-contain
-                    ${!isFullScreenPage
-                        ? 'top-[64px] bottom-[80px]' // Space for Header & Nav
-                        : 'inset-0 z-0' // Fullscreen
-                    }
-                `}
-                style={{ WebkitOverflowScrolling: 'touch' }}
-            >
+            {/* Main Container */}
+            <main className={`flex-1 overflow-y-auto flex flex-col ${!isFullScreenPage ? 'pb-0' : ''}`}>
                 <Outlet />
             </main>
 
-            {/* Bottom Nav - Fixed */}
+            {/* Bottom Nav - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
-                <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white border-t border-slate-100 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-30">
+                <nav className="h-20 bg-white border-t border-slate-100 flex items-center justify-around px-2 pb-safe shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-10">
                     <NavItem to="/" icon={<Flame />} label="Discover" />
                     <NavItem to="/matches" icon={<Star />} label="Matches" />
                     <NavItem to="/chats" icon={<MessageCircle />} label="Chats" badgeCount={unreadCount} />

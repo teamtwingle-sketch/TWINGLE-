@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Send, Mic, Phone, PhoneIncoming, PhoneOff, MoreVertical, X, AlertTriangle, Ban, ChevronDown, Volume2, MicOff, Video, Image as ImageIcon, Smile } from 'lucide-react';
-import api, { getPhotoUrl } from '../api/client';
+import api from '../api/client';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Peer } from 'peerjs';
@@ -312,183 +312,290 @@ const ChatWindow = () => {
     const formatLastSeen = (d) => { if (!d) return 'Offline'; const diff = (new Date() - new Date(d)) / 60000; return diff < 60 ? `${Math.floor(diff)}m ago` : 'offline'; };
 
     return (
-        <div className="fixed inset-0 z-50 bg-slate-50 flex flex-col h-[100dvh]">
-            {/* Header */}
-            <div className="shrink-0 h-[64px] bg-white/90 backdrop-blur-xl border-b border-slate-200 px-4 flex items-center justify-between shadow-sm z-20">
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => navigate('/chats')}
-                        className="p-2 -ml-2 rounded-full hover:bg-slate-100 active:bg-slate-200 transition-colors text-slate-600"
-                    >
-                        <ChevronLeft size={24} />
+        <div className="fixed inset-0 w-full h-full bg-[#f2f4f7] z-50 flex flex-col overflow-hidden supports-[height:100dvh]:h-[100dvh]">
+            {/* Hidden Audio */}
+            <audio ref={remoteAudioRef} autoPlay playsInline style={{ width: 0, height: 0, opacity: 0 }} />
+
+            {/* Header - Fixed & Stable */}
+            <header className="shrink-0 h-[60px] px-4 bg-white/90 backdrop-blur-xl border-b border-slate-200/60 shadow-sm flex items-center justify-between z-10 safe-top">
+                <div className="flex items-center gap-2">
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors active:scale-95 touch-manipulation">
+                        <ChevronLeft size={24} strokeWidth={2.5} />
                     </button>
 
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/profile/${userId}`)}>
+                    <div className="flex items-center gap-3 cursor-pointer touch-manipulation" onClick={() => navigate(`/profile/${userId}`)}>
                         <div className="relative">
                             <img
-                                src={getPhotoUrl(otherUser?.photos?.[0]?.image)}
-                                className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md bg-slate-200"
+                                src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'}
+                                className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md"
                                 alt=""
                             />
-                            {/* Online Dot */}
-                            {false /* TODO: Fix poll status */ && (
-                                <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-                            )}
+                            {partnerStatus?.is_online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full shadow-sm"></span>}
                         </div>
                         <div className="flex flex-col">
-                            <h2 className="font-bold text-slate-900 leading-tight">
-                                {otherUser?.first_name || 'Loading...'}
-                            </h2>
-                            <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
-                                {false ? 'Online' : 'Offline'}
+                            <h3 className="font-bold text-slate-900 leading-tight text-[15px]">{otherUser?.first_name || 'User'}</h3>
+                            <span className={`text-[11px] font-bold tracking-wide uppercase ${partnerStatus?.is_typing ? 'text-rose-500 animate-pulse' : partnerStatus?.is_online ? 'text-green-600' : 'text-slate-400'}`}>
+                                {partnerStatus?.is_typing ? 'Typing...' : (partnerStatus?.is_online ? 'Active now' : `Seen ${formatLastSeen(partnerStatus?.last_seen)}`)}
                             </span>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-1">
-                    <button className="p-2.5 text-slate-400 hover:bg-slate-50 rounded-full transition-all active:scale-95">
-                        <Phone size={20} />
+                <div className="flex items-center gap-2">
+                    <button onClick={startCall} className="p-2.5 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 touch-manipulation">
+                        <Phone size={20} strokeWidth={2.5} />
                     </button>
-                    <button onClick={startVideoCall} className="p-2.5 text-brand-primary bg-rose-50 hover:bg-rose-100 rounded-full transition-all active:scale-95">
-                        <Video size={20} />
+                    <button onClick={() => toast.info("Video call coming soon!")} className="p-2.5 rounded-full text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all active:scale-95 touch-manipulation">
+                        <Video size={20} strokeWidth={2.5} />
                     </button>
-                </div>
-            </div>
+                    <div className="relative">
+                        <button onClick={() => setShowSafetyMenu(!showSafetyMenu)} className={`p-2.5 rounded-full transition-all active:scale-95 touch-manipulation ${showSafetyMenu ? "bg-slate-200 text-slate-900" : "text-slate-500 hover:text-slate-800"}`}>
+                            <MoreVertical size={20} strokeWidth={2.5} />
+                        </button>
 
-            {/* Chat Body */}
-            <div
-                className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-slate-50 relative"
-                ref={chatContainerRef}
-            >
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                    style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}
-                />
-
-                {/* Secure Message Notice */}
-                <div className="flex justify-center py-4">
-                    <div className="bg-orange-50 text-orange-600 text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 border border-orange-100 shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
-                        End-to-End Encrypted
-                    </div>
-                </div>
-
-                {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 opacity-60">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                            <Smile size={32} className="text-slate-400" />
-                        </div>
-                        <p className="text-slate-500 text-sm font-medium">No messages yet.</p>
-                    </div>
-                ) : (
-                    <AnimatePresence>
-                        {messages.map((msg, idx) => {
-                            const isMe = msg.sender === parseInt(myId);
-                            const showAvatar = !isMe && (idx === 0 || messages[idx - 1].sender !== msg.sender);
-
-                            return (
+                        <AnimatePresence>
+                            {showSafetyMenu && (
                                 <motion.div
-                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                                    key={idx}
-                                    className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'}`}
+                                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    className="absolute top-12 right-0 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden z-20 origin-top-right py-1.5 ring-1 ring-black/5"
                                 >
-                                    <div className={`flex max-w-[85%] ${isMe ? 'items-end' : 'items-end gap-2.5'}`}>
-
-                                        {!isMe && showAvatar && (
-                                            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 shadow-sm border border-white bg-slate-200">
-                                                <img src={getPhotoUrl(otherUser?.photos?.[0]?.image)} className="w-full h-full object-cover" />
-                                            </div>
-                                        )}
-                                        {!isMe && !showAvatar && <div className="w-8 shrink-0" />}
-
-                                        <div className={`
-                                            px-4 py-2.5 rounded-2xl relative shadow-sm text-[15px] leading-relaxed break-words
-                                            ${isMe
-                                                ? 'bg-brand-primary text-white rounded-br-sm'
-                                                : 'bg-white text-slate-800 border border-slate-100 rounded-bl-sm'
-                                            }
-                                        `}>
-                                            {msg.message || msg.content}
-                                            <div className={`text-[9px] font-bold mt-1 text-right ${isMe ? 'text-white/70' : 'text-slate-400'}`}>
-                                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <button onClick={() => navigate(`/profile/${userId}`)} className="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-slate-50 text-slate-700 flex items-center gap-3">
+                                        View Profile
+                                    </button>
+                                    <button onClick={() => { setShowReportModal(true); setShowSafetyMenu(false); }} className="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-slate-50 text-orange-500 flex items-center gap-3">
+                                        <AlertTriangle size={16} /> Report
+                                    </button>
+                                    <button onClick={handleBlock} className="w-full text-left px-4 py-3 text-sm font-semibold hover:bg-red-50 text-red-600 flex items-center gap-3">
+                                        <Ban size={16} /> Block User
+                                    </button>
                                 </motion.div>
-                            );
-                        })}
-                        <div ref={messagesEndRef} />
-                    </AnimatePresence>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            </header>
+
+            {/* Chat Body - Flexible & Scrollable */}
+            <div
+                className="flex-1 overflow-y-auto w-full px-4 pt-4 pb-2 overscroll-contain touch-pan-y"
+                id="chat-container"
+                style={{
+                    backgroundImage: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.8) 0%, transparent 50%), radial-gradient(circle at 0% 0%, rgba(244,63,94,0.03) 0%, transparent 30%)',
+                    WebkitOverflowScrolling: 'touch'
+                }}
+                onScroll={handleScroll}
+            >
+                {messages.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-24 opacity-60">
+                        <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-slate-100 transform rotate-3">
+                            <Smile size={40} className="text-rose-400" strokeWidth={1.5} />
+                        </div>
+                        <p className="text-slate-500 font-semibold text-sm tracking-wide">Start the conversation!</p>
+                    </div>
                 )}
+
+                <div className="space-y-4 pb-4">
+                    {messages.map((msg, idx) => {
+                        const isMe = msg.sender === parseInt(localStorage.getItem('user_id'));
+                        const showAvatar = !isMe && (idx === 0 || messages[idx - 1].sender !== msg.sender);
+
+                        return (
+                            <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start items-end gap-2.5'}`}>
+                                {!isMe && (
+                                    <div className={`w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 shadow-sm border border-white ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
+                                        <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
+                                    </div>
+                                )}
+
+                                <div className={`relative max-w-[80%] group`}>
+                                    {msg.reply_to && (
+                                        <div className="text-[10px] mb-1.5 p-2 rounded-xl bg-black/5 border-l-[3px] border-slate-400 backdrop-blur-sm">
+                                            <p className="font-bold text-slate-700">{msg.reply_to.sender}</p>
+                                            <p className="truncate text-slate-600 font-medium">{msg.reply_to.content}</p>
+                                        </div>
+                                    )}
+
+                                    <div className={`
+                                        px-4 py-3 text-[15px] leading-relaxed shadow-sm
+                                        ${isMe
+                                            ? 'bg-gradient-to-br from-rose-500 to-red-600 text-white rounded-2xl rounded-tr-sm shadow-rose-200/50'
+                                            : 'bg-white text-slate-800 rounded-2xl rounded-tl-sm border border-transparent shadow-slate-200/50 ring-1 ring-black/5'
+                                        }
+                                    `}>
+                                        {msg.content}
+                                    </div>
+
+                                    <span className={`text-[9px] font-bold mt-1.5 block ${isMe ? 'text-right text-slate-400 pr-1' : 'text-left text-slate-400 pl-1'}`}>
+                                        {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div ref={scrollRef} className="h-1" />
             </div>
 
-            {/* Input Area */}
-            <div className="shrink-0 bg-white border-t border-slate-100 px-3 py-2 pb-safe">
-                <form
-                    onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-                    className="flex items-end gap-2 bg-slate-50 p-1.5 rounded-[24px] border border-slate-200 focus-within:ring-2 focus-within:ring-brand-primary/20 transition-all shadow-sm"
-                >
-                    <button type="button" className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200 rounded-full transition-colors active:scale-90">
-                        <Smile size={22} />
+            {/* Scroll Button */}
+            <AnimatePresence>
+                {showScrollButton && (
+                    <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        onClick={scrollToBottom}
+                        className="absolute bottom-28 right-5 bg-white p-3 rounded-full shadow-xl border border-slate-100 text-rose-500 z-20 hover:bg-rose-50 transition-colors"
+                    >
+                        <ChevronDown size={24} strokeWidth={3} />
+                    </motion.button>
+                )}
+            </AnimatePresence>
+
+            {/* Input Area - Pinned to Bottom via Flex */}
+            <div className="shrink-0 bg-white/95 backdrop-blur-xl border-t border-slate-200/60 pb-safe z-30 relative shadow-[-4px_0_30px_rgba(0,0,0,0.03)] w-full">
+                {replyTo && (
+                    <div className="flex justify-between items-center mb-0 bg-slate-50/80 p-2.5 mx-3 mt-2 rounded-xl border border-slate-200 backdrop-blur-sm">
+                        <div className="flex flex-col text-xs">
+                            <span className="font-bold text-rose-500 mb-0.5">Replying to message</span>
+                            <span className="text-slate-600 font-medium line-clamp-1">{replyTo.content}</span>
+                        </div>
+                        <button onClick={() => setReplyTo(null)} className="p-1.5 hover:bg-slate-200 rounded-full transition-colors"><X size={14} /></button>
+                    </div>
+                )}
+
+                <div className="flex items-end gap-2.5 p-3 w-full">
+                    <button className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all active:scale-95 shrink-0 touch-manipulation">
+                        <ImageIcon size={24} strokeWidth={2} />
                     </button>
 
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={handleInput}
-                        placeholder="Type a message..."
-                        className="flex-1 bg-transparent border-none focus:ring-0 text-slate-800 placeholder:text-slate-400 py-3 max-h-32 min-h-[44px]"
-                        onFocus={() => {
-                            // Ensure scroll to bottom on focus
-                            setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 300);
-                        }}
-                    />
+                    <div className="flex-1 bg-slate-100/80 hover:bg-slate-100 transition-colors rounded-[24px] px-4 py-2.5 min-h-[50px] flex items-center border border-transparent focus-within:border-rose-200 focus-within:bg-white focus-within:ring-4 focus-within:ring-rose-500/10 focus-within:shadow-sm">
+                        <input
+                            className="flex-1 bg-transparent border-none outline-none text-slate-800 placeholder:text-slate-400 text-[15px] font-medium min-w-0"
+                            placeholder="Message..."
+                            value={input}
+                            onChange={handleInput}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                        />
+                    </div>
 
-                    {input.trim() ? (
-                        <button type="submit" className="p-2.5 bg-brand-primary text-white rounded-full shadow-md shadow-rose-200 hover:bg-rose-600 active:scale-90 transition-all">
-                            <Send size={20} fill="currentColor" className="ml-0.5" />
-                        </button>
-                    ) : (
-                        <button type="button" className="p-2.5 text-slate-400 hover:bg-slate-200 rounded-full transition-colors active:scale-90">
-                            <Mic size={22} />
-                        </button>
-                    )}
-                </form>
+                    <button
+                        onClick={handleSend}
+                        disabled={!input.trim()}
+                        className={`p-3.5 rounded-2xl transition-all duration-200 transform shrink-0 touch-manipulation ${input.trim() ? 'bg-gradient-to-tr from-rose-500 to-pink-600 text-white shadow-lg shadow-rose-200 hover:shadow-rose-300 active:scale-95 rotate-3' : 'bg-slate-100 text-slate-300 scale-100'}`}
+                    >
+                        {input.trim() ? <Send size={22} className="ml-0.5" strokeWidth={2.5} /> : <Mic size={24} strokeWidth={2} />}
+                    </button>
+                </div>
             </div>
 
-            {/* Call Overlay and Modals (Preserved roughly, simplified for brevity but functional) */}
+            {/* Call Overlay */}
             <AnimatePresence>
-                {incomingCall && (
-                    <motion.div initial={{ y: -100 }} animate={{ y: 0 }} className="fixed top-4 left-4 right-4 z-[100] bg-slate-900 rounded-xl p-4 flex justify-between shadow-2xl">
-                        <div className="text-white">
-                            <h3 className="font-bold">{otherUser?.first_name}</h3>
-                            <p className="text-xs text-green-400 animate-pulse">Incoming Call...</p>
+                {callStatus && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                        className="fixed inset-0 z-[60] bg-slate-900 flex flex-col items-center justify-between py-12"
+                    >
+                        {/* Call UI Content - Kept same as before but ensured full screen */}
+                        <div className="absolute inset-0 overflow-hidden">
+                            <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover opacity-30 blur-3xl scale-125" />
+                            <div className="absolute inset-0 bg-black/40" />
                         </div>
-                        <div className="flex gap-2">
-                            <button onClick={rejectCall} className="bg-red-500 p-2 rounded-full"><PhoneOff size={20} color="white" /></button>
-                            <button onClick={answerCall} className="bg-green-500 p-2 rounded-full"><Video size={20} color="white" /></button>
+
+                        {/* Top Info */}
+                        <div className="relative z-10 flex flex-col items-center mt-12">
+                            <div className="relative mb-6">
+                                <div className="absolute inset-0 bg-white/20 rounded-full animate-ping opacity-50" />
+                                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl relative z-10">
+                                    <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
+                                </div>
+                            </div>
+                            <h2 className="text-4xl font-black text-white tracking-tight mb-2">{otherUser?.first_name}</h2>
+                            <p className="text-rose-200 font-medium tracking-wide animate-pulse">{connectionStep || (callStatus === 'incoming' ? 'Incoming Call...' : 'Calling...')}</p>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="relative z-10 mb-8 w-full max-w-sm px-8">
+                            {callStatus === 'incoming' ? (
+                                <div className="flex justify-between items-center w-full">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <button onClick={disconnectCall} className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-red-600 transition-transform active:scale-95">
+                                            <PhoneOff size={28} />
+                                        </button>
+                                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Decline</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <button onClick={acceptCall} className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-green-600 transition-transform active:scale-95 animate-bounce">
+                                            <PhoneIncoming size={28} />
+                                        </button>
+                                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Accept</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-8 items-center w-full">
+                                    <div className="flex gap-6">
+                                        <button onClick={toggleMute} className={`w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${isMuted ? 'bg-white text-slate-900' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                                            {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
+                                        </button>
+                                        <button className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 backdrop-blur-md pointer-events-none opacity-50">
+                                            <Volume2 size={24} />
+                                        </button>
+                                        <button className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 backdrop-blur-md pointer-events-none opacity-50">
+                                            <Video size={24} />
+                                        </button>
+                                    </div>
+
+                                    <button onClick={disconnectCall} className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white shadow-xl hover:bg-red-600 transition-all transform hover:scale-105 active:scale-95">
+                                        <PhoneOff size={32} />
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Active Call UI */}
-            {callActive && (
-                <div className="fixed inset-0 z-[100] bg-slate-900">
-                    <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                    <div className="absolute top-4 right-4 w-32 h-48 bg-black rounded-xl overflow-hidden shadow-2xl border border-white/20">
-                        <video ref={myVideoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                    </div>
-                    <div className="absolute bottom-10 left-0 right-0 flex justify-center gap-6">
-                        <button onClick={endCall} className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-red-700 active:scale-90 transition-all">
-                            <PhoneOff size={32} />
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* Report Modal */}
+            <AnimatePresence>
+                {showReportModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl"
+                        >
+                            <h3 className="font-bold text-xl mb-4 text-slate-800">Report User</h3>
+                            <div className="space-y-3 mb-4">
+                                {['spam', 'harassment', 'fake', 'other'].map(r => (
+                                    <label key={r} className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                                        <input type="radio" name="reason" value={r} checked={reportReason === r} onChange={(e) => setReportReason(e.target.value)} className="accent-rose-500 w-5 h-5" />
+                                        <span className="capitalize font-medium text-slate-700">{r}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            <textarea
+                                placeholder="Additional details..."
+                                className="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 outline-none mb-4"
+                                rows={3}
+                                value={reportExplanation}
+                                onChange={(e) => setReportExplanation(e.target.value)}
+                            />
+                            <div className="flex gap-3">
+                                <button onClick={() => setShowReportModal(false)} className="flex-1 py-3 bg-slate-100 font-bold text-slate-600 rounded-xl hover:bg-slate-200">Cancel</button>
+                                <button onClick={handleReport} className="flex-1 py-3 bg-red-500 font-bold text-white rounded-xl hover:bg-red-600 shadow-lg shadow-red-200">Submit Report</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

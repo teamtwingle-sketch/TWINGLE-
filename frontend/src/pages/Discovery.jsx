@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Heart, X, Undo, Zap, Star, MapPin } from 'lucide-react';
-import api, { getPhotoUrl } from '../api/client';
+import api from '../api/client';
 import { toast } from 'react-toastify';
-
 
 const SwipeCard = ({ user, onSwipe }) => {
     const x = useMotionValue(0);
@@ -31,7 +30,7 @@ const SwipeCard = ({ user, onSwipe }) => {
         >
             <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 <img
-                    src={getPhotoUrl(user.photos?.[0])}
+                    src={user.photos?.[0] ? (user.photos[0].startsWith('http') ? user.photos[0] : `http://127.0.0.1:8000${user.photos[0]}`) : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
                     className="w-full h-full object-cover pointer-events-none"
                     alt={user.first_name}
                 />
@@ -132,13 +131,8 @@ const Discovery = () => {
     const currentBatch = users.slice(currentIndex, currentIndex + 2).reverse();
 
     return (
-        <div
-            className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full min-h-[70vh] relative overflow-hidden"
-            style={{
-                backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(254,60,114,0.1) 0%, transparent 40%)'
-            }}
-        >
-            <div className="relative w-full aspect-[3/4] max-h-[70vh] flex items-center justify-center">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full h-full relative">
+            <div className="relative w-full aspect-[3/4] flex items-center justify-center">
                 {users.length > currentIndex ? (
                     <AnimatePresence>
                         {currentBatch.map((user, idx) => (
@@ -150,42 +144,35 @@ const Discovery = () => {
                         ))}
                     </AnimatePresence>
                 ) : (
-                    <div className="text-center p-8 glass rounded-3xl mx-4">
-                        <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl shadow-sm">📍</div>
-                        <h3 className="text-xl font-bold text-slate-800">No more profiles nearby</h3>
-                        <p className="text-slate-500 mt-2 font-medium">Try expanding your radius or wait for new users.</p>
+                    <div className="text-center p-8 glass rounded-3xl">
+                        <div className="text-brand-primary text-6xl mb-4">📍</div>
+                        <h3 className="text-xl font-bold">No more profiles nearby</h3>
+                        <p className="text-slate-500 mt-2">Try expanding your radius or wait for new users.</p>
                         <button
                             onClick={() => { setCurrentIndex(0); fetchDiscovery(); }}
-                            className="mt-6 flex items-center gap-2 mx-auto px-6 py-2.5 bg-slate-900 text-white font-bold rounded-xl active:scale-95 transition-transform"
+                            className="mt-6 text-brand-primary font-bold hover:underline"
                         >
-                            <Undo size={16} /> Check Again
+                            Refresh
                         </button>
                     </div>
                 )}
             </div>
 
             {/* Control Buttons */}
-            {users.length > currentIndex && (
-                <div className="mt-8 flex items-center justify-center gap-8 pb-4">
-                    <button
-                        onClick={() => handleButtonSwipe('dislike')}
-                        className="w-16 h-16 flex items-center justify-center rounded-full border border-slate-200 text-red-500 bg-white shadow-xl shadow-red-100/50 transform active:scale-90 transition-transform"
-                    >
-                        <X size={32} strokeWidth={3} />
-                    </button>
-
-                    <button className="w-12 h-12 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 transform active:scale-90 transition-transform">
-                        <Zap size={20} fill="currentColor" />
-                    </button>
-
-                    <button
-                        onClick={() => handleButtonSwipe('like')}
-                        className="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-tr from-rose-500 to-pink-600 text-white shadow-xl shadow-rose-300 transform active:scale-90 transition-transform"
-                    >
-                        <Heart size={32} fill="currentColor" />
-                    </button>
-                </div>
-            )}
+            <div className="mt-12 flex items-center justify-center gap-10 pb-8">
+                <button
+                    onClick={() => handleButtonSwipe('dislike')}
+                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-red-500 text-red-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-red-50"
+                >
+                    <X size={32} strokeWidth={3} />
+                </button>
+                <button
+                    onClick={() => handleButtonSwipe('like')}
+                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-green-500 text-green-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-green-50"
+                >
+                    <Heart size={32} fill="currentColor" />
+                </button>
+            </div>
         </div>
     );
 };
