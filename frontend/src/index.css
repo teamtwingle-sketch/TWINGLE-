@@ -73,3 +73,32 @@ body {
   width: 20px;
   margin-right: 12px;
 }
+
+/* Safe Area Utilities */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
+/* App-like behavior */
+html,
+body {
+  overscroll-behavior-y: none;
+  /* Prevent rubber-band effect on pull-to-refresh areas */
+  -webkit-tap-highlight-color: transparent;
+}
