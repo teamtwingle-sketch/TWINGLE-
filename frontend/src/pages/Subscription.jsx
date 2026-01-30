@@ -135,7 +135,17 @@ const Subscription = () => {
                 <div className="bg-white p-4 rounded-2xl w-40 mx-auto aspect-square flex items-center justify-center">
                     <QRCode
                         id="qr-code-svg"
-                        value={`upi://pay?pa=twingle@upi&pn=Twingle&am=${plans.find(p => p.id === selectedPlan)?.price || 0}&cu=INR`}
+                        value={(() => {
+                            const plan = plans.find(p => p.id === selectedPlan);
+                            if (!plan) return '';
+                            const name = plan.name.toLowerCase();
+                            if (name.includes('gold')) {
+                                return `upi://pay?pa=BHARATPE.8000846077@fbpe&pn=TWINGLE GOLD PLAN&am=30&cu=INR`;
+                            } else if (name.includes('platinum')) {
+                                return `upi://pay?pa=BHARATPE.8000846077@fbpe&pn=TWINGLE PLATINUM&am=400&cu=INR`;
+                            }
+                            return `upi://pay?pa=BHARATPE.8000846077@fbpe&pn=TWINGLE ${plan.name.toUpperCase()}&am=${plan.price}&cu=INR`;
+                        })()}
                         size={128}
                         style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                         viewBox={`0 0 256 256`}
