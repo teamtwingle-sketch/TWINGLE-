@@ -9,47 +9,52 @@ from .models import ChatMessage
 def send_chat_notification(sender, instance, created, **kwargs):
     if created:
         channel_layer = get_channel_layer()
+        if not channel_layer: return
         
-        # Send to Recipient (Real-Time Notification)
-        async_to_sync(channel_layer.group_send)(
-            f"user_{instance.receiver.id}",
-            {
-                'type': 'chat_message',
-                'message': {
-                    'id': instance.id,
-                    'content': instance.content,
-                    'sender': instance.sender.id,
-                    'receiver': instance.receiver.id,
-                    'is_me': False, # Flag for recipient
-                    'timestamp': str(instance.timestamp),
-                    'message_type': instance.message_type,
-                    'reply_to': {
-                        'id': instance.parent_message.id,
-                        'content': instance.parent_message.content,
-                        'sender': instance.parent_message.sender.first_name
-                    } if instance.parent_message else None
+        try:
+            # Send to Recipient (Real-Time Notification)
+            async_to_sync(channel_layer.group_send)(
+                f"user_{instance.receiver.id}",
+                {
+                    'type': 'chat_message',
+                    'message': {
+                        'id': instance.id,
+                        'content': instance.content,
+                        'sender': instance.sender.id,
+                        'receiver': instance.receiver.id,
+                        'is_me': False, # Flag for recipient
+                        'timestamp': str(instance.timestamp),
+                        'message_type': instance.message_type,
+                        'reply_to': {
+                            'id': instance.parent_message.id,
+                            'content': instance.parent_message.content,
+                            'sender': instance.parent_message.sender.first_name
+                        } if instance.parent_message else None
+                    }
                 }
-            }
-        )
+            )
 
-        # Send to Sender (Real-Time Confirmation/Echo for other tabs)
-        async_to_sync(channel_layer.group_send)(
-            f"user_{instance.sender.id}",
-            {
-                'type': 'chat_message',
-                'message': {
-                    'id': instance.id,
-                    'content': instance.content,
-                    'sender': instance.sender.id,
-                    'receiver': instance.receiver.id,
-                    'is_me': True, # Flag for sender
-                    'timestamp': str(instance.timestamp),
-                    'message_type': instance.message_type,
-                    'reply_to': {
-                        'id': instance.parent_message.id,
-                        'content': instance.parent_message.content,
-                        'sender': instance.parent_message.sender.first_name
-                    } if instance.parent_message else None
+            # Send to Sender (Real-Time Confirmation/Echo for other tabs)
+            async_to_sync(channel_layer.group_send)(
+                f"user_{instance.sender.id}",
+                {
+                    'type': 'chat_message',
+                    'message': {
+                        'id': instance.id,
+                        'content': instance.content,
+                        'sender': instance.sender.id,
+                        'receiver': instance.receiver.id,
+                        'is_me': True, # Flag for sender
+                        'timestamp': str(instance.timestamp),
+                        'message_type': instance.message_type,
+                        'reply_to': {
+                            'id': instance.parent_message.id,
+                            'content': instance.parent_message.content,
+                            'sender': instance.parent_message.sender.first_name
+                        } if instance.parent_message else None
+                    }
                 }
-            }
-        )
+            )
+        except Exception as e:
+            # Just log the error, don't crash the request (message is already saved)
+            print(f"Error sending chat signal: {e}")
