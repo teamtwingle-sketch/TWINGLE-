@@ -132,6 +132,8 @@ const Discovery = () => {
 
     return (
         <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full h-full relative">
+            {/* SEO Heading */}
+            <h1 className="sr-only">Twingle - Malayalam Dating App for Malayalis | Mallu Dating Number One</h1>
             <div className="relative w-full aspect-[3/4] flex items-center justify-center">
                 {users.length > currentIndex ? (
                     <AnimatePresence>
