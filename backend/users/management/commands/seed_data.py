@@ -26,4 +26,11 @@ class Command(BaseCommand):
             description='Priority likes, profile boost, all gold features'
         )
         
+        # Superuser
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        if not User.objects.filter(email='admin@twingle.com').exists():
+            User.objects.create_superuser('admin@twingle.com', 'admin@8567')
+            self.stdout.write(self.style.SUCCESS('Created superuser: admin@twingle.com / admin@8567'))
+        
         self.stdout.write(self.style.SUCCESS('Successfully seeded data'))
