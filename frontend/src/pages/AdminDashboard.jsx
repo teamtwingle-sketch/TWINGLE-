@@ -167,28 +167,70 @@ const AdminDashboard = () => {
             )}
 
             {activeTab === 'payments' && (
-                <div className="space-y-4">
-                    {payments.length === 0 && <div className="text-slate-500">No pending payments.</div>}
-                    {payments.map(p => (
-                        <div key={p.id} className="bg-white p-4 rounded-2xl shadow flex items-center justify-between">
-                            <div>
-                                <div className="font-bold">Plan ID: {p.plan}</div>
-                                <div className="text-sm">User ID: {p.user}</div>
-                                <div className="text-sm text-slate-400">{new Date(p.created_at).toLocaleDateString()}</div>
-                                {p.screenshot && (
-                                    <a href={p.screenshot} target="_blank" rel="noreferrer" className="text-brand-primary text-xs underline block mt-1">View Screenshot</a>
-                                )}
-                            </div>
-                            <div className="flex gap-2">
-                                {p.status === 'pending' ? (
-                                    <>
-                                        <button onClick={() => handlePayment(p.id, 'approve')} className="bg-green-500 text-white p-2 rounded-lg"><Check /></button>
-                                        <button onClick={() => handlePayment(p.id, 'reject')} className="bg-red-500 text-white p-2 rounded-lg"><X /></button>
-                                    </>
-                                ) : <span className="capitalize font-bold text-slate-500">{p.status}</span>}
-                            </div>
-                        </div>
-                    ))}
+                <div className="bg-white rounded-2xl shadow overflow-hidden">
+                    {payments.length === 0 ? (
+                        <div className="p-8 text-center text-slate-500">No pending payments found.</div>
+                    ) : (
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50 text-slate-500 text-xs uppercase">
+                                <tr>
+                                    <th className="p-4">User Details</th>
+                                    <th className="p-4">Plan / Date</th>
+                                    <th className="p-4">Proof</th>
+                                    <th className="p-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y">
+                                {payments.map(p => (
+                                    <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                                        <td className="p-4">
+                                            <div className="font-bold text-slate-800">User ID: {p.user}</div>
+                                            <div className="text-xs text-slate-400">Txn: #{p.id}</div>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="font-bold text-brand-primary">{p.plan_name || `Plan ${p.plan}`}</div>
+                                            <div className="text-xs text-slate-400">{new Date(p.created_at).toLocaleString()}</div>
+                                        </td>
+                                        <td className="p-4">
+                                            {p.screenshot ? (
+                                                <a
+                                                    href={p.screenshot}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
+                                                >
+                                                    <CreditCard size={14} /> View Proof
+                                                </a>
+                                            ) : <span className="text-slate-400 text-xs">No screenshot</span>}
+                                        </td>
+                                        <td className="p-4 text-right">
+                                            {p.status === 'pending' ? (
+                                                <div className="flex gap-2 justify-end">
+                                                    <button
+                                                        onClick={() => handlePayment(p.id, 'approve')}
+                                                        className="flex items-center gap-1 bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 shadow-sm active:scale-95 transition-all"
+                                                    >
+                                                        <Check size={14} /> Approve
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handlePayment(p.id, 'reject')}
+                                                        className="flex items-center gap-1 bg-red-50 text-red-500 border border-red-100 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-100 transition-all"
+                                                    >
+                                                        <X size={14} /> Reject
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <span className={`px-2 py-1 rounded-md text-xs font-bold uppercase ${p.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {p.status}
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             )}
         </div>
