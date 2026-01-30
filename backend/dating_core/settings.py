@@ -13,6 +13,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-ob+b8odsiot=_d4myv2$c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
+# Production Security
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5MB
+
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 
 # Application definition
