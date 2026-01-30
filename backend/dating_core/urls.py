@@ -14,6 +14,7 @@ from users.views import (
     AdminPaymentListView, AdminApprovePaymentView, AdminRejectPaymentView
 )
 from profiles.views import ProfileDetailView, PublicProfileDetailView, InterestListView, UserPhotoViewSet
+from django.views.generic import TemplateView
 from matches.views import DiscoveryView, SwipeView, MatchListView
 from chat.views import ChatViewSet, ChatListView, TypingView, CallViewSet
 from payments.views import SubscriptionPlanListView, PaymentRequestCreateView, MyPaymentStatusView
@@ -67,6 +68,7 @@ urlpatterns = [
     path('api/chats/', ChatListView.as_view(), name='chat_list'),
     path('api/chat/typing/', TypingView.as_view(), name='chat_typing'),
     path('api/', include(router.urls)),
+    path('', TemplateView.as_view(template_name='index.html')),
 ]
 
 if settings.DEBUG:
