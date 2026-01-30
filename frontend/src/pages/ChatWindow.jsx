@@ -399,8 +399,10 @@ const ChatWindow = () => {
             console.error("Send failed", e);
             // If it's a server error (500), the message likely saved but signal failed.
             // Don't restore text to input, just warn.
+            // If it's a server error (500) or network glitch, the message likely saved.
+            // Suppress "unstable connection" toast to avoid annoying the user.
             if (!e.response || e.response.status >= 500) {
-                toast.warn("Message sent, but connection unstable");
+                console.warn("Message sent with warnings:", e);
             } else {
                 toast.error("Send failed");
                 setInput(msgContent); // Only restore if it was a client/400 error
