@@ -444,14 +444,31 @@ const ChatWindow = () => {
                         const showAvatar = !isMe && (idx === 0 || messages[idx - 1].sender !== msg.sender);
 
                         return (
-                            <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start items-end gap-2.5'}`}>
+                            <motion.div
+                                key={idx}
+                                className={`flex ${isMe ? 'justify-end' : 'justify-start items-end gap-2.5'} w-full relative`}
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={{ left: 0.1, right: 0.7 }}
+                                onDragEnd={(e, { offset, velocity }) => {
+                                    if (offset.x > 80) {
+                                        setReplyTo(msg);
+                                        if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+                                    }
+                                }}
+                            >
+                                {/* Reply Indicator Icon (shows when dragging) */}
+                                <div className="absolute left-[-40px] top-1/2 -translate-y-1/2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <ChevronLeft size={20} className="rotate-180" />
+                                </div>
+
                                 {!isMe && (
                                     <div className={`w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 shadow-sm border border-white ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
                                         <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
                                     </div>
                                 )}
 
-                                <div className={`relative max-w-[80%] group`}>
+                                <div className={`relative max-w-[80%] group select-none touch-pan-y`}>
                                     {msg.reply_to && (
                                         <div className="text-[10px] mb-1.5 p-2 rounded-xl bg-black/5 border-l-[3px] border-slate-400 backdrop-blur-sm">
                                             <p className="font-bold text-slate-700">{msg.reply_to.sender}</p>
@@ -473,7 +490,7 @@ const ChatWindow = () => {
                                         {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                     </span>
                                 </div>
-                            </div>
+                            </motion.div>
                         );
                     })}
                 </div>
