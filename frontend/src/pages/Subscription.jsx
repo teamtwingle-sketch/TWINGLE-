@@ -60,20 +60,33 @@ const Subscription = () => {
             const img = new Image();
 
             img.onload = () => {
-                // Add white background (JPG has no alpha)
-                canvas.width = img.width + 40; // Add margin
-                canvas.height = img.height + 40;
+                // Dimensions
+                const padding = 20;
+                const headerHeight = 40;
+                canvas.width = img.width + (padding * 2);
+                canvas.height = img.height + (padding * 2) + headerHeight;
 
+                // White Background
                 ctx.fillStyle = "white";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                ctx.drawImage(img, 20, 20);
+                // Draw Text (Plan Name)
+                const plan = plans.find(p => p.id === selectedPlan);
+                if (plan) {
+                    ctx.font = "bold 16px sans-serif";
+                    ctx.fillStyle = "black";
+                    ctx.textAlign = "center";
+                    ctx.fillText(`Twingle ${plan.name} Plan`, canvas.width / 2, 30);
+                }
+
+                // Draw QR Code
+                ctx.drawImage(img, padding, headerHeight + padding);
 
                 const jpgUrl = canvas.toDataURL("image/jpeg", 1.0);
 
                 const link = document.createElement("a");
                 link.href = jpgUrl;
-                link.download = `twingle-upi-qr-${Date.now()}.jpg`;
+                link.download = `twingle-${plan?.name.toLowerCase()}-qr.jpg`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
