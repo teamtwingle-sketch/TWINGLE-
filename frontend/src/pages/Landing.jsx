@@ -10,7 +10,7 @@ const Landing = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowPopup(true);
-        }, 30000); // 30 seconds
+        }, 60000); // 60 seconds (1 minute)
         return () => clearTimeout(timer);
     }, []);
 
