@@ -127,9 +127,9 @@ SIMPLE_JWT = {
 }
 
 # CORS
-# CORS
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
+    cors_env = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+    CORS_ALLOWED_ORIGINS = [origin.strip() for origin in cors_env.split(',') if origin.strip()]
