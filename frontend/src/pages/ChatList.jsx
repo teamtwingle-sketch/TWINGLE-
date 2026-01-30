@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/client';
+import api, { getPhotoUrl } from '../api/client';
 import { toast } from 'react-toastify';
 import { Search, MoreHorizontal, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -79,7 +79,7 @@ const ChatList = () => {
                     >
                         <div className="relative">
                             <img
-                                src={chat.photo ? (chat.photo.startsWith('http') ? chat.photo : `http://127.0.0.1:8000${chat.photo}`) : 'https://via.placeholder.com/150'}
+                                src={getPhotoUrl(chat.photo)}
                                 className="w-16 h-16 rounded-full object-cover bg-slate-100 ring-2 ring-white shadow-sm group-hover:ring-rose-100 transition-all"
                                 alt=""
                             />

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import api from '../api/client';
+import api, { getPhotoUrl } from '../api/client';
 import { ChevronLeft, MapPin, MessageCircle, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -38,7 +38,7 @@ const PublicProfile = () => {
 
     const photos = user.photos || [];
     const activePhoto = photos[currentPhotoIndex]
-        ? (photos[currentPhotoIndex].image.startsWith('http') ? photos[currentPhotoIndex].image : `http://127.0.0.1:8000${photos[currentPhotoIndex].image}`)
+        ? getPhotoUrl(photos[currentPhotoIndex].image)
         : 'https://via.placeholder.com/400x600';
 
     const nextPhoto = () => {

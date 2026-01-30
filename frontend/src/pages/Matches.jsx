@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/client';
+import api, { getPhotoUrl } from '../api/client';
 import { MessageCircle, Heart } from 'lucide-react';
 
 const Matches = () => {
@@ -32,7 +32,7 @@ const Matches = () => {
                 <div className="grid grid-cols-2 gap-4">
                     {matches.map(match => (
                         <div key={match.id} className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md group cursor-pointer" onClick={() => navigate(`/chat/${match.user_id}`)}>
-                            <img src={match.photo ? (match.photo.startsWith('http') ? match.photo : `http://127.0.0.1:8000${match.photo}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" alt="" />
+                            <img src={getPhotoUrl(match.photo)} className="w-full h-full object-cover" alt="" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                             <div className="absolute bottom-3 left-3 text-white">
                                 <p className="font-bold">{match.name}</p>

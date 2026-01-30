@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Heart, X, Undo, Zap, Star, MapPin } from 'lucide-react';
-import api from '../api/client';
+import api, { getPhotoUrl } from '../api/client';
 import { toast } from 'react-toastify';
+
 
 const SwipeCard = ({ user, onSwipe }) => {
     const x = useMotionValue(0);
@@ -30,7 +31,7 @@ const SwipeCard = ({ user, onSwipe }) => {
         >
             <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 <img
-                    src={user.photos?.[0] ? (user.photos[0].startsWith('http') ? user.photos[0] : `http://127.0.0.1:8000${user.photos[0]}`) : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
+                    src={getPhotoUrl(user.photos?.[0])}
                     className="w-full h-full object-cover pointer-events-none"
                     alt={user.first_name}
                 />

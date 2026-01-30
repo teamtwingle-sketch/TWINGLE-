@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Send, Mic, Phone, PhoneIncoming, PhoneOff, MoreVertical, X, AlertTriangle, Ban, ChevronDown, Volume2, MicOff, Video, Image as ImageIcon, Smile } from 'lucide-react';
-import api from '../api/client';
+import api, { getPhotoUrl } from '../api/client';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Peer } from 'peerjs';
@@ -326,7 +326,7 @@ const ChatWindow = () => {
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/profile/${userId}`)}>
                         <div className="relative">
                             <img
-                                src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'}
+                                src={getPhotoUrl(otherUser?.photos?.[0]?.image)}
                                 className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-md"
                                 alt=""
                             />
@@ -404,7 +404,7 @@ const ChatWindow = () => {
                         <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start items-end gap-2.5'}`}>
                             {!isMe && (
                                 <div className={`w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 shadow-sm border border-white ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
-                                    <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
+                                    <img src={getPhotoUrl(otherUser?.photos?.[0]?.image)} className="w-full h-full object-cover" />
                                 </div>
                             )}
 
@@ -504,7 +504,7 @@ const ChatWindow = () => {
                     >
                         {/* Background Effect */}
                         <div className="absolute inset-0 overflow-hidden">
-                            <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover opacity-30 blur-3xl scale-125" />
+                            <img src={getPhotoUrl(otherUser?.photos?.[0]?.image)} className="w-full h-full object-cover opacity-30 blur-3xl scale-125" />
                             <div className="absolute inset-0 bg-black/40" />
                         </div>
 
