@@ -1,1 +1,1 @@
-web: gunicorn dating_core.wsgi --log-file -
+web: daphne -b 0.0.0.0 -p $PORT dating_core.asgi:application

@@ -382,14 +382,24 @@ const ChatWindow = () => {
     };
     const handleSend = async () => {
         if (!input.trim()) return;
+        const msgContent = input; // capture for rollback
         try {
-            const payload = { receiver: userId, content: input, message_type: 'text', parent_message: replyTo?.id };
-            const res = await api.post('/messages/', payload);
-            setMessages([...messages, res.data]);
-            setInput('');
+            setInput(''); // Optimistic clear
             setReplyTo(null);
+
+            const payload = { receiver: userId, content: msgContent, message_type: 'text', parent_message: replyTo?.id };
+            const res = await api.post('/messages/', payload);
+
+            setMessages(prev => {
+                if (prev.some(m => m.id === res.data.id)) return prev;
+                return [...prev, res.data];
+            });
             setTimeout(scrollToBottom, 50);
-        } catch (e) { toast.error("Send failed"); }
+        } catch (e) {
+            console.error("Send failed", e);
+            toast.error("Message may not have sent");
+            setInput(msgContent); // Restore on error
+        }
     };
     const handleReport = async () => { await api.post('/report/', { reported_user: userId, reason: reportReason, explanation: reportExplanation }); setShowReportModal(false); toast.success("User reported"); };
     const handleBlock = async () => { if (window.confirm("Are you sure you want to block this user?")) { await api.post('/block/', { blocked_user: userId }); navigate('/matches'); } };
