@@ -1,0 +1,602 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ChevronLeft, Send, Mic, Phone, PhoneIncoming, PhoneOff, MoreVertical, X, AlertTriangle, Ban, ChevronDown, Volume2, MicOff, Video, Image as ImageIcon, Smile } from 'lucide-react';
+import api from '../api/client';
+import { toast } from 'react-toastify';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Peer } from 'peerjs';
+
+const ChatWindow = () => {
+    const { userId } = useParams();
+    const navigate = useNavigate();
+    const myId = parseInt(localStorage.getItem('user_id'));
+
+    // UI State
+    const [otherUser, setOtherUser] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
+    const [showSafetyMenu, setShowSafetyMenu] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [reportReason, setReportReason] = useState('spam');
+    const [reportExplanation, setReportExplanation] = useState('');
+
+    // Call State
+    const [callStatus, setCallStatus] = useState(null); // 'dialing', 'incoming', 'connected'
+    const [connectionStep, setConnectionStep] = useState('');
+    const [activeCallId, setActiveCallId] = useState(null);
+    const [isMuted, setIsMuted] = useState(false);
+
+    // Refs
+    const peerRef = useRef(null);
+    const activeCallRef = useRef(null);
+    const localStreamRef = useRef(null);
+    const remoteAudioRef = useRef(null);
+    const audioCtxRef = useRef(null);
+    const ringInterval = useRef(null);
+
+    // Chat State
+    const [partnerStatus, setPartnerStatus] = useState(null);
+    const [replyTo, setReplyTo] = useState(null);
+    const [showScrollButton, setShowScrollButton] = useState(false);
+    const lastTypedRef = useRef(0);
+    const scrollRef = useRef();
+
+    useEffect(() => {
+        fetchMessages();
+        fetchOtherUser();
+
+        // PeerJS Init
+        const peer = new Peer(`mallu_user_${myId}`, {
+            debug: 2,
+            config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+        });
+
+        peer.on('open', (id) => console.log('My Peer ID:', id));
+
+        peer.on('call', (call) => {
+            console.log("Incoming Peer Call from:", call.peer);
+            activeCallRef.current = call;
+
+            setCallStatus((prev) => {
+                if (prev === 'dialing') {
+                    // Auto Answer (I called them, they called back logic, or clash)
+                    answerPeerCall(call);
+                    return 'connected';
+                }
+                if (prev !== 'connected') {
+                    startRingtone('incoming');
+                    return 'incoming';
+                }
+                return prev;
+            });
+        });
+
+        peer.on('error', (err) => {
+            console.error("PeerJS Error", err);
+            if (callStatus) setConnectionStep("Connection error: " + err.type);
+        });
+
+        peerRef.current = peer;
+
+        const interval = setInterval(() => {
+            fetchMessages();
+            pollCalls();
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+            stopRingtone();
+            handleEndCallLocal();
+            peer.destroy();
+        };
+    }, [userId, myId]);
+
+    useEffect(() => { if (!showScrollButton) scrollToBottom(); }, [messages, replyTo]);
+
+    // Ringtone Logic
+    const startRingtone = (type) => {
+        if (audioCtxRef.current) return;
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            audioCtxRef.current = ctx;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            const now = ctx.currentTime;
+
+            if (type === 'incoming') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600, now);
+                gain.gain.setValueAtTime(0.1, now);
+                ringInterval.current = setInterval(() => {
+                    if (ctx.state === 'closed') return;
+                    const t = ctx.currentTime;
+                    gain.gain.setValueAtTime(0.1, t);
+                    gain.gain.setValueAtTime(0, t + 0.4);
+                    gain.gain.setValueAtTime(0.1, t + 0.6);
+                    gain.gain.setValueAtTime(0, t + 1.0);
+                }, 2500);
+            } else {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.1, now);
+                ringInterval.current = setInterval(() => {
+                    if (ctx.state === 'closed') return;
+                    const t = ctx.currentTime;
+                    gain.gain.setValueAtTime(0.1, t);
+                    gain.gain.setValueAtTime(0, t + 1.2);
+                }, 3000);
+            }
+            osc.start();
+        } catch (e) { }
+    };
+
+    const stopRingtone = () => {
+        if (ringInterval.current) { clearInterval(ringInterval.current); ringInterval.current = null; }
+        if (audioCtxRef.current) { audioCtxRef.current.close().catch(() => { }); audioCtxRef.current = null; }
+    };
+
+    const pollCalls = async () => {
+        try {
+            const res = await api.get('/calls/poll/');
+            if (res.data.incoming && !callStatus) {
+                setCallStatus('incoming');
+                setActiveCallId(res.data.incoming.id);
+                startRingtone('incoming');
+            }
+            if (res.data.my_call) {
+                const call = res.data.my_call;
+                if (call.status === 'active' && callStatus === 'dialing') {
+                    setConnectionStep("Connecting voice...");
+                    stopRingtone();
+                }
+                if (['ended', 'rejected'].includes(call.status)) handleEndCallLocal();
+            }
+            if (res.data.incoming_update) {
+                if (['ended', 'rejected'].includes(res.data.incoming_update.status)) handleEndCallLocal();
+            }
+        } catch (err) { }
+    };
+
+    const startCall = async () => {
+        setCallStatus('dialing');
+        setConnectionStep("Calling...");
+        startRingtone('outgoing');
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+            });
+            localStreamRef.current = stream;
+
+            // API Notify
+            const res = await api.post('/calls/start/', { receiver: userId });
+            setActiveCallId(res.data.id);
+
+            // PeerJS Call
+            if (peerRef.current) {
+                const call = peerRef.current.call(`mallu_user_${userId}`, stream);
+                setupCallEvents(call);
+            }
+        } catch (err) {
+            toast.error("Call failed: " + err.message);
+            handleEndCallLocal();
+        }
+    };
+
+    const acceptCall = async () => {
+        stopRingtone();
+        setCallStatus('connecting');
+        setConnectionStep("Connecting...");
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+            });
+            localStreamRef.current = stream;
+
+            if (activeCallRef.current) {
+                answerPeerCall(activeCallRef.current, stream);
+            } else {
+                setConnectionStep("Dialing back...");
+                if (peerRef.current) {
+                    const call = peerRef.current.call(`mallu_user_${userId}`, stream);
+                    setupCallEvents(call);
+                }
+            }
+
+            if (activeCallId) await api.post(`/calls/${activeCallId}/answer/`);
+            setCallStatus('connected');
+        } catch (err) {
+            toast.error("Answer failed");
+            handleEndCallLocal();
+        }
+    };
+
+    const answerPeerCall = (call, stream) => {
+        if (!stream) stream = localStreamRef.current;
+        if (!stream) return;
+        console.log("Answering Peer Call");
+        call.answer(stream);
+        setupCallEvents(call);
+    };
+
+    const setupCallEvents = (call) => {
+        activeCallRef.current = call;
+        call.on('stream', (remoteStream) => {
+            console.log("Received Remote Stream", remoteStream.getAudioTracks());
+            setConnectionStep("Voice Active");
+            setCallStatus('connected');
+            stopRingtone();
+
+            if (remoteAudioRef.current) {
+                remoteAudioRef.current.srcObject = remoteStream;
+                // Force play
+                const playPromise = remoteAudioRef.current.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.error("Auto-play failed", error);
+                        setConnectionStep("Tap to Unmute");
+                    });
+                }
+            }
+        });
+        call.on('close', () => handleEndCallLocal());
+        call.on('error', (e) => {
+            console.error("Call Error", e);
+            handleEndCallLocal();
+        });
+    };
+
+    const toggleMute = () => {
+        if (localStreamRef.current) {
+            const track = localStreamRef.current.getAudioTracks()[0];
+            if (track) {
+                track.enabled = !track.enabled;
+                setIsMuted(!track.enabled);
+            }
+        }
+    };
+
+    const disconnectCall = async () => {
+        if (activeCallId) try { await api.post(`/calls/${activeCallId}/end/`); } catch (e) { }
+        handleEndCallLocal();
+    };
+
+    const handleEndCallLocal = () => {
+        stopRingtone();
+        if (localStreamRef.current) {
+            localStreamRef.current.getTracks().forEach(t => t.stop());
+            localStreamRef.current = null;
+        }
+        if (activeCallRef.current) {
+            activeCallRef.current.close();
+            activeCallRef.current = null;
+        }
+        setCallStatus(null);
+        setActiveCallId(null);
+        setConnectionStep('');
+        setIsMuted(false);
+    };
+
+    // Chat Logic
+    const scrollToBottom = () => scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const handleScroll = (e) => setShowScrollButton(e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight > 300);
+    const fetchOtherUser = async () => { try { const res = await api.get(`/profile/${userId}/`); setOtherUser(res.data); } catch (e) { } };
+    const fetchMessages = async () => {
+        try {
+            const res = await api.get(`/messages/?user_id=${userId}`);
+            if (Array.isArray(res.data)) setMessages(res.data);
+            else { setMessages(res.data.messages); setPartnerStatus(res.data.partner_status); }
+        } catch (e) { }
+    };
+    const handleInput = (e) => {
+        setInput(e.target.value);
+        const now = Date.now();
+        if (now - lastTypedRef.current > 2000) { lastTypedRef.current = now; api.post('/chat/typing/', { receiver_id: userId }).catch(() => { }); }
+    };
+    const handleSend = async () => {
+        if (!input.trim()) return;
+        try {
+            const payload = { receiver: userId, content: input, message_type: 'text', parent_message: replyTo?.id };
+            const res = await api.post('/messages/', payload);
+            setMessages([...messages, res.data]);
+            setInput('');
+            setReplyTo(null);
+            setTimeout(scrollToBottom, 50);
+        } catch (e) { toast.error("Send failed"); }
+    };
+    const handleReport = async () => { await api.post('/report/', { reported_user: userId, reason: reportReason, explanation: reportExplanation }); setShowReportModal(false); toast.success("User reported"); };
+    const handleBlock = async () => { if (window.confirm("Are you sure you want to block this user?")) { await api.post('/block/', { blocked_user: userId }); navigate('/matches'); } };
+    const formatLastSeen = (d) => { if (!d) return 'Offline'; const diff = (new Date() - new Date(d)) / 60000; return diff < 60 ? `${Math.floor(diff)}m ago` : 'offline'; };
+
+    return (
+        <div className="flex flex-col h-full bg-white relative">
+            {/* Hidden Audio */}
+            <audio ref={remoteAudioRef} autoPlay playsInline style={{ width: 0, height: 0, opacity: 0 }} />
+
+            {/* Header */}
+            <header className="h-16 px-4 bg-white/90 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between border-b border-slate-50 shadow-sm">
+                <div className="flex items-center gap-3">
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-slate-50 text-slate-500 transition-colors">
+                        <ChevronLeft size={24} />
+                    </button>
+
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/profile/${userId}`)}>
+                        <div className="relative">
+                            <img
+                                src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'}
+                                className="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-sm"
+                                alt=""
+                            />
+                            {partnerStatus?.is_online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>}
+                        </div>
+                        <div className="flex flex-col">
+                            <h3 className="font-bold text-slate-900 leading-tight">{otherUser?.first_name || 'User'}</h3>
+                            <span className={`text-[11px] font-bold tracking-wide ${partnerStatus?.is_typing ? 'text-rose-500 animate-pulse' : partnerStatus?.is_online ? 'text-green-600' : 'text-slate-400'}`}>
+                                {partnerStatus?.is_typing ? 'Typing...' : (partnerStatus?.is_online ? 'Active now' : `Seen ${formatLastSeen(partnerStatus?.last_seen)}`)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <button onClick={startCall} className="p-2 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                        <Phone size={20} />
+                    </button>
+                    <button onClick={() => toast.info("Video call coming soon!")} className="p-2 rounded-full text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-colors">
+                        <Video size={20} />
+                    </button>
+                    <div className="relative">
+                        <button onClick={() => setShowSafetyMenu(!showSafetyMenu)} className={`p-2 rounded-full transition-colors ${showSafetyMenu ? "bg-slate-100 text-slate-800" : "text-slate-400 hover:text-slate-600"}`}>
+                            <MoreVertical size={20} />
+                        </button>
+
+                        <AnimatePresence>
+                            {showSafetyMenu && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                    className="absolute top-12 right-0 w-48 bg-white rounded-xl shadow-2xl border border-slate-100 overflow-hidden z-50 origin-top-right py-1"
+                                >
+                                    <button onClick={() => navigate(`/profile/${userId}`)} className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-50 text-slate-700 flex items-center gap-2">
+                                        View Profile
+                                    </button>
+                                    <button onClick={() => { setShowReportModal(true); setShowSafetyMenu(false); }} className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-slate-50 text-orange-500 flex items-center gap-2">
+                                        <AlertTriangle size={16} /> Report
+                                    </button>
+                                    <button onClick={handleBlock} className="w-full text-left px-4 py-3 text-sm font-medium hover:bg-red-50 text-red-500 flex items-center gap-2">
+                                        <Ban size={16} /> Block
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+            </header>
+
+            {/* Chat Body */}
+            <div
+                className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-50 overscroll-contain"
+                onScroll={handleScroll}
+            >
+                {messages.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 opacity-50">
+                        <div className="w-20 h-20 bg-slate-200 rounded-full flex items-center justify-center mb-4">
+                            <Smile size={32} className="text-slate-400" />
+                        </div>
+                        <p className="text-slate-500 font-medium text-sm">Say hello to start the conversation!</p>
+                    </div>
+                )}
+
+                {messages.map((msg, idx) => {
+                    const isMe = msg.sender === parseInt(localStorage.getItem('user_id'));
+                    const isLast = idx === messages.length - 1;
+                    const showAvatar = !isMe && (idx === 0 || messages[idx - 1].sender !== msg.sender);
+
+                    return (
+                        <div key={idx} className={`flex ${isMe ? 'justify-end' : 'justify-start items-end gap-2'}`}>
+                            {!isMe && (
+                                <div className={`w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0 ${showAvatar ? 'opacity-100' : 'opacity-0'}`}>
+                                    <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
+                                </div>
+                            )}
+
+                            <motion.div
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                onDragEnd={(e, { offset }) => { if (offset.x > 50) setReplyTo(msg); }}
+                                className={`relative max-w-[75%] group`}
+                            >
+                                {msg.reply_to && (
+                                    <div className="text-[10px] mb-1 p-2 rounded-lg bg-black/5 opacity-70 border-l-2 border-slate-400">
+                                        <p className="font-bold text-slate-700">{msg.reply_to.sender}</p>
+                                        <p className="truncate text-slate-500">{msg.reply_to.content}</p>
+                                    </div>
+                                )}
+
+                                <div className={`
+                                    px-4 py-2.5 text-[15px] leading-relaxed shadow-sm
+                                    ${isMe
+                                        ? 'bg-gradient-to-br from-rose-500 to-pink-600 text-white rounded-2xl rounded-tr-sm'
+                                        : 'bg-white text-slate-800 rounded-2xl rounded-tl-sm border border-slate-100'
+                                    }
+                                `}>
+                                    {msg.content}
+                                </div>
+
+                                <span className={`text-[9px] font-bold mt-1 block opacity-0 group-hover:opacity-100 transition-opacity ${isMe ? 'text-right text-slate-400' : 'text-left text-slate-400'}`}>
+                                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            </motion.div>
+                        </div>
+                    );
+                })}
+                <div ref={scrollRef} />
+            </div>
+
+            {/* Scroll to bottom button */}
+            <AnimatePresence>
+                {showScrollButton && (
+                    <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        onClick={scrollToBottom}
+                        className="absolute bottom-24 right-4 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-rose-500 z-10"
+                    >
+                        <ChevronDown size={24} />
+                    </motion.button>
+                )}
+            </AnimatePresence>
+
+            {/* Input Area */}
+            <div className="p-3 bg-white border-t border-slate-100 pb-safe">
+                {replyTo && (
+                    <div className="flex justify-between items-center mb-2 bg-slate-50 p-2 rounded-lg border border-slate-100 mx-2">
+                        <div className="flex flex-col text-xs">
+                            <span className="font-bold text-rose-500">Replying to message</span>
+                            <span className="text-slate-500 line-clamp-1">{replyTo.content}</span>
+                        </div>
+                        <button onClick={() => setReplyTo(null)} className="p-1 hover:bg-slate-200 rounded-full"><X size={14} /></button>
+                    </div>
+                )}
+
+                <div className="flex items-end gap-2 px-2">
+                    <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors mb-1">
+                        <ImageIcon size={22} />
+                    </button>
+
+                    <div className="flex-1 bg-slate-100 rounded-[20px] px-4 py-2 min-h-[44px] flex items-center border border-transparent focus-within:border-rose-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-rose-500/10 transition-all">
+                        <input
+                            className="flex-1 bg-transparent border-none outline-none text-slate-800 placeholder:text-slate-400"
+                            placeholder="Message..."
+                            value={input}
+                            onChange={handleInput}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                        />
+                    </div>
+
+                    <button
+                        onClick={handleSend}
+                        className={`p-3 rounded-full mb-1 transition-all ${input.trim() ? 'bg-rose-500 text-white shadow-md hover:bg-rose-600 transform hover:scale-105' : 'bg-slate-100 text-slate-400'}`}
+                    >
+                        {input.trim() ? <Send size={20} className="ml-0.5" /> : <Mic size={20} />}
+                    </button>
+                </div>
+            </div>
+
+            {/* Call Overlay */}
+            <AnimatePresence>
+                {callStatus && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                        className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-between py-12"
+                    >
+                        {/* Background Effect */}
+                        <div className="absolute inset-0 overflow-hidden">
+                            <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover opacity-30 blur-3xl scale-125" />
+                            <div className="absolute inset-0 bg-black/40" />
+                        </div>
+
+                        {/* Top Info */}
+                        <div className="relative z-10 flex flex-col items-center mt-12">
+                            <div className="relative mb-6">
+                                <div className="absolute inset-0 bg-white/20 rounded-full animate-ping opacity-50" />
+                                <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl relative z-10">
+                                    <img src={otherUser?.photos?.[0]?.image ? (otherUser.photos[0].image.startsWith('http') ? otherUser.photos[0].image : `http://127.0.0.1:8000${otherUser.photos[0].image}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" />
+                                </div>
+                            </div>
+                            <h2 className="text-4xl font-black text-white tracking-tight mb-2">{otherUser?.first_name}</h2>
+                            <p className="text-rose-200 font-medium tracking-wide animate-pulse">{connectionStep || (callStatus === 'incoming' ? 'Incoming Call...' : 'Calling...')}</p>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="relative z-10 mb-8 w-full max-w-sm px-8">
+                            {callStatus === 'incoming' ? (
+                                <div className="flex justify-between items-center w-full">
+                                    <div className="flex flex-col items-center gap-2">
+                                        <button onClick={disconnectCall} className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-red-600 transition-transform active:scale-95">
+                                            <PhoneOff size={28} />
+                                        </button>
+                                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Decline</span>
+                                    </div>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <button onClick={acceptCall} className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-green-600 transition-transform active:scale-95 animate-bounce">
+                                            <PhoneIncoming size={28} />
+                                        </button>
+                                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Accept</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-8 items-center w-full">
+                                    <div className="flex gap-6">
+                                        <button onClick={toggleMute} className={`w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-md transition-all ${isMuted ? 'bg-white text-slate-900' : 'bg-white/10 text-white hover:bg-white/20'}`}>
+                                            {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
+                                        </button>
+                                        <button className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 backdrop-blur-md pointer-events-none opacity-50">
+                                            <Volume2 size={24} />
+                                        </button>
+                                        <button className="w-14 h-14 rounded-full flex items-center justify-center bg-white/10 text-white hover:bg-white/20 backdrop-blur-md pointer-events-none opacity-50">
+                                            <Video size={24} />
+                                        </button>
+                                    </div>
+
+                                    <button onClick={disconnectCall} className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white shadow-xl hover:bg-red-600 transition-all transform hover:scale-105 active:scale-95">
+                                        <PhoneOff size={32} />
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Report Modal */}
+            <AnimatePresence>
+                {showReportModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl"
+                        >
+                            <h3 className="font-bold text-xl mb-4 text-slate-800">Report User</h3>
+                            <div className="space-y-3 mb-4">
+                                {['spam', 'harassment', 'fake', 'other'].map(r => (
+                                    <label key={r} className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                                        <input type="radio" name="reason" value={r} checked={reportReason === r} onChange={(e) => setReportReason(e.target.value)} className="accent-rose-500 w-5 h-5" />
+                                        <span className="capitalize font-medium text-slate-700">{r}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            <textarea
+                                placeholder="Additional details..."
+                                className="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 outline-none mb-4"
+                                rows={3}
+                                value={reportExplanation}
+                                onChange={(e) => setReportExplanation(e.target.value)}
+                            />
+                            <div className="flex gap-3">
+                                <button onClick={() => setShowReportModal(false)} className="flex-1 py-3 bg-slate-100 font-bold text-slate-600 rounded-xl hover:bg-slate-200">Cancel</button>
+                                <button onClick={handleReport} className="flex-1 py-3 bg-red-500 font-bold text-white rounded-xl hover:bg-red-600 shadow-lg shadow-red-200">Submit Report</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+export default ChatWindow;
+
