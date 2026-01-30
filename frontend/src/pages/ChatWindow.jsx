@@ -120,11 +120,11 @@ const ChatWindow = () => {
             ws.onclose = () => console.log("Chat WebSocket Disconnected");
         }
 
-        // 3. Keep Polling only for Calls & Presence (Every 2s is enough)
+        // 3. Keep Polling for Calls & Presence (Status updates need this)
         const interval = setInterval(() => {
             pollCalls();
-            // fetchMessages(); // DISABLED: Using WebSocket now
-        }, 2000);
+            fetchMessages(); // Restored for typing/online status
+        }, 3000);
 
         return () => {
             clearInterval(interval);
