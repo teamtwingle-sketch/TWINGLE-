@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api/client';
+import api, { getPhotoUrl } from '../api/client';
 import { toast } from 'react-toastify';
 import { Camera, Save, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -93,7 +93,7 @@ const ProfileSetup = () => {
             <div className="flex gap-3 overflow-x-auto pb-2">
                 {profile.photos?.map((photo) => (
                     <div key={photo.id} className="relative flex-shrink-0 w-32 h-44 rounded-2xl overflow-hidden shadow-sm">
-                        <img src={photo.image} className="w-full h-full object-cover" alt="" />
+                        <img src={getPhotoUrl(photo.image)} className="w-full h-full object-cover" alt="" />
                         <button
                             onClick={async () => {
                                 if (!window.confirm("Delete this photo?")) return;
