@@ -18,6 +18,9 @@ const AppLayout = () => {
 
     // Poll for unread messages
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
         const checkUnread = async () => {
             try {
                 // If we are already on the chat list page, the page itself handles updates, 
