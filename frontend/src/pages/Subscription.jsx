@@ -55,15 +55,32 @@ const Subscription = () => {
 
         try {
             const svgData = new XMLSerializer().serializeToString(svg);
-            const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
 
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = `twingle-upi-qr-${Date.now()}.svg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            img.onload = () => {
+                // Add white background (JPG has no alpha)
+                canvas.width = img.width + 40; // Add margin
+                canvas.height = img.height + 40;
+
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.drawImage(img, 20, 20);
+
+                const jpgUrl = canvas.toDataURL("image/jpeg", 1.0);
+
+                const link = document.createElement("a");
+                link.href = jpgUrl;
+                link.download = `twingle-upi-qr-${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            // Use encodeURIComponent for safe SVG data URI
+            img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
         } catch (e) { console.error("Download failed", e); }
     };
 
