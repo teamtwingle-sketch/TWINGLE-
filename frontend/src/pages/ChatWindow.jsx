@@ -61,6 +61,7 @@ const ChatWindow = () => {
             setCallStatus((prev) => {
                 if (prev === 'dialing') {
                     // Auto Answer (I called them, they called back logic, or clash)
+                    stopRingtone();
                     answerPeerCall(call);
                     return 'connected';
                 }
@@ -94,43 +95,84 @@ const ChatWindow = () => {
 
     useEffect(() => { if (!showScrollButton) scrollToBottom(); }, [messages, replyTo]);
 
-    // Ringtone Logic
+    // Ringtone Logic - Sweet & Mild
     const startRingtone = (type) => {
         if (audioCtxRef.current) return;
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             const ctx = new AudioContext();
             audioCtxRef.current = ctx;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            const now = ctx.currentTime;
 
             if (type === 'incoming') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(600, now);
-                gain.gain.setValueAtTime(0.1, now);
+                // Smooth "Ding-Dong" pattern
+                const playNote = (time) => {
+                    // High Note (E5)
+                    const osc1 = ctx.createOscillator();
+                    const gain1 = ctx.createGain();
+                    osc1.connect(gain1);
+                    gain1.connect(ctx.destination);
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(659.25, time);
+                    gain1.gain.setValueAtTime(0, time);
+                    gain1.gain.linearRampToValueAtTime(0.1, time + 0.1); // Soft attack
+                    gain1.gain.exponentialRampToValueAtTime(0.001, time + 1.2); // Slow decay
+                    osc1.start(time);
+                    osc1.stop(time + 1.2);
+
+                    // Low Note (C5)
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(523.25, time + 0.8);
+                    gain2.gain.setValueAtTime(0, time + 0.8);
+                    gain2.gain.linearRampToValueAtTime(0.1, time + 0.9);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, time + 2.5);
+                    osc2.start(time + 0.8);
+                    osc2.stop(time + 2.5);
+                };
+
+                const now = ctx.currentTime;
+                playNote(now);
                 ringInterval.current = setInterval(() => {
                     if (ctx.state === 'closed') return;
-                    const t = ctx.currentTime;
-                    gain.gain.setValueAtTime(0.1, t);
-                    gain.gain.setValueAtTime(0, t + 0.4);
-                    gain.gain.setValueAtTime(0.1, t + 0.6);
-                    gain.gain.setValueAtTime(0, t + 1.0);
-                }, 2500);
-            } else {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, now);
-                gain.gain.setValueAtTime(0.1, now);
-                ringInterval.current = setInterval(() => {
-                    if (ctx.state === 'closed') return;
-                    const t = ctx.currentTime;
-                    gain.gain.setValueAtTime(0.1, t);
-                    gain.gain.setValueAtTime(0, t + 1.2);
+                    playNote(ctx.currentTime + 0.2); // slight buffer
                 }, 3000);
+
+            } else {
+                // Outgoing - Soft Pulse
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, ctx.currentTime);
+
+                // Pulse effect via Gain LFO manually simulated
+                const now = ctx.currentTime;
+                gain.gain.setValueAtTime(0.05, now);
+
+                // Create a gentle pulse loop manually if LFO is complex
+                // Let's use standard LFO for simplicity if supported, or just a simple beep loop but softer
+                // Simple soft beep loop:
+                const beep = (t) => {
+                    gain.gain.cancelScheduledValues(t);
+                    gain.gain.setValueAtTime(0, t);
+                    gain.gain.linearRampToValueAtTime(0.08, t + 0.2);
+                    gain.gain.linearRampToValueAtTime(0.08, t + 0.8);
+                    gain.gain.linearRampToValueAtTime(0, t + 1.0);
+                };
+
+                beep(now);
+                osc.start(now);
+
+                ringInterval.current = setInterval(() => {
+                    if (ctx.state === 'closed') return;
+                    beep(ctx.currentTime);
+                }, 2000);
             }
-            osc.start();
         } catch (e) { }
     };
 
