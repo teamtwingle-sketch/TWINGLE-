@@ -133,7 +133,7 @@ const Discovery = () => {
 
     return (
         <div
-            className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full h-full relative overflow-hidden"
+            className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full min-h-[70vh] relative overflow-hidden"
             style={{
                 backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(254,60,114,0.1) 0%, transparent 40%)'
             }}
