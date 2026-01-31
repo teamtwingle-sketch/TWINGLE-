@@ -42,6 +42,9 @@ const ChatWindow = () => {
     const lastTypedRef = useRef(0);
     const scrollRef = useRef();
 
+    // WebSocket Status
+    const [wsStatus, setWsStatus] = useState('connecting'); // connecting, connected, disconnected
+
     useEffect(() => {
         fetchMessages();
         fetchOtherUser();
@@ -88,14 +91,21 @@ const ChatWindow = () => {
         const connectWebSocket = () => {
             if (!token || isUnmounting) return;
 
-            // Calculate WS URL
+            // Robust URL Calculation
             const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-            const wsUrl = apiBase.replace('http', 'ws').replace('/api', '') + '/ws/chat/?token=' + token;
+            let wsUrl = apiBase.replace('http', 'ws').replace('/api', '') + '/ws/chat/?token=' + token;
+            try {
+                const url = new URL(apiBase);
+                const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+                wsUrl = `${protocol}//${url.host}/ws/chat/?token=${token}`;
+                console.log("Connecting WS to:", wsUrl);
+            } catch (e) { }
 
             ws = new WebSocket(wsUrl);
 
             ws.onopen = () => {
                 console.log("Connected to Chat WebSocket");
+                setWsStatus('connected');
             };
 
             ws.onmessage = (event) => {
@@ -134,6 +144,7 @@ const ChatWindow = () => {
 
             ws.onclose = () => {
                 console.log("Chat WebSocket Disconnected");
+                setWsStatus('disconnected');
                 if (!isUnmounting) {
                     // Auto-reconnect after 3 seconds
                     console.log("Attempting to reconnect...");
@@ -487,6 +498,10 @@ const ChatWindow = () => {
                             <h3 className="font-bold text-slate-900 leading-tight text-[15px]">{otherUser?.first_name || 'User'}</h3>
                             <span className={`text-[11px] font-bold tracking-wide uppercase ${partnerStatus?.is_typing ? 'text-rose-500 animate-pulse' : partnerStatus?.is_online ? 'text-green-600' : 'text-slate-500'}`}>
                                 {partnerStatus?.is_typing ? 'Typing...' : (partnerStatus?.is_online ? 'Active now' : `Seen ${formatLastSeen(partnerStatus?.last_seen)}`)}
+                            </span>
+                            {/* WS Status Debug */}
+                            <span className={`text-[9px] ml-2 px-1.5 py-0.5 rounded-full ${wsStatus === 'connected' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                                {wsStatus === 'connected' ? 'LIVE' : 'OFFLINE'}
                             </span>
                         </div>
                     </div>
