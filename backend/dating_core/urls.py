@@ -69,6 +69,11 @@ urlpatterns = [
     path('api/chats/', ChatListView.as_view(), name='chat_list'),
     path('api/chat/typing/', TypingView.as_view(), name='chat_typing'),
     path('api/', include(router.urls)),
+    
+    # SEO Files
+    path('sitemap.xml', TemplateView.as_view(template_name='sitemap.xml', content_type='text/xml')),
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+    
     path('', TemplateView.as_view(template_name='index.html')),
 ]
 
