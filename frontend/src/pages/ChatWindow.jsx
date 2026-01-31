@@ -670,11 +670,11 @@ const ChatWindow = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9 }}
-                            className="absolute bottom-20 left-4 bg-white/80 backdrop-blur-sm border border-slate-200 px-4 py-2.5 rounded-full rounded-tl-sm shadow-sm z-10 flex items-center gap-1.5"
+                            className="absolute bottom-24 left-4 bg-white/90 backdrop-blur-md border border-rose-100 px-4 py-3 rounded-2xl rounded-tl-sm shadow-lg shadow-rose-100/50 z-40 flex items-center gap-1.5"
                         >
-                            <span className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-[bounce_1s_infinite_0ms]"></span>
-                            <span className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-[bounce_1s_infinite_200ms]"></span>
-                            <span className="w-1.5 h-1.5 bg-rose-400 rounded-full animate-[bounce_1s_infinite_400ms]"></span>
+                            <span className="w-2 h-2 bg-rose-500 rounded-full animate-[bounce_1s_infinite_0ms]"></span>
+                            <span className="w-2 h-2 bg-rose-500 rounded-full animate-[bounce_1s_infinite_200ms]"></span>
+                            <span className="w-2 h-2 bg-rose-500 rounded-full animate-[bounce_1s_infinite_400ms]"></span>
                         </motion.div>
                     )}
                 </AnimatePresence>
