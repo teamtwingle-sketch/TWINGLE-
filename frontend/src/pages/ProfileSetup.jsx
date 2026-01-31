@@ -27,6 +27,9 @@ const ProfileSetup = () => {
             const res = await api.get('/profile/');
             setProfile({
                 ...res.data,
+                gender: res.data.gender || 'male',
+                interested_in: res.data.interested_in || 'female',
+                district: res.data.district || 'ernakulam',
                 relationship_intents: res.data.relationship_intents || [],
                 photos: res.data.photos || []
             });
