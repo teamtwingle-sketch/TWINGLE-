@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin-dashboard
+Disallow: /profile-setup
+Disallow: /subscription
+Disallow: /matches
+Disallow: /profile/
+Disallow: /chat/
+Disallow: /chats
+
+Sitemap: https://twingle.com/sitemap.xml
