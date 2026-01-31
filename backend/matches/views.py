@@ -28,18 +28,20 @@ class DiscoveryView(views.APIView):
         blocked_by_ids = set(Block.objects.filter(blocked_user=user).values_list('blocker_id', flat=True))
 
         # 1. New Candidates (Unswiped)
-        new_candidates = User.objects.exclude(id=user.id).exclude(id__in=swiped_ids).exclude(id__in=blocked_ids).exclude(id__in=blocked_by_ids).filter(status='active')
-
-        # 2. Recycled Candidates (Swiped but not Matched/Blocked)
-        old_candidates = User.objects.exclude(id=user.id).filter(id__in=swiped_ids).exclude(id__in=matched_ids).exclude(id__in=blocked_ids).exclude(id__in=blocked_by_ids).filter(status='active')
+        # Optimize with prefetch/select_related to avoid N+1 queries
+        candidates = User.objects.exclude(id=user.id)\
+            .exclude(id__in=swiped_ids)\
+            .exclude(id__in=blocked_ids)\
+            .exclude(id__in=blocked_by_ids)\
+            .filter(status='active')\
+            .select_related('profile')\
+            .prefetch_related('photos', 'profile__interests')
 
         # Filter by gender interest
         if profile.interested_in == 'male':
-            new_candidates = new_candidates.filter(profile__gender='male')
-            old_candidates = old_candidates.filter(profile__gender='male')
+            candidates = candidates.filter(profile__gender='male')
         elif profile.interested_in == 'female':
-            new_candidates = new_candidates.filter(profile__gender='female')
-            old_candidates = old_candidates.filter(profile__gender='female')
+            candidates = candidates.filter(profile__gender='female')
 
         # Combined Processing
         my_intents = set(profile.relationship_intents)
@@ -55,7 +57,7 @@ class DiscoveryView(views.APIView):
              if my_intents.intersection(c_intents): score += 10
              
              # Interest
-             c_interests = set(c_profile.interests.values_list('id', flat=True))
+             c_interests = set(i.id for i in c_profile.interests.all()) # Optimized to use prefetch
              score += len(my_interests.intersection(c_interests)) * 2
              
              # District
@@ -71,22 +73,15 @@ class DiscoveryView(views.APIView):
                 "score": score
             }
 
-        scored_new = []
-        for c in new_candidates.select_related('profile'):
+        scored_results = []
+        for c in candidates:
             res = score_user(c)
-            if res: scored_new.append(res)
-        scored_new.sort(key=lambda x: x['score'], reverse=True)
-
-        scored_old = []
-        for c in old_candidates.select_related('profile'):
-             res = score_user(c)
-             if res: scored_old.append(res)
-        random.shuffle(scored_old) # Randomize old users
-
-        # Priority: New > Old
-        final_results = scored_new + scored_old
+            if res: scored_results.append(res)
+            
+        # Sort by compatibility score
+        scored_results.sort(key=lambda x: x['score'], reverse=True)
         
-        return response.Response(final_results[:10])
+        return response.Response(scored_results[:10])
 
 class MatchListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
