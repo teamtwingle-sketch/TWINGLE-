@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from users.views import (
-    RegisterView, UserDetailView, MyTokenObtainPairView, UserDeleteView,
+    RegisterView, UserDetailView, MyTokenObtainPairView, UserDeleteView, GoogleLoginView,
     AdminStatsView, AdminUserListView, AdminBanUserView,
     AdminReportListView, AdminResolveReportView,
     AdminPaymentListView, AdminApprovePaymentView, AdminRejectPaymentView
@@ -35,6 +35,7 @@ urlpatterns = [
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/me/', UserDetailView.as_view(), name='auth_me'),
     path('api/auth/delete/', UserDeleteView.as_view(), name='auth_delete'),
+    path('api/auth/google/', GoogleLoginView.as_view(), name='auth_google'),
 
     # Admin Dashboard API
     path('api/admin/stats/', AdminStatsView.as_view()),

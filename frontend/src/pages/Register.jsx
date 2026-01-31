@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/client';
 import { toast } from 'react-toastify';
+import { GoogleLogin } from '@react-oauth/google';
 import { Sparkles } from 'lucide-react';
 
 const Register = () => {
@@ -94,6 +95,39 @@ const Register = () => {
                         Create Account
                     </button>
                 </form>
+
+                <div className="mt-6">
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+                        <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-slate-500">Or continue with</span></div>
+                    </div>
+
+                    <div className="mt-6 flex justify-center">
+                        <GoogleLogin
+                            onSuccess={async (credentialResponse) => {
+                                try {
+                                    const res = await api.post('/auth/google/', { token: credentialResponse.credential });
+                                    localStorage.setItem('token', res.data.access);
+                                    localStorage.setItem('refresh', res.data.refresh);
+                                    localStorage.setItem('user_id', res.data.user_id);
+                                    localStorage.setItem('is_staff', res.data.is_staff);
+                                    toast.success('Welcome!');
+                                    window.location.href = '/profile-setup';
+                                } catch (err) {
+                                    console.error(err);
+                                    toast.error('Google Sign-Up Failed');
+                                }
+                            }}
+                            onError={() => toast.error('Sign-Up Failed')}
+                            useOneTap
+                            theme="filled_blue"
+                            shape="pill"
+                            size="large"
+                            width="300"
+                            text="signup_with"
+                        />
+                    </div>
+                </div>
 
                 <p className="mt-8 text-center text-slate-600">
                     Already have an account?{' '}

@@ -11,3 +11,5 @@ psycopg2-binary
 python-dotenv
 channels[daphne]
 channels_redis
+requests
+google-auth

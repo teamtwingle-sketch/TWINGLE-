@@ -26,6 +26,38 @@ class UserDetailView(generics.RetrieveAPIView):
     def get_object(self):
         return self.request.user
 
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class GoogleLoginView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        token = request.data.get('token')
+        try:
+            # Specify the CLIENT_ID of the app that accesses the backend:
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), "907842385473-m4o5usepc70enftf6heo2dmuctns2hdd.apps.googleusercontent.com")
+
+            email = idinfo['email']
+            first_name = idinfo.get('given_name', 'User')
+
+            user, created = User.objects.get_or_create(email=email)
+            if created:
+                user.first_name = first_name
+                user.set_unusable_password()
+                user.save()
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user_id': user.id,
+                'is_staff': user.is_staff
+            })
+        except ValueError:
+            return Response({'error': 'Invalid token'}, status=400)
+
 class UserDeleteView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
