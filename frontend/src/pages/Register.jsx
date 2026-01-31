@@ -24,10 +24,10 @@ const Register = () => {
             const loginRes = await api.post('/auth/login/', { email, password });
             localStorage.setItem('token', loginRes.data.access);
             localStorage.setItem('refresh', loginRes.data.refresh);
-            localStorage.setItem('user_id', loginRes.data.id); // Assuming backend returns ID
+            localStorage.setItem('user_id', loginRes.data.user_id);
 
             toast.success('Welcome to Twingle!');
-            navigate('/profile-setup'); // Go straight to setup
+            window.location.href = '/profile-setup';
         } catch (err) {
             console.error(err);
             toast.error('Registration failed');
