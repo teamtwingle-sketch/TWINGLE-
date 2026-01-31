@@ -35,7 +35,8 @@ const AppLayout = () => {
         };
 
         checkUnread();
-        const interval = setInterval(checkUnread, 5000);
+        checkUnread();
+        const interval = setInterval(checkUnread, 15000); // Poll every 15s instead of 5s
         return () => clearInterval(interval);
     }, []);
 

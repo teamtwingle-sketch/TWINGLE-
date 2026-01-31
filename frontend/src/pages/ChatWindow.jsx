@@ -126,11 +126,11 @@ const ChatWindow = () => {
 
         if (token) connectWebSocket();
 
-        // 3. Keep Polling for Calls & Presence (Status updates need this)
+        // 3. Keep Polling for Calls (Status updates need this)
         const interval = setInterval(() => {
             pollCalls();
-            fetchMessages(); // Restored for typing/online status
-        }, 3000);
+            // fetchMessages(); // REMOVED: WebSocket handles messages. Polling full list every 3s causes hanging/lag.
+        }, 5000); // Increased to 5s to reduce load
 
         return () => {
             isUnmounting = true;

@@ -17,10 +17,19 @@ const Register = () => {
             return toast.error("Passwords don't match");
         }
         try {
+            // 1. Register
             await api.post('/auth/register/', { email, password });
-            toast.success('Account created! Please login.');
-            navigate('/login');
+
+            // 2. Auto Login
+            const loginRes = await api.post('/auth/login/', { email, password });
+            localStorage.setItem('token', loginRes.data.access);
+            localStorage.setItem('refresh', loginRes.data.refresh);
+            localStorage.setItem('user_id', loginRes.data.id); // Assuming backend returns ID
+
+            toast.success('Welcome to Twingle!');
+            navigate('/profile-setup'); // Go straight to setup
         } catch (err) {
+            console.error(err);
             toast.error('Registration failed');
         }
     };
