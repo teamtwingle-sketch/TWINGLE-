@@ -115,14 +115,16 @@ const ChatWindow = () => {
                 const data = JSON.parse(event.data);
 
                 // 1. Typing Signal
-                if (data.type === 'typing' && data.sender_id === parseInt(userId)) {
-                    setPartnerStatus(prev => ({ ...prev, is_typing: true }));
+                if (data.type === 'typing') {
+                    if (data.sender_id === parseInt(userId)) {
+                        setPartnerStatus(prev => ({ ...prev, is_typing: true }));
 
-                    // Auto-hide after 3s
-                    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-                    typingTimeoutRef.current = setTimeout(() => {
-                        setPartnerStatus(prev => ({ ...prev, is_typing: false }));
-                    }, 3000);
+                        // Auto-hide after 3s
+                        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                        typingTimeoutRef.current = setTimeout(() => {
+                            setPartnerStatus(prev => ({ ...prev, is_typing: false }));
+                        }, 3000);
+                    }
                     return;
                 }
 
