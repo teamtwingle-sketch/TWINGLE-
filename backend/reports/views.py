@@ -15,14 +15,13 @@ class ReportCreateView(generics.CreateAPIView):
         count = Report.objects.filter(reported_user=reported_user).count()
         
         if count >= 3:
-            reported_user.is_active = False
+            reported_user.status = 'under_review'
             reported_user.save()
             
-            # Mark reports as resolved
-            Report.objects.filter(reported_user=reported_user).update(
-                resolved=True, 
-                action_taken="Auto-banned (3+ reports)"
-            )
+        if count >= 10:
+             reported_user.status = 'temp_banned'
+             reported_user.save()
+             Report.objects.filter(reported_user=reported_user).update(action_taken="Auto-temp-banned (10+ reports)")
 
 class BlockCreateView(generics.CreateAPIView):
     queryset = Block.objects.all()
