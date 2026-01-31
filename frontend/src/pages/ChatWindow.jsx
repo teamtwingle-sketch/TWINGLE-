@@ -34,12 +34,14 @@ const ChatWindow = () => {
     const remoteAudioRef = useRef(null);
     const audioCtxRef = useRef(null);
     const ringInterval = useRef(null);
+    const wsRef = useRef(null);
 
     // Chat State
     const [partnerStatus, setPartnerStatus] = useState(null);
     const [replyTo, setReplyTo] = useState(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
     const lastTypedRef = useRef(0);
+    const typingTimeoutRef = useRef(null);
     const scrollRef = useRef();
 
     // WebSocket Status
@@ -102,6 +104,7 @@ const ChatWindow = () => {
             } catch (e) { }
 
             ws = new WebSocket(wsUrl);
+            wsRef.current = ws;
 
             ws.onopen = () => {
                 console.log("Connected to Chat WebSocket");
@@ -110,6 +113,20 @@ const ChatWindow = () => {
 
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
+
+                // 1. Typing Signal
+                if (data.type === 'typing' && data.sender_id === parseInt(userId)) {
+                    setPartnerStatus(prev => ({ ...prev, is_typing: true }));
+
+                    // Auto-hide after 3s
+                    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+                    typingTimeoutRef.current = setTimeout(() => {
+                        setPartnerStatus(prev => ({ ...prev, is_typing: false }));
+                    }, 3000);
+                    return;
+                }
+
+                // 2. Chat Message
                 if (data.message) {
                     const newMsg = data.message;
                     const partnerId = parseInt(userId);
@@ -121,7 +138,6 @@ const ChatWindow = () => {
                             if (prev.some(m => m.id === newMsg.id)) return prev;
 
                             // 2. Race Condition Fix: Check if we have a "Temp" message (Optimistic) that matches this content
-                            // Temp IDs are usually large timestamps (e.g. 173...) whereas DB IDs are smaller integers
                             const tempMatch = prev.find(m =>
                                 m.sender === myId &&
                                 m.id > 1000000000000 && // Is Temp ID
@@ -129,11 +145,9 @@ const ChatWindow = () => {
                             );
 
                             if (tempMatch) {
-                                // WebSocket arrived first! Swap Temp -> Real
                                 return prev.map(m => m.id === tempMatch.id ? newMsg : m);
                             }
 
-                            // 3. New message, append it
                             return [...prev, newMsg];
                         });
 
@@ -415,8 +429,18 @@ const ChatWindow = () => {
     };
     const handleInput = (e) => {
         setInput(e.target.value);
+
+        // WS Typing Signal (Real-time & Fast)
         const now = Date.now();
-        if (now - lastTypedRef.current > 2000) { lastTypedRef.current = now; api.post('/chat/typing/', { receiver_id: userId }).catch(() => { }); }
+        if (now - lastTypedRef.current > 1000) {
+            lastTypedRef.current = now;
+            if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+                wsRef.current.send(JSON.stringify({
+                    type: 'typing',
+                    receiver_id: userId
+                }));
+            }
+        }
     };
     const handleSend = async () => {
         if (!input.trim()) return;

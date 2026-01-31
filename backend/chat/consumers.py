@@ -35,18 +35,33 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         try:
-            text_data_json = json.loads(text_data)
-            message = text_data_json.get('message')
-            # Echo or process if needed
-        except:
+            data = json.loads(text_data)
+            msg_type = data.get('type')
+
+            if msg_type == 'typing':
+                receiver_id = data.get('receiver_id')
+                if receiver_id:
+                    # Forward typing signal to recipient
+                    await self.channel_layer.group_send(
+                        f"user_{receiver_id}",
+                        {
+                            'type': 'typing_signal',
+                            'sender_id': self.user.id
+                        }
+                    )
+        except Exception as e:
             pass
 
     async def chat_message(self, event):
         message = event['message']
-
-        # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message
+        }))
+
+    async def typing_signal(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'typing',
+            'sender_id': event['sender_id']
         }))
 
     @database_sync_to_async
