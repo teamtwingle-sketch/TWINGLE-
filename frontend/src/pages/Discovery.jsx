@@ -26,7 +26,7 @@ const SwipeCard = ({ user, onSwipe }) => {
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={handleDragEnd}
-            className="w-full max-w-md aspect-[3/4] cursor-grab active:cursor-grabbing"
+            className="absolute inset-0 m-auto w-full max-w-sm h-full max-h-[70vh] cursor-grab active:cursor-grabbing"
         >
             <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 <img
@@ -131,10 +131,11 @@ const Discovery = () => {
     const currentBatch = users.slice(currentIndex, currentIndex + 2).reverse();
 
     return (
-        <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full h-full relative">
+        <div className="flex-1 flex flex-col p-4 w-full h-full relative overflow-hidden">
             {/* SEO Heading */}
             <h1 className="sr-only">Twingle - The Best Mallu Dating App for Malayalis | Number One Malayalam Dating Site</h1>
-            <div className="relative w-full aspect-[3/4] flex items-center justify-center">
+
+            <div className="flex-1 relative w-full flex items-center justify-center my-4">
                 {users.length > currentIndex ? (
                     <AnimatePresence>
                         {currentBatch.map((user, idx) => (
@@ -161,16 +162,16 @@ const Discovery = () => {
             </div>
 
             {/* Control Buttons */}
-            <div className="mt-12 flex items-center justify-center gap-10 pb-8">
+            <div className="h-24 shrink-0 flex items-center justify-center gap-8 pb-4">
                 <button
                     onClick={() => handleButtonSwipe('dislike')}
-                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-red-500 text-red-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-red-50"
+                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-red-500 text-red-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-red-50 touch-manipulation"
                 >
                     <X size={32} strokeWidth={3} />
                 </button>
                 <button
                     onClick={() => handleButtonSwipe('like')}
-                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-green-500 text-green-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-green-50"
+                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-green-500 text-green-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-green-50 touch-manipulation"
                 >
                     <Heart size={32} fill="currentColor" />
                 </button>
