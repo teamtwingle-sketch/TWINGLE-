@@ -103,12 +103,30 @@ const ChatWindow = () => {
                 if (data.message) {
                     const newMsg = data.message;
                     const partnerId = parseInt(userId);
+
+                    // Filter: Only accept messages for this chat room
                     if (newMsg.sender === partnerId || (newMsg.sender === myId && newMsg.receiver === partnerId)) {
                         setMessages((prev) => {
+                            // 1. If this exact ID already exists, do nothing (deduplicate)
                             if (prev.some(m => m.id === newMsg.id)) return prev;
+
+                            // 2. Race Condition Fix: Check if we have a "Temp" message (Optimistic) that matches this content
+                            // Temp IDs are usually large timestamps (e.g. 173...) whereas DB IDs are smaller integers
+                            const tempMatch = prev.find(m =>
+                                m.sender === myId &&
+                                m.id > 1000000000000 && // Is Temp ID
+                                m.content === newMsg.content // Content matches
+                            );
+
+                            if (tempMatch) {
+                                // WebSocket arrived first! Swap Temp -> Real
+                                return prev.map(m => m.id === tempMatch.id ? newMsg : m);
+                            }
+
+                            // 3. New message, append it
                             return [...prev, newMsg];
                         });
-                        if (!showScrollButton) setTimeout(scrollToBottom, 50);
+
                         setPartnerStatus(prev => ({ ...prev, is_typing: false }));
                     }
                 }
@@ -413,9 +431,18 @@ const ChatWindow = () => {
 
             const payload = { receiver: userId, content: msgContent, message_type: 'text', parent_message: replyTo?.id };
             const res = await api.post('/messages/', payload);
+            const realMsg = res.data;
 
             // Replace temp message with real one
-            setMessages(prev => prev.map(m => m.id === tempId ? res.data : m));
+            setMessages(prev => {
+                // If the real message was ALREADY and INSTANTLY added by WebSocket (unlikely but possible race)
+                // then we just remove the temp one.
+                if (prev.some(m => m.id === realMsg.id)) {
+                    return prev.filter(m => m.id !== tempId);
+                }
+                // Otherwise normal swap
+                return prev.map(m => m.id === tempId ? realMsg : m);
+            });
         } catch (e) {
             console.error("Send failed", e);
             // Remove temp message on error
