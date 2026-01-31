@@ -155,11 +155,12 @@ const ChatWindow = () => {
 
         if (token) connectWebSocket();
 
-        // 3. Keep Polling for Calls (Status updates need this)
+        // 3. Fallback Polling & Status Sync
+        // Poll every 3s to ensure messages load even if WS fails, and to update 'Active Now' status
         const interval = setInterval(() => {
             pollCalls();
-            // fetchMessages(); // REMOVED: WebSocket handles messages. Polling full list every 3s causes hanging/lag.
-        }, 5000); // Increased to 5s to reduce load
+            fetchMessages();
+        }, 3000);
 
         return () => {
             isUnmounting = true;
