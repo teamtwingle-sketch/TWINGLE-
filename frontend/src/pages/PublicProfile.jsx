@@ -55,15 +55,7 @@ const PublicProfile = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20 relative">
-            {/* Back Button - Floating on Photo */}
-            <div className="absolute top-4 left-4 z-20">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="p-2.5 bg-black/20 backdrop-blur-md rounded-full text-white/90 shadow-sm border border-white/10 hover:bg-black/30 transition-all active:scale-95"
-                >
-                    <ChevronLeft size={24} />
-                </button>
-            </div>
+
 
             {/* Photo Carousel */}
             <div className="relative h-[65vh] w-full bg-slate-900 overflow-hidden">

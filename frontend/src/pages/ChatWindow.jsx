@@ -764,20 +764,26 @@ const ChatWindow = () => {
                         </div>
 
                         {/* Controls */}
-                        <div className="relative z-10 mb-8 w-full max-w-sm px-8">
+                        <div className="relative z-10 mb-10 w-full max-w-sm px-6">
                             {callStatus === 'incoming' ? (
-                                <div className="flex justify-between items-center w-full">
-                                    <div className="flex flex-col items-center gap-2">
-                                        <button onClick={disconnectCall} className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-red-600 transition-transform active:scale-95">
-                                            <PhoneOff size={28} />
+                                <div className="flex justify-between items-center w-full bg-white/10 backdrop-blur-md p-6 rounded-[2rem] border border-white/10">
+                                    <div className="flex flex-col items-center gap-3">
+                                        <button onClick={disconnectCall} className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white shadow-xl hover:bg-red-600 transition-transform active:scale-95">
+                                            <PhoneOff size={32} />
                                         </button>
-                                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Decline</span>
+                                        <span className="text-white text-xs font-bold uppercase tracking-widest">Decline</span>
                                     </div>
-                                    <div className="flex flex-col items-center gap-2">
-                                        <button onClick={acceptCall} className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-green-600 transition-transform active:scale-95 animate-bounce">
-                                            <PhoneIncoming size={28} />
+
+                                    <div className="text-white/30 text-xs font-black uppercase flex flex-col items-center gap-1 animate-pulse">
+                                        <ChevronDown size={20} className="animate-bounce" />
+                                        Swipe
+                                    </div>
+
+                                    <div className="flex flex-col items-center gap-3">
+                                        <button onClick={acceptCall} className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center text-white shadow-xl hover:bg-green-600 transition-transform active:scale-95 animate-[bounce_1s_infinite]">
+                                            <PhoneIncoming size={32} />
                                         </button>
-                                        <span className="text-white/60 text-xs font-bold uppercase tracking-widest">Accept</span>
+                                        <span className="text-white text-xs font-bold uppercase tracking-widest">Accept</span>
                                     </div>
                                 </div>
                             ) : (
