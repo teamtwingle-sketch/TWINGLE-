@@ -8,4 +8,4 @@ Disallow: /profile/
 Disallow: /chat/
 Disallow: /chats
 
-Sitemap: https://twingle.com/sitemap.xml
+Sitemap: https://twingle.online/sitemap.xml
