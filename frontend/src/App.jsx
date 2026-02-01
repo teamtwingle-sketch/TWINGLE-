@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Discovery from './pages/Discovery';
 import ProfileSetup from './pages/ProfileSetup';
 import ChatList from './pages/ChatList';
+import PublicChat from './pages/PublicChat';
 import ChatWindow from './pages/ChatWindow';
 import Subscription from './pages/Subscription';
 import Matches from './pages/Matches';
@@ -38,6 +39,7 @@ function App() {
             <Route path="/matches" element={isAuthenticated ? <Matches /> : <Navigate to="/login" />} />
             <Route path="/profile/:userId" element={isAuthenticated ? <PublicProfile /> : <Navigate to="/login" />} />
             <Route path="/chat/:userId" element={isAuthenticated ? <ChatWindow /> : <Navigate to="/login" />} />
+            <Route path="/public-chat" element={isAuthenticated ? <PublicChat /> : <Navigate to="/login" />} />
             <Route path="/chats" element={isAuthenticated ? <ChatList /> : <Navigate to="/login" />} />
             <Route path="/chats" element={isAuthenticated ? <ChatList /> : <Navigate to="/login" />} />
             <Route path="/subscription" element={isAuthenticated ? <Subscription /> : <Navigate to="/login" />} />

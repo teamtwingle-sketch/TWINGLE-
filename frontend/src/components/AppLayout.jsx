@@ -74,6 +74,7 @@ const AppLayout = () => {
                 <nav className="h-20 bg-white border-t border-slate-200 flex items-center justify-around px-2 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.04)] z-20">
                     <NavItem to="/" icon={<Flame />} label="Discover" />
                     <NavItem to="/matches" icon={<Star />} label="Matches" />
+                    <NavItem to="/public-chat" icon={<Sparkles />} label="Hub" />
                     <NavItem to="/chats" icon={<MessageCircle />} label="Chats" badgeCount={unreadCount} />
                     <NavItem to="/profile-setup" icon={<User />} label="Profile" />
                 </nav>

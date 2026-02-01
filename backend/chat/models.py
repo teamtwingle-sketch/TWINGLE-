@@ -38,3 +38,11 @@ class Call(models.Model):
 
     def __str__(self):
         return f"Call {self.caller} -> {self.receiver} ({self.status})"
+
+class PublicMessage(models.Model):
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='public_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"PublicMsg from {self.sender} at {self.timestamp}"

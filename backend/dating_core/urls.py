@@ -16,7 +16,7 @@ from users.views import (
 from profiles.views import ProfileDetailView, PublicProfileDetailView, InterestListView, UserPhotoViewSet
 from django.views.generic import TemplateView
 from matches.views import DiscoveryView, SwipeView, MatchListView
-from chat.views import ChatViewSet, ChatListView, TypingView, CallViewSet
+from chat.views import ChatViewSet, ChatListView, TypingView, CallViewSet, PublicChatViewSet
 from payments.views import SubscriptionPlanListView, PaymentRequestCreateView, MyPaymentStatusView
 from reports.views import ReportCreateView, BlockCreateView
 from rest_framework.routers import DefaultRouter
@@ -25,6 +25,7 @@ router = DefaultRouter()
 router.register(r'photos', UserPhotoViewSet, basename='photo')
 router.register(r'messages', ChatViewSet, basename='message')
 router.register(r'calls', CallViewSet, basename='calls')
+router.register(r'public-chat', PublicChatViewSet, basename='public_chat')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

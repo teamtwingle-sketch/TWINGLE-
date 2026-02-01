@@ -24,6 +24,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+        # Join public chat group
+        await self.channel_layer.group_add(
+            "public_chat",
+            self.channel_name
+        )
+
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -32,6 +38,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.user_group_name,
                 self.channel_name
             )
+            await self.channel_layer.group_discard(
+                "public_chat",
+                self.channel_name
+            )
+
+    async def public_chat_message(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps({
+            'type': 'public_message',
+            'message': message
+        }))
 
     async def receive(self, text_data):
         try:

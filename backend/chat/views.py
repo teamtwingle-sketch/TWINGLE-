@@ -7,7 +7,10 @@ from django.db.models import Q
 from users.models import User
 from django.utils import timezone
 import datetime
-
+import re
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from .models import ChatMessage, PublicMessage
 # Simple in-memory typing status for MVP
 TYPING_STORE = {}
 
@@ -262,3 +265,62 @@ class CallViewSet(viewsets.ModelViewSet):
              data['incoming_update'] = CallSerializer(active_incoming).data
             
         return response.Response(data)
+
+class PublicMessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.ReadOnlyField(source='sender.first_name')
+    
+    class Meta:
+        model = PublicMessage
+        fields = ['id', 'sender', 'sender_name', 'content', 'timestamp']
+        read_only_fields = ['sender', 'timestamp']
+
+class PublicChatViewSet(viewsets.ModelViewSet):
+    queryset = PublicMessage.objects.order_by('-timestamp')[:50] # Last 50 messages
+    serializer_class = PublicMessageSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        # Return in timeline order (oldest first) for frontend, but slice from newest
+        return PublicMessage.objects.order_by('-timestamp')[:100]
+
+    def list(self, request, *args, **kwargs):
+        # We want the last 100 messages, but in chronological order
+        queryset = PublicMessage.objects.order_by('-timestamp')[:100]
+        serializer = self.get_serializer(queryset, many=True)
+        # Reverse to show Old -> New
+        return response.Response(reversed(serializer.data))
+
+    def create(self, request, *args, **kwargs):
+        content = request.data.get('content', '')
+        
+        # 1. Regex Validation (No URLs, No Phones)
+        # Phone: Matches simplified patterns of 10-digit numbers or +91 format
+        phone_pattern = r'(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}'
+        # URL: Matches http/https/www or .com types
+        url_pattern = r'(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?'
+        
+        if re.search(url_pattern, content):
+             return response.Response({"error": "Links are not allowed in public chat."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if re.search(phone_pattern, content):
+             return response.Response({"error": "Phone numbers are not allowed for safety."}, status=status.HTTP_400_BAD_REQUEST)
+             
+        # Strict Text Check
+        if not content.strip():
+             return response.Response({"error": "Empty message"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        msg = serializer.save(sender=request.user)
+        
+        # 2. Broadcast to WebSocket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "public_chat",
+            {
+                "type": "public_chat_message",
+                "message": serializer.data
+            }
+        )
+        
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED)
