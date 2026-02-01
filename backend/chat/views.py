@@ -317,14 +317,18 @@ class PublicChatViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         msg = serializer.save(sender=request.user)
         
-        # 2. Broadcast to WebSocket
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(
-            "public_chat",
-            {
-                "type": "public_chat_message",
-                "message": serializer.data
-            }
-        )
+        # 2. Broadcast to WebSocket (Safely)
+        try:
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                "public_chat",
+                {
+                    "type": "public_chat_message",
+                    "message": serializer.data
+                }
+            )
+        except Exception as e:
+            print(f"WS Broadcast Error: {e}")
+            # Do not fail the request if broadcast fails
         
         return response.Response(serializer.data, status=status.HTTP_201_CREATED)
