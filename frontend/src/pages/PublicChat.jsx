@@ -69,18 +69,31 @@ const PublicChat = () => {
     const handleSend = async () => {
         if (!input.trim()) return;
 
+        const tempMsg = {
+            id: Date.now(),
+            content: input,
+            sender: parseInt(userId),
+            sender_name: 'Me', // Temp name
+            timestamp: new Date().toISOString()
+        };
+
         try {
-            const res = await api.post('/public-chat/', { content: input });
             setInput('');
-            // Optimistic update not needed as WS is fast, but we can do it if desired.
-            // But strict validation happens on server (Regex), so better wait for WS or successful post response.
-            // Actually, let's wait for WS broadcast to avoid duplication/out-of-order.
+            setMessages(prev => [...prev, tempMsg]); // Optimistic Add
+
+            const res = await api.post('/public-chat/', { content: tempMsg.content });
+
+            // Replace temp message with real one from server (to get real ID)
+            setMessages(prev => prev.map(m => m.id === tempMsg.id ? res.data : m));
         } catch (err) {
+            // Revert on failure
+            setMessages(prev => prev.filter(m => m.id !== tempMsg.id));
             if (err.response?.data?.error) {
                 toast.warning(err.response.data.error);
             } else {
                 toast.error("Failed to send");
             }
+            setInput(tempMsg.content); // Restore draft
         }
     };
 
