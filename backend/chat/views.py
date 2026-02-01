@@ -284,6 +284,10 @@ class PublicChatViewSet(viewsets.ModelViewSet):
         return PublicMessage.objects.order_by('-timestamp')[:100]
 
     def list(self, request, *args, **kwargs):
+        # Auto-delete messages older than 24 hours
+        cutoff = timezone.now() - datetime.timedelta(hours=24)
+        PublicMessage.objects.filter(timestamp__lt=cutoff).delete()
+
         # We want the last 100 messages, but in chronological order
         queryset = PublicMessage.objects.order_by('-timestamp')[:100]
         serializer = self.get_serializer(queryset, many=True)
