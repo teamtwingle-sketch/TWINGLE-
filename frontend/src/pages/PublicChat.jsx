@@ -43,13 +43,20 @@ const PublicChat = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-        let wsUrl = apiBase.replace('http', 'ws').replace('/api', '') + '/ws/chat/?token=' + token;
-        try {
-            const url = new URL(apiBase);
-            const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-            wsUrl = `${protocol}//${url.host}/ws/chat/?token=${token}`;
-        } catch (e) { }
+        // Determine WebSocket URL
+        // In Prod (https): wss://twingle.online/ws/chat/
+        // In Dev (localhost): ws://127.0.0.1:8000/ws/chat/
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        let host = window.location.host;
+
+        // If in development (Vite typically runs on 5173), point to Django (8000)
+        if (host.includes('localhost') || host.includes('127.0.0.1')) {
+            // Assuming default Django port
+            host = '127.0.0.1:8000';
+        }
+
+        const wsUrl = `${protocol}//${host}/ws/chat/?token=${token}`;
 
         const ws = new WebSocket(wsUrl);
         wsRef.current = ws;
