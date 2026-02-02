@@ -40,4 +40,10 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://twingle.online/public-chat</loc>
+    <lastmod>2026-02-02</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>
