@@ -268,11 +268,22 @@ class CallViewSet(viewsets.ModelViewSet):
 
 class PublicMessageSerializer(serializers.ModelSerializer):
     sender_name = serializers.ReadOnlyField(source='sender.first_name')
+    reply_to = serializers.SerializerMethodField()
     
     class Meta:
         model = PublicMessage
-        fields = ['id', 'sender', 'sender_name', 'content', 'timestamp']
-        read_only_fields = ['sender', 'timestamp']
+        fields = ['id', 'sender', 'sender_name', 'content', 'timestamp', 'parent_message', 'reply_to']
+        read_only_fields = ['sender', 'timestamp', 'reply_to']
+        extra_kwargs = {'parent_message': {'write_only': True}}
+
+    def get_reply_to(self, obj):
+        if obj.parent_message:
+            return {
+                "id": obj.parent_message.id, 
+                "content": obj.parent_message.content,
+                "sender_name": obj.parent_message.sender.first_name
+            }
+        return None
 
 class PublicChatViewSet(viewsets.ModelViewSet):
     queryset = PublicMessage.objects.order_by('-timestamp')[:50] # Last 50 messages

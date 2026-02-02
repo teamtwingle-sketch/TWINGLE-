@@ -43,6 +43,7 @@ class PublicMessage(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='public_messages')
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    parent_message = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='replies')
 
     def __str__(self):
         return f"PublicMsg from {self.sender} at {self.timestamp}"
