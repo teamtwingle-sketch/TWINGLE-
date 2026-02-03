@@ -55,3 +55,25 @@ class ProfileSerializer(serializers.ModelSerializer):
         if interest_ids is not None:
             instance.interests.set(interest_ids)
         return instance
+
+class PublicProfileSerializer(ProfileSerializer):
+    is_matched = serializers.SerializerMethodField()
+    has_liked = serializers.SerializerMethodField()
+
+    class Meta(ProfileSerializer.Meta):
+        fields = ProfileSerializer.Meta.fields + ('is_matched', 'has_liked')
+
+    def get_is_matched(self, obj):
+        request = self.context.get('request')
+        if not request: return False
+        
+        # Avoid circular import if possible, or import inside method
+        from matches.models import Match
+        return Match.objects.filter(users=request.user).filter(users=obj.user).exists()
+
+    def get_has_liked(self, obj):
+        request = self.context.get('request')
+        if not request: return False
+        
+        from matches.models import Swipe
+        return Swipe.objects.filter(swiper=request.user, target=obj.user, action='like').exists()

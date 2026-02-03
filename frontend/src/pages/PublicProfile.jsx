@@ -108,12 +108,21 @@ const PublicProfile = () => {
                         </div>
                     </div>
 
-                    <button
-                        onClick={() => navigate(`/chat/${userId}`)}
-                        className="bg-rose-500 text-white p-4 rounded-full shadow-lg shadow-rose-200 hover:bg-rose-600 transition-transform active:scale-90"
-                    >
-                        <MessageCircle size={24} />
-                    </button>
+                    {user.is_matched ? (
+                        <button
+                            onClick={() => navigate(`/chat/${userId}`)}
+                            className="bg-rose-500 text-white p-4 rounded-full shadow-lg shadow-rose-200 hover:bg-rose-600 transition-transform active:scale-90"
+                        >
+                            <MessageCircle size={24} />
+                        </button>
+                    ) : user.has_liked ? (
+                        <button
+                            disabled
+                            className="bg-slate-200 text-slate-400 p-4 px-6 rounded-full font-bold text-sm shadow-inner cursor-not-allowed"
+                        >
+                            Pending
+                        </button>
+                    ) : null}
                 </div>
 
                 {/* Bio */}

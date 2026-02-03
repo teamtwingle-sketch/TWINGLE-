@@ -112,6 +112,47 @@ class MatchListView(generics.ListAPIView):
             
         return response.Response(results)
 
+class SentLikesView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        
+        # 1. Get everyone I liked
+        my_likes = Swipe.objects.filter(swiper=user, action='like')
+        liked_user_ids = my_likes.values_list('target_id', flat=True)
+
+        # 2. Get everyone I matched with (so we can exclude them)
+        matches = Match.objects.filter(users=user)
+        matched_user_ids = set()
+        for m in matches:
+             for u in m.users.all():
+                 if u.id != user.id: matched_user_ids.add(u.id)
+
+        # 3. Filter Blocked
+        blocked_ids = set(Block.objects.filter(blocker=user).values_list('blocked_user_id', flat=True))
+        blocked_by_ids = set(Block.objects.filter(blocked_user=user).values_list('blocker_id', flat=True))
+        
+        # 4. Final List (Liked - Matched - Blocked)
+        # We fetch the actual User objects now
+        final_ids = set(liked_user_ids) - matched_user_ids - blocked_ids - blocked_by_ids
+        
+        target_users = User.objects.filter(id__in=final_ids).select_related('profile').prefetch_related('photos')
+        
+        results = []
+        for target in target_users:
+            profile = getattr(target, 'profile', None)
+            photo = target.photos.filter(is_primary=True).first() or target.photos.first()
+            
+            results.append({
+                "user_id": target.id,
+                "name": profile.first_name if profile else "User",
+                "age": profile.age if profile else None,
+                "photo": photo.image.url if photo else None,
+            })
+            
+        return response.Response(results)
+
 class SwipeView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 

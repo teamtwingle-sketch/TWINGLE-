@@ -15,7 +15,7 @@ from users.views import (
 )
 from profiles.views import ProfileDetailView, PublicProfileDetailView, InterestListView, UserPhotoViewSet
 from django.views.generic import TemplateView
-from matches.views import DiscoveryView, SwipeView, MatchListView
+from matches.views import DiscoveryView, SwipeView, MatchListView, SentLikesView
 from chat.views import ChatViewSet, ChatListView, TypingView, CallViewSet, PublicChatViewSet
 from payments.views import SubscriptionPlanListView, PaymentRequestCreateView, MyPaymentStatusView
 from reports.views import ReportCreateView, BlockCreateView
@@ -57,6 +57,7 @@ urlpatterns = [
     path('api/discovery/', DiscoveryView.as_view(), name='discovery'),
     path('api/swipe/', SwipeView.as_view(), name='swipe'),
     path('api/matches/', MatchListView.as_view(), name='match_list'),
+    path('api/matches/sent/', SentLikesView.as_view(), name='sent_likes'),
     
     # Payments
     path('api/plans/', SubscriptionPlanListView.as_view(), name='plan_list'),

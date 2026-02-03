@@ -1,7 +1,7 @@
 
 from rest_framework import generics, permissions, viewsets
 from .models import Profile, Interest, UserPhoto
-from .serializers import ProfileSerializer, InterestSerializer, UserPhotoSerializer
+from .serializers import ProfileSerializer, InterestSerializer, UserPhotoSerializer, PublicProfileSerializer
 from datetime import date
 
 class ProfileDetailView(generics.RetrieveUpdateAPIView):
@@ -24,7 +24,7 @@ class ProfileDetailView(generics.RetrieveUpdateAPIView):
 
 class PublicProfileDetailView(generics.RetrieveAPIView):
     queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
+    serializer_class = PublicProfileSerializer
     permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'user_id'
 
