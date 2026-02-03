@@ -151,6 +151,31 @@ class SwipeView(views.APIView):
                 match = Match.objects.create()
                 match.users.add(user, target_user)
                 is_match = True
+                
+                # Notify both users
+                from channels.layers import get_channel_layer
+                from asgiref.sync import async_to_sync
+                channel_layer = get_channel_layer()
+                
+                # Notify Me (Swiper)
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{user.id}",
+                    {
+                        "type": "match_notification",
+                        "partner_id": target_user.id,
+                        "partner_name": getattr(target_user, 'profile', user).first_name if hasattr(target_user, 'profile') else "Someone"
+                    }
+                )
+                
+                # Notify Limit (Target)
+                async_to_sync(channel_layer.group_send)(
+                    f"user_{target_user.id}",
+                    {
+                        "type": "match_notification",
+                        "partner_id": user.id,
+                        "partner_name": getattr(user, 'profile', user).first_name if hasattr(user, 'profile') else "Someone"
+                    }
+                )
         
         return response.Response({
             "status": "success",

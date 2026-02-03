@@ -35,9 +35,42 @@ const AppLayout = () => {
         };
 
         checkUnread();
-        checkUnread();
         const interval = setInterval(checkUnread, 15000); // Poll every 15s instead of 5s
         return () => clearInterval(interval);
+    }, []);
+
+    // Global WebSocket for Notifications (Matches)
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+        let wsUrl = apiBase.replace('http', 'ws').replace('/api', '') + '/ws/chat/?token=' + token;
+        try {
+            const url = new URL(apiBase);
+            const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+            wsUrl = `${protocol}//${url.host}/ws/chat/?token=${token}`;
+        } catch (e) { }
+
+        const ws = new WebSocket(wsUrl);
+
+        ws.onmessage = (e) => {
+            try {
+                const data = JSON.parse(e.data);
+                if (data.type === 'match_notification') {
+                    import('react-toastify').then(({ toast }) => {
+                        toast.success(`It's a Match! You matched with ${data.partner_name} 💖`, {
+                            icon: "💘",
+                            autoClose: 5000
+                        });
+                    });
+                    // Trigger haptics
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                }
+            } catch (err) { }
+        };
+
+        return () => ws.close();
     }, []);
 
     return (

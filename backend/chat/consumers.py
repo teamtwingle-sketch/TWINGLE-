@@ -81,6 +81,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_id': event['sender_id']
         }))
 
+    async def match_notification(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'match_notification',
+            'partner_id': event['partner_id'],
+            'partner_name': event['partner_name']
+        }))
+
     @database_sync_to_async
     def get_user_from_token(self):
         try:
