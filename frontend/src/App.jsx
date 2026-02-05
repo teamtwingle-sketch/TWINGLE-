@@ -28,6 +28,7 @@ const Guidelines = lazy(() => import('./pages/Legal').then(module => ({ default:
 
 // Lazy Utility Components
 const GlobalToast = lazy(() => import('./components/GlobalToast'));
+const GoogleAuthWrapper = lazy(() => import('./components/GoogleAuthWrapper'));
 
 function App() {
   const token = localStorage.getItem('token');
@@ -39,8 +40,16 @@ function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={
+              <GoogleAuthWrapper>
+                <Login />
+              </GoogleAuthWrapper>
+            } />
+            <Route path="/register" element={
+              <GoogleAuthWrapper>
+                <Register />
+              </GoogleAuthWrapper>
+            } />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/guidelines" element={<Guidelines />} />
