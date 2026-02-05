@@ -5,7 +5,7 @@ import { Outlet, NavLink, Link, useLocation, matchPath } from 'react-router-dom'
 import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles } from 'lucide-react';
 import api from '../api/client';
 
-const AppLayout = () => {
+const AppLayout = ({ children }) => {
     const isStaff = localStorage.getItem('is_staff') === 'true';
     const location = useLocation();
     const [unreadCount, setUnreadCount] = useState(0);
@@ -99,7 +99,7 @@ const AppLayout = () => {
 
             {/* Main Container */}
             <main className={`flex-1 overflow-y-auto flex flex-col bg-[#eaeff5] ${!isFullScreenPage ? 'pb-0' : ''}`}>
-                <Outlet />
+                {children || <Outlet />}
             </main>
 
             {/* Bottom Nav - Hidden in Full Screen Pages */}

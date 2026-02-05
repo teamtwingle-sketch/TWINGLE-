@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Shield, Zap, MessageCircle, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const Landing = () => {
 
@@ -9,12 +8,7 @@ const Landing = () => {
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
             <section className="relative h-[90vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden gradient-bg text-white">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="z-10"
-                >
+                <div className="z-10 animate-fade-in-up">
                     <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl border border-white/30">
                         <Sparkles className="w-12 h-12 fill-white animate-pulse" />
                     </div>
@@ -34,7 +28,7 @@ const Landing = () => {
                             New here? <Link to="/register" className="underline hover:text-white font-bold">Create Account</Link>
                         </p>
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Decorative elements */}
                 <div className="absolute top-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>

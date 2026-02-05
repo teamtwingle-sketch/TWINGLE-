@@ -1,23 +1,33 @@
-
+import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import { ToastContainer, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Discovery from './pages/Discovery';
-import ProfileSetup from './pages/ProfileSetup';
-import ChatList from './pages/ChatList';
-import PublicChat from './pages/PublicChat';
-import ChatWindow from './pages/ChatWindow';
-import Subscription from './pages/Subscription';
-import Matches from './pages/Matches';
-import AppLayout from './components/AppLayout';
+// Static Import (Critical for LCP on Landing)
 import Landing from './pages/Landing';
-import AdminDashboard from './pages/AdminDashboard';
-import PublicProfile from './pages/PublicProfile';
-import { Terms, Privacy, Guidelines } from './pages/Legal';
+
+// Components
+import PageLoader from './components/PageLoader';
+
+// Lazy Imports
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Discovery = lazy(() => import('./pages/Discovery'));
+const ProfileSetup = lazy(() => import('./pages/ProfileSetup'));
+const ChatList = lazy(() => import('./pages/ChatList'));
+const PublicChat = lazy(() => import('./pages/PublicChat'));
+const ChatWindow = lazy(() => import('./pages/ChatWindow'));
+const Subscription = lazy(() => import('./pages/Subscription'));
+const Matches = lazy(() => import('./pages/Matches'));
+const AppLayout = lazy(() => import('./components/AppLayout'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const PublicProfile = lazy(() => import('./pages/PublicProfile'));
+
+// Lazy load Legal pages
+const Terms = lazy(() => import('./pages/Legal').then(module => ({ default: module.Terms })));
+const Privacy = lazy(() => import('./pages/Legal').then(module => ({ default: module.Privacy })));
+const Guidelines = lazy(() => import('./pages/Legal').then(module => ({ default: module.Guidelines })));
 
 function App() {
   const token = localStorage.getItem('token');
@@ -26,26 +36,43 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-slate-50">
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/guidelines" element={<Guidelines />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/guidelines" element={<Guidelines />} />
 
-          <Route element={<AppLayout />}>
-            <Route path="/" element={isAuthenticated ? <Discovery /> : <Landing />} />
-            <Route path="/profile-setup" element={isAuthenticated ? <ProfileSetup /> : <Navigate to="/login" />} />
-            <Route path="/matches" element={isAuthenticated ? <Matches /> : <Navigate to="/login" />} />
-            <Route path="/profile/:userId" element={isAuthenticated ? <PublicProfile /> : <Navigate to="/login" />} />
-            <Route path="/chat/:userId" element={isAuthenticated ? <ChatWindow /> : <Navigate to="/login" />} />
-            <Route path="/public-chat" element={isAuthenticated ? <PublicChat /> : <Navigate to="/login" />} />
-            <Route path="/chats" element={isAuthenticated ? <ChatList /> : <Navigate to="/login" />} />
-            <Route path="/chats" element={isAuthenticated ? <ChatList /> : <Navigate to="/login" />} />
-            <Route path="/subscription" element={isAuthenticated ? <Subscription /> : <Navigate to="/login" />} />
-            <Route path="/admin-dashboard" element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/login" />} />
-          </Route>
-        </Routes>
+            {/* Landing Route - Standalone (No AppLayout overhead) */}
+            <Route
+              path="/"
+              element={
+                isAuthenticated ? (
+                  <AppLayout>
+                    <Discovery />
+                  </AppLayout>
+                ) : (
+                  <Landing />
+                )
+              }
+            />
+
+            {/* Authenticated App Routes */}
+            <Route element={isAuthenticated ? <AppLayout /> : <Navigate to="/login" />}>
+              <Route path="/profile-setup" element={<ProfileSetup />} />
+              <Route path="/matches" element={<Matches />} />
+              <Route path="/profile/:userId" element={<PublicProfile />} />
+              <Route path="/chat/:userId" element={<ChatWindow />} />
+              <Route path="/public-chat" element={<PublicChat />} />
+              <Route path="/chats" element={<ChatList />} />
+              <Route path="/subscription" element={<Subscription />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            </Route>
+          </Routes>
+        </Suspense>
+
         <ToastContainer
           position="top-center"
           autoClose={3000}
