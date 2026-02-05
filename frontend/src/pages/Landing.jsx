@@ -8,16 +8,19 @@ const Landing = () => {
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
             <section className="relative h-[90vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden gradient-bg text-white">
-                <div className="z-10 animate-fade-in-up">
-                    <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl border border-white/30">
-                        <Sparkles className="w-12 h-12 fill-white animate-pulse" />
+                <div className="z-10">
+                    <div className="animate-fade-in-up">
+                        <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl border border-white/30">
+                            <Sparkles className="w-12 h-12 fill-white animate-pulse" />
+                        </div>
                     </div>
+                    {/* Title is STATIC for LCP */}
                     <h1 className="text-5xl font-black mb-4 tracking-tight font-outfit">Twingle</h1>
                     <p className="text-xl opacity-90 mb-10 max-w-md mx-auto font-medium">
                         The Number 1 Dating Platform For Malayalis. Find Your Special Someone In Kerala.
                     </p>
 
-                    <div className="flex flex-col gap-4 w-full max-w-xs mx-auto">
+                    <div className="flex flex-col gap-4 w-full max-w-xs mx-auto animate-fade-in-up">
                         <Link
                             to="/login"
                             className="bg-white text-brand-primary font-black py-4 px-12 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all text-xl tracking-wide uppercase"
