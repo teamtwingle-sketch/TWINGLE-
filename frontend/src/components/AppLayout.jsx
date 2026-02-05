@@ -121,7 +121,7 @@ const NavItem = ({ to, icon, label, badgeCount }) => (
         to={to}
         className={({ isActive }) => `
       flex flex-col items-center justify-center gap-1 w-16 transition-all duration-300 relative
-      ${isActive ? 'text-rose-500 scale-110' : 'text-slate-400 hover:text-slate-600'}
+      ${isActive ? 'text-brand-primary scale-110' : 'text-slate-500 hover:text-slate-700'}
     `}
     >
         <div className="relative">

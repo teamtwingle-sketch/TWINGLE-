@@ -55,7 +55,7 @@ const Landing = () => {
             </section>
 
             {/* Footer */}
-            <footer className="py-10 border-t border-slate-100 text-center text-slate-400 text-sm">
+            <footer className="py-10 border-t border-slate-100 text-center text-slate-500 text-sm">
                 <p>© 2026 Twingle. Made with ❤️ for Kerala.</p>
                 <div className="flex justify-center gap-6 mt-4 font-bold text-[10px] uppercase tracking-widest">
                     <Link to="/privacy">Privacy</Link>
