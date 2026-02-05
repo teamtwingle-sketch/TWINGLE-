@@ -1,9 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import { ToastContainer, Slide } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 // Static Import (Critical for LCP on Landing)
 import Landing from './pages/Landing';
 
@@ -28,6 +25,9 @@ const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 const Terms = lazy(() => import('./pages/Legal').then(module => ({ default: module.Terms })));
 const Privacy = lazy(() => import('./pages/Legal').then(module => ({ default: module.Privacy })));
 const Guidelines = lazy(() => import('./pages/Legal').then(module => ({ default: module.Guidelines })));
+
+// Lazy Utility Components
+const GlobalToast = lazy(() => import('./components/GlobalToast'));
 
 function App() {
   const token = localStorage.getItem('token');
@@ -71,24 +71,8 @@ function App() {
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
             </Route>
           </Routes>
+          <GlobalToast />
         </Suspense>
-
-        <ToastContainer
-          position="top-center"
-          autoClose={3000}
-          hideProgressBar
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          transition={Slide}
-          className="mt-4 px-4 sm:px-0"
-          toastClassName="!rounded-2xl !shadow-xl !backdrop-blur-md !bg-white/90 !text-slate-800 !font-medium !border !border-slate-100/50"
-          bodyClassName="!p-0 !m-0 !flex !items-center !gap-3"
-        />
       </div>
     </Router>
   );
