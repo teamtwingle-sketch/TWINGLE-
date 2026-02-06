@@ -35,7 +35,10 @@ const AdminDashboard = () => {
             toast.success(`Verification ${action}ed`);
             fetchVerifications();
             fetchStats();
-        } catch (err) { toast.error('Failed'); }
+        } catch (err) {
+            toast.error(err.response?.data?.error || err.message || 'Action Failed');
+            console.error(err);
+        }
     };
 
 
