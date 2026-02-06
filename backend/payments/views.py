@@ -14,7 +14,28 @@ class PaymentRequestCreateView(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user, status='pending')
+        user = self.request.user
+        
+        # 1. Prevent multiple pending requests
+        if PaymentRequest.objects.filter(user=user, status='pending').exists():
+             from rest_framework.exceptions import ValidationError
+             raise ValidationError("You already have a pending payment verification.")
+
+        # 2. Check Monthly Limit (Max 3 submissions per month)
+        from django.utils import timezone
+        now = timezone.now()
+        start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        
+        count = PaymentRequest.objects.filter(
+            user=user,
+            created_at__gte=start_of_month
+        ).count()
+        
+        if count >= 3:
+             from rest_framework.exceptions import PermissionDenied
+             raise PermissionDenied("You have reached the limit of 3 payment submissions this month.")
+
+        serializer.save(user=user, status='pending')
 
 from datetime import date
 from rest_framework import views

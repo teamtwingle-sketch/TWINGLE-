@@ -95,16 +95,7 @@ const Subscription = () => {
         } catch (e) { console.error("Download failed", e); }
     };
 
-    // Auto-download when plan changes (except initial load)
-    useEffect(() => {
-        if (selectedPlan && plans.length > 0) {
-            const timer = setTimeout(() => {
-                downloadQR();
-                toast.info("QR Code downloaded!");
-            }, 500); // 500ms delay to ensure render
-            return () => clearTimeout(timer);
-        }
-    }, [selectedPlan]);
+
 
     return (
         <div className="p-6 pb-24 space-y-8">
