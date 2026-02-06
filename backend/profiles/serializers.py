@@ -21,6 +21,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     photos = UserPhotoSerializer(many=True, read_only=True, source='user.photos')
     is_premium = serializers.BooleanField(source='user.is_premium', read_only=True)
     premium_expiry = serializers.DateTimeField(source='user.premium_expiry', read_only=True)
+    is_staff = serializers.BooleanField(source='user.is_staff', read_only=True)
 
     def validate_dob(self, value):
         from datetime import date
@@ -36,7 +37,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'first_name', 'dob', 'age', 'gender', 'interested_in',
             'district', 'height_cm', 'relationship_intents', 'bio',
-            'interests', 'interest_ids', 'photos', 'is_premium', 'premium_expiry'
+            'interests', 'interest_ids', 'photos', 'is_premium', 'premium_expiry', 'is_staff'
         )
         read_only_fields = ('age',)
 
