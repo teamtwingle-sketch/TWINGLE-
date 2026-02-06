@@ -38,7 +38,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'id', 'first_name', 'dob', 'age', 'gender', 'interested_in',
             'district', 'height_cm', 'relationship_intents', 'bio',
             'interests', 'interest_ids', 'photos', 'is_premium', 'premium_expiry', 'is_staff',
-            'job_title', 'company', 'school', 'city'
+            'job_title', 'school', 'city'
         )
         read_only_fields = ('age',)
 

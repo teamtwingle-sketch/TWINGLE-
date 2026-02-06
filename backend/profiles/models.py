@@ -51,7 +51,6 @@ class Profile(models.Model):
     
     # Extended Profile Details
     job_title = models.CharField(max_length=100, blank=True, default='')
-    company = models.CharField(max_length=100, blank=True, default='')
     school = models.CharField(max_length=100, blank=True, default='')
     city = models.CharField(max_length=100, blank=True, default='')  # Living In
 

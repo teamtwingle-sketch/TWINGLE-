@@ -288,16 +288,7 @@ const ProfileSetup = () => {
                                 />
                             </div>
 
-                            <div>
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1 mb-1.5 block">Company</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Google"
-                                    className="w-full bg-slate-50 px-5 py-4 rounded-xl text-slate-800 font-bold border-none outline-none focus:ring-2 focus:ring-brand-primary/20 placeholder:font-normal"
-                                    value={profile.company || ''} // Assuming a 'company' field in profile
-                                    onChange={(e) => setProfile({ ...profile, company: e.target.value })}
-                                />
-                            </div>
+
 
                             <div>
                                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1 mb-1.5 block">School</label>
