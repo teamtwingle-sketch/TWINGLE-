@@ -86,7 +86,6 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
               child: CardSwiper(
                 controller: controller,
                 cardsCount: users.length,
-                onCopyright: (prev, curr, dir) => _onSwipe(prev, curr, CardSwiperDirection.right),
                 onSwipe: _onSwipe,
                 cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
                   return SwipeCard(user: users[index]);

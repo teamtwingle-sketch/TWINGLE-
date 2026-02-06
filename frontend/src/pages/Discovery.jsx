@@ -12,11 +12,28 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
     const likeOpacity = useTransform(x, [50, 150], [0, 1]);
     const nopeOpacity = useTransform(x, [-50, -150], [0, 1]);
 
+    const isDragging = React.useRef(false);
+
+    const handleDragStart = () => {
+        isDragging.current = true;
+    };
+
     const handleDragEnd = (event, info) => {
         if (info.offset.x > 100) {
             onSwipe(user.user_id, 'like');
         } else if (info.offset.x < -100) {
             onSwipe(user.user_id, 'dislike');
+        }
+
+        // Small delay to prevent tap from firing immediately after drag
+        setTimeout(() => {
+            isDragging.current = false;
+        }, 200);
+    };
+
+    const handleTap = () => {
+        if (!isDragging.current) {
+            onTap();
         }
     };
 
@@ -25,8 +42,9 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
             style={{ x, rotate, opacity, position: 'absolute' }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
+            onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
-            onTap={onTap}
+            onTap={handleTap}
             className="absolute inset-0 m-auto w-full max-w-sm h-full max-h-[70vh] cursor-grab active:cursor-grabbing"
         >
             <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
