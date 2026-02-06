@@ -14,6 +14,12 @@ class ProfileDetailView(generics.RetrieveUpdateAPIView):
         return profile
 
     def perform_update(self, serializer):
+        # Prevent users from updating verification status themselves
+        if 'verification_status' in serializer.validated_data:
+            serializer.validated_data.pop('verification_status')
+        if 'is_verified' in serializer.validated_data:
+            serializer.validated_data.pop('is_verified')
+            
         # Calculate age or other logic
         dob = serializer.validated_data.get('dob')
         if dob:
