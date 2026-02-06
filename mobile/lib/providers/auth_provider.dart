@@ -55,12 +55,28 @@ class AuthProvider extends ChangeNotifier {
         'password': password,
         'confirm_password': confirmPassword,
       });
-      // Auto login after register? Or ask to login.
-      // Usually register returns success, then we login.
       return await login(email, password);
     } catch (e) {
       print('Register error: $e');
       return false;
+    }
+  }
+
+  Future<bool> googleLogin(String idToken) async {
+    try {
+      final response = await _client.dio.post('/auth/google/', data: {
+        'token': idToken, // Backend expects 'token'
+      });
+      
+      final access = response.data['access'];
+      final refresh = response.data['refresh'];
+      await _client.saveTokens(access, refresh);
+      
+      await checkAuth();
+      return true;
+    } catch (e) {
+       print('Google Login error: $e');
+       return false;
     }
   }
 

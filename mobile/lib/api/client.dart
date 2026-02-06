@@ -6,10 +6,8 @@ class ApiClient {
   // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator
   // If testing on physical device, use your machine's IP address (e.g., 192.168.1.x)
   static String get baseUrl {
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8000/api';
-    }
-    return 'http://127.0.0.1:8000/api';
+    // ALWAYS use production URL for the released APK
+    return 'https://twingle.online/api';
   }
 
   final Dio _dio = Dio(BaseOptions(
