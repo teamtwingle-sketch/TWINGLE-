@@ -20,6 +20,7 @@ const Matches = lazy(() => import('./pages/Matches'));
 const AppLayout = lazy(() => import('./components/AppLayout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const PublicProfile = lazy(() => import('./pages/PublicProfile'));
+const DownloadApp = lazy(() => import('./pages/DownloadApp'));
 
 // Lazy load Legal pages
 const Terms = lazy(() => import('./pages/Legal').then(module => ({ default: module.Terms })));
@@ -53,6 +54,7 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/guidelines" element={<Guidelines />} />
+            <Route path="/download" element={<DownloadApp />} />
 
             {/* Landing Route - Standalone (No AppLayout overhead) */}
             <Route

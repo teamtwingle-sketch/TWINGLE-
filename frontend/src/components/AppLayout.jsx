@@ -90,6 +90,9 @@ const AppLayout = ({ children }) => {
                                 <ShieldAlert size={12} /> Admin
                             </NavLink>
                         )}
+                        <NavLink to="/download" className="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200 shadow-sm hover:bg-slate-200 transition-colors hidden sm:flex">
+                            Get App
+                        </NavLink>
                         <NavLink to="/subscription" className="px-3.5 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-full border border-rose-200 shadow-sm hover:bg-rose-100 transition-colors">
                             GO PREMIUM
                         </NavLink>
