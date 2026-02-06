@@ -11,8 +11,4 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
-        try:
-            instance.profile.save()
-        except:
-            # If the DB schema is undergoing migration or invalid, ignore sync
-            pass
+        instance.profile.save()

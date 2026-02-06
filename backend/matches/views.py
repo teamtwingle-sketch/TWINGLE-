@@ -50,7 +50,12 @@ class DiscoveryView(views.APIView):
                 Q(profile__interested_in='all')
             )
 
-
+        # Basic Age Filter (e.g. +/- 10 years preference implicit)
+        # This prevents 18yo seeing 60yo unless explicit
+        if profile.age:
+            min_age = max(18, profile.age - 10)
+            max_age = profile.age + 10
+            candidates = candidates.filter(profile__age__gte=min_age, profile__age__lte=max_age)
 
         # Combined Processing
         my_intents = set(profile.relationship_intents)

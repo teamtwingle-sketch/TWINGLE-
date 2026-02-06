@@ -267,41 +267,6 @@ const ProfileSetup = () => {
                             </div>
 
                             <div>
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1 mb-1.5 block">Living In (City)</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Kochi"
-                                    className="w-full bg-slate-50 px-5 py-4 rounded-xl text-slate-800 font-bold border-none outline-none focus:ring-2 focus:ring-brand-primary/20 placeholder:font-normal"
-                                    value={profile.city || ''} // Assuming a 'city' field in profile
-                                    onChange={(e) => setProfile({ ...profile, city: e.target.value })}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1 mb-1.5 block">Job Title</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Software Engineer"
-                                    className="w-full bg-slate-50 px-5 py-4 rounded-xl text-slate-800 font-bold border-none outline-none focus:ring-2 focus:ring-brand-primary/20 placeholder:font-normal"
-                                    value={profile.job_title || ''} // Assuming a 'job_title' field in profile
-                                    onChange={(e) => setProfile({ ...profile, job_title: e.target.value })}
-                                />
-                            </div>
-
-
-
-                            <div>
-                                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1 mb-1.5 block">School</label>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. University of Kerala"
-                                    className="w-full bg-slate-50 px-5 py-4 rounded-xl text-slate-800 font-bold border-none outline-none focus:ring-2 focus:ring-brand-primary/20 placeholder:font-normal"
-                                    value={profile.school || ''} // Assuming a 'school' field in profile
-                                    onChange={(e) => setProfile({ ...profile, school: e.target.value })}
-                                />
-                            </div>
-
-                            <div>
                                 <label className="text-xs font-bold text-slate-400 uppercase tracking-wide ml-1 mb-1.5 block">Height (cm)</label>
                                 <input
                                     type="number"

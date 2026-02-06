@@ -49,11 +49,10 @@ class Profile(models.Model):
     district = models.CharField(max_length=20, choices=DISTRICT_CHOICES, default='ernakulam')
     height_cm = models.IntegerField(null=True, blank=True)
     
-    # Extended Profile Details
-    job_title = models.CharField(max_length=100, blank=True, default='')
-    school = models.CharField(max_length=100, blank=True, default='')
-    city = models.CharField(max_length=100, blank=True, default='')  # Living In
-
+    # Intents (stored as comma-separated string or use a M2M if strict normalized)
+    # Using JSONField to store multiple choices simply (requires a specific way to filter on SQLite, but works)
+    # Actually, let's use a Simple M2M for RelationshipIntent
+    
     bio = models.TextField(blank=True, max_length=500)
     
     interests = models.ManyToManyField(Interest, blank=True)
