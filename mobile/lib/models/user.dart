@@ -9,6 +9,7 @@ class User {
   final List<String> relationshipIntents;
 
   final bool isStaff;
+  final bool isVerified;
 
   User({
     required this.id,
@@ -20,6 +21,7 @@ class User {
     required this.photos,
     required this.relationshipIntents,
     this.isStaff = false,
+    this.isVerified = false,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -66,6 +68,7 @@ class User {
           ? (json['relationship_intents'] as List).map((e) => e.toString()).toList() 
           : [],
       isStaff: json['is_staff'] ?? false,
+      isVerified: json['is_verified'] ?? false,
     );
   }
 }

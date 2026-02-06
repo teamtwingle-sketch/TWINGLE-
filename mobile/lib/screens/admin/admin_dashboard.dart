@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'admin_stats.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
@@ -67,7 +68,7 @@ class AdminDashboardScreen extends StatelessWidget {
                      title: "Statistics",
                      color: Colors.purple,
                      onTap: () {
-                        // TODO: Navigate to Stats
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminStatsScreen()));
                      },
                    ),
                 ],
