@@ -24,8 +24,9 @@ const DownloadApp = () => {
 
                 <div className="grid gap-4">
                     {/* Android Button */}
-                    <button
-                        onClick={() => alert("We are currently reviewing our app on the Play Store. Please check back soon!")}
+                    <a
+                        href="/downloads/app-release.apk"
+                        download="Twingle.apk"
                         className="group flex items-center justify-center gap-4 bg-slate-900 text-white p-4 rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 transition-all text-left"
                     >
                         <Download size={28} className="text-green-400" />
@@ -33,7 +34,7 @@ const DownloadApp = () => {
                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Download for</div>
                             <div className="text-xl font-bold font-bg leading-none">Android</div>
                         </div>
-                    </button>
+                    </a>
 
                     {/* iOS Button */}
                     <button
