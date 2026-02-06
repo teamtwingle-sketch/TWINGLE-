@@ -37,11 +37,25 @@ class DiscoveryView(views.APIView):
             .select_related('profile')\
             .prefetch_related('photos', 'profile__interests')
 
-        # Filter by gender interest
+        # Filter by gender interest (My preference)
         if profile.interested_in == 'male':
             candidates = candidates.filter(profile__gender='male')
         elif profile.interested_in == 'female':
             candidates = candidates.filter(profile__gender='female')
+
+        # Reciprocal Filter: Ensure THEY are interested in ME
+        if profile.gender:
+            candidates = candidates.filter(
+                Q(profile__interested_in=profile.gender) | 
+                Q(profile__interested_in='all')
+            )
+
+        # Basic Age Filter (e.g. +/- 10 years preference implicit)
+        # This prevents 18yo seeing 60yo unless explicit
+        if profile.age:
+            min_age = max(18, profile.age - 10)
+            max_age = profile.age + 10
+            candidates = candidates.filter(profile__age__gte=min_age, profile__age__lte=max_age)
 
         # Combined Processing
         my_intents = set(profile.relationship_intents)
