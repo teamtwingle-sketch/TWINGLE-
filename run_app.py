@@ -5,6 +5,9 @@ import sys
 
 def start_backend():
     print("Starting Django Backend...")
+    # Auto-migrate on startup
+    subprocess.run(["./venv/bin/python", "backend/manage.py", "makemigrations"])
+    subprocess.run(["./venv/bin/python", "backend/manage.py", "migrate"])
     return subprocess.Popen(["./venv/bin/python", "backend/manage.py", "runserver", "8000"])
 
 def start_frontend():
