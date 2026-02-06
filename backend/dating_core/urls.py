@@ -11,7 +11,8 @@ from users.views import (
     RegisterView, UserDetailView, MyTokenObtainPairView, UserDeleteView, GoogleLoginView,
     AdminStatsView, AdminUserListView, AdminBanUserView,
     AdminReportListView, AdminResolveReportView,
-    AdminPaymentListView, AdminApprovePaymentView, AdminRejectPaymentView
+    AdminPaymentListView, AdminApprovePaymentView, AdminRejectPaymentView,
+    RequestVerificationView, AdminVerificationListView, AdminVerifyUserView
 )
 from profiles.views import ProfileDetailView, PublicProfileDetailView, InterestListView, UserPhotoViewSet
 from django.views.generic import TemplateView
@@ -47,6 +48,11 @@ urlpatterns = [
     path('api/admin/payments/', AdminPaymentListView.as_view()),
     path('api/admin/payments/<int:pk>/approve/', AdminApprovePaymentView.as_view()),
     path('api/admin/payments/<int:pk>/reject/', AdminRejectPaymentView.as_view()),
+    
+    # Verification
+    path('api/verification/request/', RequestVerificationView.as_view()),
+    path('api/admin/verification/', AdminVerificationListView.as_view()),
+    path('api/admin/verification/<int:pk>/verify/', AdminVerifyUserView.as_view()),
 
     # Profile
     path('api/profile/', ProfileDetailView.as_view(), name='profile_detail'),

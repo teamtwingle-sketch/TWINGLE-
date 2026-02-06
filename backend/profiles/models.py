@@ -53,6 +53,17 @@ class Profile(models.Model):
     # Using JSONField to store multiple choices simply (requires a specific way to filter on SQLite, but works)
     # Actually, let's use a Simple M2M for RelationshipIntent
     
+    # Verification
+    VERIFICATION_STATUS = (
+        ('none', 'None'),
+        ('pending', 'Pending'),
+        ('verified', 'Verified'),
+        ('rejected', 'Rejected'),
+    )
+    verification_status = models.CharField(max_length=10, choices=VERIFICATION_STATUS, default='none')
+    verification_image = models.ImageField(upload_to='verification/', null=True, blank=True)
+    is_verified = models.BooleanField(default=False)
+
     bio = models.TextField(blank=True, max_length=500)
     
     interests = models.ManyToManyField(Interest, blank=True)

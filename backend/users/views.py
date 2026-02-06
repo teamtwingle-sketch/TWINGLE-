@@ -173,3 +173,85 @@ class AdminRejectPaymentView(views.APIView):
             return Response({"status": "rejected"})
         except PaymentRequest.DoesNotExist:
             return Response(status=404)
+
+# ----------------- ANALYTICS & VERIFICATION -----------------
+
+class AdminStatsView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+
+    def get(self, request):
+        total_users = User.objects.count()
+        new_users_today = User.objects.filter(date_joined__date=date.today()).count()
+        
+        from profiles.models import Profile
+        verified_users = Profile.objects.filter(is_verified=True).count()
+        pending_verifications = Profile.objects.filter(verification_status='pending').count()
+        
+        # Revenue Calculation (Approximation based on approved payments)
+        # Assuming we don't change plan prices often
+        total_revenue = 0
+        approved_payments = PaymentRequest.objects.filter(status='approved').select_related('plan')
+        for p in approved_payments:
+            total_revenue += p.plan.price
+            
+        # Gender Split
+        males = Profile.objects.filter(gender='male').count()
+        females = Profile.objects.filter(gender='female').count()
+
+        return Response({
+            "total_users": total_users,
+            "new_users_today": new_users_today,
+            "verified_users": verified_users,
+            "pending_verifications": pending_verifications,
+            "total_revenue": total_revenue,
+            "gender_split": {"male": males, "female": females}
+        })
+
+class RequestVerificationView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        profile = user.profile
+        
+        if profile.verification_status == 'verified':
+             return Response({"error": "Already verified"}, status=400)
+             
+        image = request.FILES.get('image')
+        if not image:
+             return Response({"error": "Image required"}, status=400)
+             
+        profile.verification_image = image
+        profile.verification_status = 'pending'
+        profile.save()
+        
+        return Response({"status": "submitted"})
+
+class AdminVerificationListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+    # Simple serializer for list
+    from profiles.serializers import ProfileSerializer
+    serializer_class = ProfileSerializer
+    
+    def get_queryset(self):
+        from profiles.models import Profile
+        return Profile.objects.filter(verification_status='pending')
+
+class AdminVerifyUserView(views.APIView):
+    permission_classes = [permissions.IsAuthenticated, IsAdminUser]
+    
+    def post(self, request, pk):
+        action = request.data.get('action') # approve, reject
+        from profiles.models import Profile
+        try:
+            profile = Profile.objects.get(pk=pk)
+            if action == 'approve':
+                profile.is_verified = True
+                profile.verification_status = 'verified'
+            elif action == 'reject':
+                profile.is_verified = False
+                profile.verification_status = 'rejected'
+            profile.save()
+            return Response({"status": "success"})
+        except Profile.DoesNotExist:
+            return Response(status=404)
