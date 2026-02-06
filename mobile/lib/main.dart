@@ -4,6 +4,7 @@ import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main_layout.dart';
 import 'screens/home/discovery_screen.dart';
+import 'screens/admin/admin_dashboard.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,6 +41,9 @@ class AuthWrapper extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         if (auth.status == AuthStatus.authenticated) {
+          if (auth.currentUser?.isStaff == true) {
+            return const AdminDashboardScreen();
+          }
           return const MainLayout();
         } else if (auth.status == AuthStatus.unknown) {
           // Show splash or loading
