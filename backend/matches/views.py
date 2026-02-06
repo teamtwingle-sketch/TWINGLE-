@@ -186,10 +186,7 @@ class SwipeView(views.APIView):
             user.last_swipe_date = timezone.now().date()
             user.save()
 
-        SWIPE_LIMITS = {'normal': 8, 'gold': 60, 'platinum': 1000000}
-        limit = SWIPE_LIMITS.get(user.tier, 8)
-
-        if user.swipes_today >= limit:
+        if user.swipes_today >= user.daily_swipe_limit:
              return response.Response({"error": f"Daily swipe limit reached. Upgrade for more."}, status=status.HTTP_403_FORBIDDEN)
 
         target_user = User.objects.get(id=target_id)
