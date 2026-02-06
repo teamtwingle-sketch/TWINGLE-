@@ -12,12 +12,33 @@ const AdminDashboard = () => {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [verifications, setVerifications] = useState([]);
+
     useEffect(() => {
         fetchStats();
         if (activeTab === 'users') fetchUsers();
         if (activeTab === 'reports') fetchReports();
         if (activeTab === 'payments') fetchPayments();
+        if (activeTab === 'verifications') fetchVerifications();
     }, [activeTab]);
+
+    const fetchVerifications = async () => {
+        try {
+            const res = await api.get('/admin/verification/');
+            setVerifications(res.data);
+        } catch (err) { }
+    };
+
+    const handleVerification = async (id, action) => {
+        try {
+            await api.post(`/admin/verification/${id}/verify/`, { action });
+            toast.success(`Verification ${action}ed`);
+            fetchVerifications();
+            fetchStats();
+        } catch (err) { toast.error('Failed'); }
+    };
+
+
 
     const fetchStats = async () => {
         try {
@@ -86,14 +107,18 @@ const AdminDashboard = () => {
             {/* Stats Overview */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <StatCard icon={<Users />} label="Total Users" value={stats?.total_users} color="bg-blue-500" />
-                <StatCard icon={<CreditCard />} label="Premium Users" value={stats?.premium_users} color="bg-green-500" />
-                <StatCard icon={<AlertTriangle />} label="Pending Reports" value={stats?.pending_reports} color="bg-red-500" />
-                <StatCard icon={<CreditCard />} label="Pending Payments" value={stats?.pending_payments} color="bg-orange-500" />
+                <StatCard icon={<Users />} label="New Today" value={stats?.new_users_today} color="bg-indigo-500" />
+                <StatCard icon={<CreditCard />} label="Revenue" value={`₹${stats?.total_revenue || 0}`} color="bg-green-600" />
+                <StatCard icon={<Check />} label="Verified" value={stats?.verified_users} color="bg-teal-500" />
+                <StatCard icon={<AlertTriangle />} label="Pending Verif." value={stats?.pending_verifications} color="bg-orange-500" />
+                <StatCard icon={<Users />} label="Males" value={stats?.gender_split?.male} color="bg-blue-400" />
+                <StatCard icon={<Users />} label="Females" value={stats?.gender_split?.female} color="bg-pink-400" />
             </div>
 
             {/* Tabs */}
             <div className="flex gap-4 border-b mb-6 overflow-x-auto">
                 <TabButton label="Overview" active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<LayoutDashboard size={18} />} />
+                <TabButton label="Verifications" active={activeTab === 'verifications'} onClick={() => setActiveTab('verifications')} icon={<Check size={18} />} />
                 <TabButton label="Manage Users" active={activeTab === 'users'} onClick={() => setActiveTab('users')} icon={<Users size={18} />} />
                 <TabButton label="Reports" active={activeTab === 'reports'} onClick={() => setActiveTab('reports')} icon={<AlertTriangle size={18} />} />
                 <TabButton label="Payments" active={activeTab === 'payments'} onClick={() => setActiveTab('payments')} icon={<CreditCard size={18} />} />
@@ -103,6 +128,36 @@ const AdminDashboard = () => {
             {activeTab === 'overview' && (
                 <div className="bg-white p-8 rounded-2xl shadow text-center text-slate-500">
                     Welcome to the Admin Control Center. Select a tab to manage resources.
+                </div>
+            )}
+
+            {activeTab === 'verifications' && (
+                <div className="bg-white rounded-2xl shadow overflow-hidden">
+                    {verifications.length === 0 ? (
+                        <div className="p-8 text-center text-slate-500">No pending verifications.</div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                            {verifications.map(v => (
+                                <div key={v.id} className="border rounded-xl p-4 flex gap-4">
+                                    <div className="w-24 h-24 bg-slate-100 rounded-lg overflow-hidden shrink-0">
+                                        {v.verification_image ? (
+                                            <a href={v.verification_image.startsWith('http') ? v.verification_image : `http://127.0.0.1:8000${v.verification_image}`} target="_blank">
+                                                <img src={v.verification_image.startsWith('http') ? v.verification_image : `http://127.0.0.1:8000${v.verification_image}`} className="w-full h-full object-cover" />
+                                            </a>
+                                        ) : <div className="w-full h-full flex items-center justify-center text-xs">No Image</div>}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="font-bold text-lg">{v.first_name}, {v.age}</h3>
+                                        <p className="text-sm text-slate-500 mb-2">User ID: {v.id}</p>
+                                        <div className="flex gap-2 mt-2">
+                                            <button onClick={() => handleVerification(v.id, 'approve')} className="bg-green-500 text-white px-3 py-1 rounded text-sm font-bold">Approve</button>
+                                            <button onClick={() => handleVerification(v.id, 'reject')} className="bg-red-100 text-red-500 px-3 py-1 rounded text-sm font-bold border border-red-200">Reject</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 

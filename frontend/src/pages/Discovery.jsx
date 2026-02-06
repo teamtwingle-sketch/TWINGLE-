@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Heart, X, Undo, Zap, Star, MapPin } from 'lucide-react';
+import { Heart, X, Undo, Zap, Star, MapPin, Check } from 'lucide-react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 
@@ -66,6 +66,7 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
                 <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white pointer-events-none">
                     <div className="flex items-center gap-2">
                         <h2 className="text-3xl font-bold">{user.first_name || 'Someone'}{user.age ? `, ${user.age}` : ''}</h2>
+                        {user.is_verified && <div className="bg-blue-500 text-white rounded-full p-1"><Check size={14} strokeWidth={4} /></div>}
                     </div>
                     <div className="flex items-center gap-1 text-slate-200 mt-1">
                         <MapPin size={16} />
@@ -234,7 +235,10 @@ const Discovery = () => {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <h2 className="text-3xl font-black text-slate-900">{selectedUser.first_name}, {selectedUser.age}</h2>
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-3xl font-black text-slate-900">{selectedUser.first_name}, {selectedUser.age}</h2>
+                                {selectedUser.is_verified && <div className="bg-blue-500 text-white rounded-full p-1"><Check size={16} strokeWidth={4} /></div>}
+                            </div>
                             <div className="flex items-center gap-1 text-slate-500 font-medium mt-1">
                                 <MapPin size={18} />
                                 <span className="capitalize">{selectedUser.district}</span>

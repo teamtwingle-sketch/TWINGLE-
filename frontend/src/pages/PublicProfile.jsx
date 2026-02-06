@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/client';
-import { ChevronLeft, MapPin, MessageCircle, ChevronRight } from 'lucide-react';
+import { ChevronLeft, MapPin, MessageCircle, ChevronRight, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const PublicProfile = () => {
@@ -101,6 +101,7 @@ const PublicProfile = () => {
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 flex items-center gap-2">
                             {user.first_name} <span className="text-2xl font-medium text-slate-500">{user.age}</span>
+                            {user.is_verified && <div className="bg-blue-500 text-white rounded-full p-1"><Check size={16} strokeWidth={4} /></div>}
                         </h1>
                         <div className="flex items-center gap-1.5 text-slate-500 mt-1 font-medium">
                             <MapPin size={16} className="text-rose-500" />
