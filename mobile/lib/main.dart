@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/main_layout.dart';
 import 'screens/home/discovery_screen.dart';
 
 void main() {
@@ -39,10 +40,10 @@ class AuthWrapper extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         if (auth.status == AuthStatus.authenticated) {
-          return const DiscoveryScreen();
+          return const MainLayout();
         } else if (auth.status == AuthStatus.unknown) {
           // Show splash or loading
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return Scaffold(body: Center(child: const CircularProgressIndicator()));
         } else {
           return const LoginScreen();
         }
