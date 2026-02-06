@@ -36,8 +36,16 @@ class GoogleLoginView(views.APIView):
     def post(self, request):
         token = request.data.get('token')
         try:
-            # Specify the CLIENT_ID of the app that accesses the backend:
-            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), "907842385473-m4o5usepc70enftf6heo2dmuctns2hdd.apps.googleusercontent.com")
+            # Verify token (allow both Web and Android clients)
+            idinfo = id_token.verify_oauth2_token(token, google_requests.Request(), None)
+            
+            allowed_clients = [
+                "907842385473-m4o5usepc70enftf6heo2dmuctns2hdd.apps.googleusercontent.com", # Web
+                "907842385473-f20alj9atrbj1aet5um09geeb8c7sf8p.apps.googleusercontent.com"  # Android
+            ]
+            
+            if idinfo['aud'] not in allowed_clients:
+                 raise ValueError('Could not verify audience.')
 
             email = idinfo['email']
             first_name = idinfo.get('given_name', 'User')
