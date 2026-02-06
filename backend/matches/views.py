@@ -212,6 +212,23 @@ class SwipeView(views.APIView):
                 from asgiref.sync import async_to_sync
                 channel_layer = get_channel_layer()
                 
+                # Create Persistent Notifications
+                from users.models import Notification
+                Notification.objects.create(
+                    user=user,
+                    title="It's a Match! 💖",
+                    body=f"You matched with {getattr(target_user, 'profile', target_user).first_name or 'someone'}!",
+                    type="match",
+                    related_id=target_user.id
+                )
+                Notification.objects.create(
+                    user=target_user,
+                    title="It's a Match! 💖",
+                    body=f"You matched with {getattr(user, 'profile', user).first_name or 'someone'}!",
+                    type="match",
+                    related_id=user.id
+                )
+
                 # Notify Me (Swiper)
                 async_to_sync(channel_layer.group_send)(
                     f"user_{user.id}",

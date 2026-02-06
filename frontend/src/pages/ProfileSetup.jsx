@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
-import { Camera, Save, LogOut, ChevronDown, X, Download } from 'lucide-react';
+import { Camera, Save, LogOut, ChevronDown, X, Download, Check, Clock, UploadCloud } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ProfileSetup = () => {
@@ -278,6 +278,82 @@ const ProfileSetup = () => {
                             </div>
                         </div>
                     </div>
+                </section>
+
+                {/* Verification Section */}
+                <section className="bg-white rounded-[2rem] p-6 shadow-[0_2px_20px_rgba(0,0,0,0.02)] border border-slate-100">
+                    <h2 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        Verification
+                    </h2>
+
+                    {profile.is_verified ? (
+                        <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl flex items-center gap-3">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <Check size={20} strokeWidth={3} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold">You are Verified!</h3>
+                                <p className="text-xs opacity-80">Your blue tick is active.</p>
+                            </div>
+                        </div>
+                    ) : profile.verification_status === 'pending' ? (
+                        <div className="bg-orange-50 border border-orange-200 text-orange-700 p-4 rounded-xl flex items-center gap-3">
+                            <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                <Clock size={20} strokeWidth={2.5} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold">Verification Pending</h3>
+                                <p className="text-xs opacity-80">We are reviewing your request.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <p className="text-sm text-slate-500 mb-4">
+                                Get a Blue Tick to show you are real. <br />
+                                <span className="text-xs font-bold text-slate-400 uppercase">Premium Users Only</span>
+                            </p>
+
+                            {profile.is_premium ? (
+                                <div className="flex flex-col gap-3">
+                                    <label className="block w-full p-4 border-2 border-dashed border-slate-300 rounded-xl text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={async (e) => {
+                                                const file = e.target.files[0];
+                                                if (!file) return;
+
+                                                const formData = new FormData();
+                                                formData.append('image', file);
+
+                                                try {
+                                                    const toastId = toast.loading("Uploading verification...");
+                                                    await api.post('/verification/request/', formData, {
+                                                        headers: { 'Content-Type': 'multipart/form-data' }
+                                                    });
+                                                    toast.update(toastId, { render: "Verification requested!", type: "success", isLoading: false, autoClose: 3000 });
+                                                    fetchProfile();
+                                                } catch (err) {
+                                                    toast.dismiss();
+                                                    toast.error(err.response?.data?.error || "Failed to upload.");
+                                                }
+                                            }}
+                                        />
+                                        <div className="flex flex-col items-center gap-2 text-slate-500">
+                                            <UploadCloud size={24} />
+                                            <span className="font-bold text-sm">Upload Selfie with ID</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            ) : (
+                                <Link to="/subscription" className="block w-full py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold text-center rounded-xl shadow-lg shadow-orange-200">
+                                    Upgrade to Premium to Verify
+                                </Link>
+                            )}
+                        </div>
+                    )}
                 </section>
 
                 {/* Bio Section */}

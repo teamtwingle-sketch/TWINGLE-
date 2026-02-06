@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useLocation, matchPath } from 'react-router-dom';
-import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles } from 'lucide-react';
+import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles, Bell } from 'lucide-react';
 import api from '../api/client';
 
 const AppLayout = ({ children }) => {
@@ -84,7 +84,9 @@ const AppLayout = ({ children }) => {
                         </div>
                         <span className="font-black text-xl tracking-tight text-slate-800 drop-shadow-sm">TWINGLE</span>
                     </Link>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
+                        <NotificationBell />
+
                         {isStaff && (
                             <NavLink to="/admin-dashboard" className="px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-full border border-slate-800 flex items-center gap-1 shadow-md">
                                 <ShieldAlert size={12} /> Admin
@@ -140,6 +142,58 @@ const NavItem = ({ to, icon, label, badgeCount }) => (
         <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
     </NavLink>
 );
+
+const NotificationBell = () => {
+    const [open, setOpen] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unread, setUnread] = useState(false);
+
+    const toggle = () => {
+        if (!open) fetchNotifs();
+        setOpen(!open);
+    };
+
+    const fetchNotifs = async () => {
+        try {
+            const res = await api.get('/notifications/');
+            setNotifications(res.data);
+            setUnread(false); // Clear badge locally for now (should ideally check if any is_read=False)
+        } catch (e) { }
+    };
+
+    return (
+        <div className="relative">
+            <button onClick={toggle} className="p-2 text-slate-500 hover:bg-slate-100 rounded-full relative">
+                <Bell size={20} />
+                {unread && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
+            </button>
+
+            {open && (
+                <>
+                    <div className="fixed inset-0 z-40" onClick={() => setOpen(false)}></div>
+                    <div className="absolute right-0 top-12 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
+                        <div className="p-4 border-b bg-slate-50 font-bold text-slate-700 text-sm">Notifications</div>
+                        <div className="max-h-80 overflow-y-auto">
+                            {notifications.length === 0 ? (
+                                <div className="p-8 text-center text-slate-400 text-sm">No notifications yet</div>
+                            ) : (
+                                notifications.map(n => (
+                                    <div key={n.id} className={`p-4 border-b hover:bg-slate-50 ${!n.is_read ? 'bg-blue-50/50' : ''}`}>
+                                        <div className="font-bold text-sm text-slate-800">{n.title}</div>
+                                        <div className="text-xs text-slate-500 mt-1">{n.body}</div>
+                                        <div className="text-[10px] text-slate-400 mt-2 text-right">
+                                            {new Date(n.created_at).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
 export default AppLayout;
 

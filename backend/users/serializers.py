@@ -30,3 +30,9 @@ class RegisterSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        from .models import Notification
+        model = Notification
+        fields = '__all__'

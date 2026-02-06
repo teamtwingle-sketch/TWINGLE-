@@ -212,6 +212,10 @@ class RequestVerificationView(views.APIView):
     
     def post(self, request):
         user = request.user
+        
+        if not user.is_premium:
+             return Response({"error": "Blue Tick verification is for Premium users only."}, status=403)
+
         profile = user.profile
         
         if profile.verification_status == 'verified':
@@ -243,15 +247,40 @@ class AdminVerifyUserView(views.APIView):
     def post(self, request, pk):
         action = request.data.get('action') # approve, reject
         from profiles.models import Profile
+        from .models import Notification
         try:
             profile = Profile.objects.get(pk=pk)
             if action == 'approve':
                 profile.is_verified = True
                 profile.verification_status = 'verified'
+                Notification.objects.create(
+                    user=profile.user,
+                    title="You are Verified! ☑️",
+                    body="Congratulations! Your profile has been verified by our team.",
+                    type="verification",
+                    is_read=False
+                )
             elif action == 'reject':
                 profile.is_verified = False
                 profile.verification_status = 'rejected'
+                Notification.objects.create(
+                    user=profile.user,
+                    title="Verification Failed ⚠️",
+                    body="Your verification request was rejected. Please try again with a clear photo.",
+                    type="verification",
+                    is_read=False
+                )
             profile.save()
             return Response({"status": "success"})
         except Profile.DoesNotExist:
             return Response(status=404)
+
+class NotificationListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    from .serializers import NotificationSerializer
+    serializer_class = NotificationSerializer
+    
+    def get_queryset(self):
+        from .models import Notification
+        # Return last 20 notifications
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')[:20]

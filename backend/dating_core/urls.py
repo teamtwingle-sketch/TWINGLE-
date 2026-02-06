@@ -12,7 +12,8 @@ from users.views import (
     AdminStatsView, AdminUserListView, AdminBanUserView,
     AdminReportListView, AdminResolveReportView,
     AdminPaymentListView, AdminApprovePaymentView, AdminRejectPaymentView,
-    RequestVerificationView, AdminVerificationListView, AdminVerifyUserView
+    RequestVerificationView, AdminVerificationListView, AdminVerifyUserView,
+    NotificationListView
 )
 from profiles.views import ProfileDetailView, PublicProfileDetailView, InterestListView, UserPhotoViewSet
 from django.views.generic import TemplateView
@@ -38,6 +39,7 @@ urlpatterns = [
     path('api/auth/me/', UserDetailView.as_view(), name='auth_me'),
     path('api/auth/delete/', UserDeleteView.as_view(), name='auth_delete'),
     path('api/auth/google/', GoogleLoginView.as_view(), name='auth_google'),
+    path('api/notifications/', NotificationListView.as_view(), name='notifications'),
 
     # Admin Dashboard API
     path('api/admin/stats/', AdminStatsView.as_view()),
