@@ -5,7 +5,7 @@ import { Heart, X, Undo, Zap, Star, MapPin } from 'lucide-react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 
-const SwipeCard = ({ user, onSwipe }) => {
+const SwipeCard = ({ user, onSwipe, onTap }) => {
     const x = useMotionValue(0);
     const rotate = useTransform(x, [-200, 200], [-25, 25]);
     const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
@@ -26,6 +26,7 @@ const SwipeCard = ({ user, onSwipe }) => {
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={handleDragEnd}
+            onTap={onTap}
             className="absolute inset-0 m-auto w-full max-w-sm h-full max-h-[70vh] cursor-grab active:cursor-grabbing"
         >
             <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
@@ -65,8 +66,8 @@ const Discovery = () => {
     const [users, setUsers] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
-
     const [profileCompleted, setProfileCompleted] = useState(true);
+    const [selectedUser, setSelectedUser] = useState(null);
 
     useEffect(() => {
         checkProfile();
@@ -76,7 +77,6 @@ const Discovery = () => {
     const checkProfile = async () => {
         try {
             const res = await api.get('/profile/');
-            // Check mandatory fields: Gender, DOB, Intent, Photos
             const p = res.data;
             if (!p.gender || !p.dob || !p.relationship_intents?.length || !p.photos?.length) {
                 setProfileCompleted(false);
@@ -114,14 +114,21 @@ const Discovery = () => {
         }
     };
 
+    const handleUndo = async () => {
+        try {
+            const res = await api.post('/swipe/undo/');
+            toast.success("Undone!");
+            // Refresh to bring back the user
+            fetchDiscovery();
+            setCurrentIndex(0);
+        } catch (err) {
+            toast.error(err.response?.data?.error || "Cannot undo");
+        }
+    };
+
     const handleButtonSwipe = (action) => {
         if (users.length <= currentIndex) return;
-        const target = users[currentIndex]; // The one currently at the index is the one being viewed?
-        // Wait, slice logic: [currentIndex, currentIndex+2]. Reverse.
-        // If users=[A, B, C], index=0. Slice=[A, B]. Reverse=[B, A].
-        // A is at bottom of map (rendered last => on top). 
-        // A is users[0].
-        // So yes, users[currentIndex] is the target.
+        const target = users[currentIndex];
         handleSwipe(target.user_id, action);
     };
 
@@ -143,6 +150,7 @@ const Discovery = () => {
                                 key={user.user_id}
                                 user={user}
                                 onSwipe={handleSwipe}
+                                onTap={() => setSelectedUser(user)}
                             />
                         ))}
                     </AnimatePresence>
@@ -162,7 +170,13 @@ const Discovery = () => {
             </div>
 
             {/* Control Buttons */}
-            <div className="h-24 shrink-0 flex items-center justify-center gap-8 pb-4">
+            <div className="h-24 shrink-0 flex items-center justify-center gap-6 pb-4">
+                <button
+                    onClick={handleUndo}
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg text-yellow-500 active:scale-95 transition-transform"
+                >
+                    <Undo size={20} strokeWidth={2.5} />
+                </button>
                 <button
                     onClick={() => handleButtonSwipe('dislike')}
                     className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-red-500 text-red-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-red-50 touch-manipulation"
@@ -175,7 +189,56 @@ const Discovery = () => {
                 >
                     <Heart size={32} fill="currentColor" />
                 </button>
+                <button className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg text-purple-500 active:scale-95 transition-transform">
+                    <Zap size={20} strokeWidth={2.5} />
+                </button>
             </div>
+
+            {/* Details Modal */}
+            <AnimatePresence>
+                {selectedUser && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 100 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 100 }}
+                        className="absolute inset-0 z-50 bg-white/95 backdrop-blur-xl p-6 overflow-y-auto"
+                    >
+                        <button
+                            onClick={() => setSelectedUser(null)}
+                            className="absolute top-4 right-4 p-2 bg-slate-100 rounded-full text-slate-500"
+                        >
+                            <X />
+                        </button>
+                        <div className="mt-8">
+                            <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg mb-6">
+                                <img
+                                    src={selectedUser.photos?.[0] ? (selectedUser.photos[0].startsWith('http') ? selectedUser.photos[0] : `http://127.0.0.1:8000${selectedUser.photos[0]}`) : ''}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <h2 className="text-3xl font-black text-slate-900">{selectedUser.first_name}, {selectedUser.age}</h2>
+                            <div className="flex items-center gap-1 text-slate-500 font-medium mt-1">
+                                <MapPin size={18} />
+                                <span className="capitalize">{selectedUser.district}</span>
+                            </div>
+
+                            <div className="mt-6">
+                                <h3 className="font-bold text-slate-900 mb-2">About</h3>
+                                <p className="text-slate-600 leading-relaxed text-lg italic">
+                                    "{selectedUser.bio}"
+                                </p>
+                            </div>
+
+                            {/* Basic Details only as per requirements for Discovery */}
+                            <div className="mt-8 p-4 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
+                                <p className="text-center text-sm font-semibold text-brand-primary">
+                                    Match with {selectedUser.first_name} to see full profile!
+                                </p>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

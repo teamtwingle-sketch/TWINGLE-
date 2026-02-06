@@ -172,8 +172,11 @@ class SwipeView(views.APIView):
             user.last_swipe_date = timezone.now().date()
             user.save()
 
-        if user.swipes_today >= user.daily_swipe_limit:
-             return response.Response({"error": "Daily swipe limit reached."}, status=status.HTTP_403_FORBIDDEN)
+        SWIPE_LIMITS = {'normal': 8, 'gold': 60, 'platinum': 1000000}
+        limit = SWIPE_LIMITS.get(user.tier, 8)
+
+        if user.swipes_today >= limit:
+             return response.Response({"error": f"Daily swipe limit reached. Upgrade for more."}, status=status.HTTP_403_FORBIDDEN)
 
         target_user = User.objects.get(id=target_id)
         swipe, created = Swipe.objects.update_or_create(
@@ -222,3 +225,46 @@ class SwipeView(views.APIView):
             "status": "success",
             "is_match": is_match
         })
+
+class UndoSwipeView(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        from django.utils import timezone
+        
+        # Reset back swipe counter if new day
+        if user.last_back_swipe_date < timezone.now().date():
+            user.back_swipes_today = 0
+            user.last_back_swipe_date = timezone.now().date()
+            user.save()
+            
+        BACK_LIMITS = {'normal': 6, 'gold': 60, 'platinum': 1000000}
+        limit = BACK_LIMITS.get(user.tier, 6)
+        
+        if user.back_swipes_today >= limit:
+            return response.Response({"error": "Daily back swipe limit reached."}, status=status.HTTP_403_FORBIDDEN)
+            
+        # Get last swipe
+        last_swipe = Swipe.objects.filter(swiper=user).order_by('-timestamp').first()
+        if not last_swipe:
+            return response.Response({"error": "No swipes to undo"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Handle Match Reversal
+        if last_swipe.action == 'like':
+             # Check if match exists
+             # We need to filter match that contains both users
+             matches = Match.objects.filter(users=user).filter(users=last_swipe.target)
+             if matches.exists():
+                 matches.first().delete()
+        
+        last_swipe.delete()
+        
+        # Update counters
+        if user.swipes_today > 0:
+            user.swipes_today -= 1
+            
+        user.back_swipes_today += 1
+        user.save()
+        
+        return response.Response({"status": "undone", "remaining_back_swipes": limit - user.back_swipes_today})

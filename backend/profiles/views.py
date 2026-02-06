@@ -1,8 +1,9 @@
 
 from rest_framework import generics, permissions, viewsets
 from .models import Profile, Interest, UserPhoto
-from .serializers import ProfileSerializer, InterestSerializer, UserPhotoSerializer, PublicProfileSerializer
+from .serializers import ProfileSerializer, InterestSerializer, UserPhotoSerializer, PublicProfileSerializer, BasicProfileSerializer
 from datetime import date
+from rest_framework import response
 
 class ProfileDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = ProfileSerializer
@@ -27,6 +28,25 @@ class PublicProfileDetailView(generics.RetrieveAPIView):
     serializer_class = PublicProfileSerializer
     permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'user_id'
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = request.user
+        
+        # Check tier
+        is_premium_tier = user.tier in ['gold', 'platinum']
+        
+        # Check match
+        target_user = instance.user
+        from matches.models import Match
+        is_matched = Match.objects.filter(users=user).filter(users=target_user).exists()
+        
+        if is_premium_tier and is_matched:
+             serializer = PublicProfileSerializer(instance, context={'request': request})
+        else:
+             serializer = BasicProfileSerializer(instance, context={'request': request})
+             
+        return response.Response(serializer.data)
 
 class InterestListView(generics.ListAPIView):
     queryset = Interest.objects.all()

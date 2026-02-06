@@ -77,3 +77,12 @@ class PublicProfileSerializer(ProfileSerializer):
         
         from matches.models import Swipe
         return Swipe.objects.filter(swiper=request.user, target=obj.user, action='like').exists()
+
+class BasicProfileSerializer(serializers.ModelSerializer):
+    photos = UserPhotoSerializer(many=True, read_only=True, source='user.photos')
+    
+    class Meta:
+        model = Profile
+        fields = (
+            'id', 'first_name', 'age', 'gender', 'district', 'bio', 'photos'
+        )

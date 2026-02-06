@@ -31,13 +31,26 @@ class User(AbstractUser):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     
     # Premium features
+    TIER_CHOICES = (
+        ('normal', 'Normal'),
+        ('gold', 'Gold'),
+        ('platinum', 'Platinum'),
+    )
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES, default='normal')
+    
     is_premium = models.BooleanField(default=False)
     premium_expiry = models.DateTimeField(null=True, blank=True)
     
     # Daily Swipe Limits
     swipes_today = models.IntegerField(default=0)
-    daily_swipe_limit = models.IntegerField(default=8) # 8 for free, 60 for Gold, 10000 for Platinum
+    daily_swipe_limit = models.IntegerField(default=8) # 8 (Normal), 60 (Gold), 1000000 (Platinum)
     last_swipe_date = models.DateField(auto_now_add=True)
+    
+    # Back Swipe Limits
+    back_swipes_today = models.IntegerField(default=0)
+    daily_back_swipe_limit = models.IntegerField(default=6) # 6 (Normal), 60 (Gold), 1000000 (Platinum)
+    last_back_swipe_date = models.DateField(auto_now_add=True)
+
     last_activity = models.DateTimeField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
