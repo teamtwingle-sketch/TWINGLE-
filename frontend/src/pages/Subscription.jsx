@@ -95,6 +95,20 @@ const Subscription = () => {
         } catch (e) { console.error("Download failed", e); }
     };
 
+    // Auto-download checking
+    useEffect(() => {
+        // Condition: Stop if Premium OR Pending
+        if (status?.is_premium || status?.payment_status === 'pending') return;
+
+        if (selectedPlan && plans.length > 0) {
+            const timer = setTimeout(() => {
+                downloadQR();
+                toast.info("QR Code downloaded!");
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [selectedPlan, status]);
+
 
 
     return (
