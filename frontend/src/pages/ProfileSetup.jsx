@@ -326,14 +326,6 @@ const ProfileSetup = () => {
                         Save Changes
                     </button>
 
-                    <Link
-                        to="/download"
-                        className="w-full bg-slate-100 text-slate-700 font-bold py-4 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 active:scale-95 transition-all text-lg hover:bg-slate-200"
-                    >
-                        <Download size={20} strokeWidth={2.5} />
-                        Get the App
-                    </Link>
-
                     <Link to="/terms" className="block text-center text-xs text-slate-400 font-semibold hover:text-slate-600 py-2">
                         Terms & Conditions • Privacy Policy
                     </Link>
