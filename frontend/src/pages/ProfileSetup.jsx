@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
-import { Camera, Save, LogOut, ChevronDown, X } from 'lucide-react';
+import { Camera, Save, LogOut, ChevronDown, X, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ProfileSetup = () => {
@@ -325,6 +325,14 @@ const ProfileSetup = () => {
                         <Save size={20} strokeWidth={2.5} />
                         Save Changes
                     </button>
+
+                    <Link
+                        to="/download"
+                        className="w-full bg-slate-100 text-slate-700 font-bold py-4 rounded-2xl border border-slate-200 flex items-center justify-center gap-2 active:scale-95 transition-all text-lg hover:bg-slate-200"
+                    >
+                        <Download size={20} strokeWidth={2.5} />
+                        Get the App
+                    </Link>
 
                     <Link to="/terms" className="block text-center text-xs text-slate-400 font-semibold hover:text-slate-600 py-2">
                         Terms & Conditions • Privacy Policy
