@@ -50,10 +50,10 @@ class Profile(models.Model):
     height_cm = models.IntegerField(null=True, blank=True)
     
     # Extended Profile Details
-    job_title = models.CharField(max_length=100, blank=True)
-    company = models.CharField(max_length=100, blank=True)
-    school = models.CharField(max_length=100, blank=True)
-    city = models.CharField(max_length=100, blank=True)  # Living In
+    job_title = models.CharField(max_length=100, blank=True, default='')
+    company = models.CharField(max_length=100, blank=True, default='')
+    school = models.CharField(max_length=100, blank=True, default='')
+    city = models.CharField(max_length=100, blank=True, default='')  # Living In
 
     bio = models.TextField(blank=True, max_length=500)
     
