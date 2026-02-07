@@ -26,6 +26,7 @@ const DownloadApp = lazy(() => import('./pages/DownloadApp'));
 const Terms = lazy(() => import('./pages/Legal').then(module => ({ default: module.Terms })));
 const Privacy = lazy(() => import('./pages/Legal').then(module => ({ default: module.Privacy })));
 const Guidelines = lazy(() => import('./pages/Legal').then(module => ({ default: module.Guidelines })));
+const Safety = lazy(() => import('./pages/Legal').then(module => ({ default: module.Safety })));
 
 // Lazy Utility Components
 const GlobalToast = lazy(() => import('./components/GlobalToast'));
@@ -54,6 +55,7 @@ function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/guidelines" element={<Guidelines />} />
+            <Route path="/safety" element={<Safety />} />
             <Route path="/download" element={<DownloadApp />} />
 
             {/* Landing Route - Standalone (No AppLayout overhead) */}

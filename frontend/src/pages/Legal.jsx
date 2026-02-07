@@ -136,3 +136,47 @@ export const Guidelines = () => (
         <p>Never share financial information. Meet in public places for first dates. Tell a friend where you are going.</p>
     </LegalLayout>
 );
+
+export const Safety = () => (
+    <LegalLayout title="Safety Tips">
+        <p className="lead text-lg text-slate-700 mb-6">Your safety is our top priority. While we strive to screen profiles, you are the best judge of your own safety. Please read these tips carefully.</p>
+
+        <div className="space-y-8">
+            <section>
+                <h3 className="text-xl font-bold text-brand-primary mb-3 flex items-center gap-2">
+                    <span className="text-2xl">💬</span> Online Safety
+                </h3>
+                <ul className="list-disc pl-5 space-y-2">
+                    <li><strong>Never send money:</strong> Scammers often create fake emergencies. If someone asks for money, wire transfers, or gift cards, report them immediately.</li>
+                    <li><strong>Protect personal info:</strong> Don't share your home address, work address, or financial details until you have established trust.</li>
+                    <li><strong>Stay on the app:</strong> Keep conversations on Twingle as long as possible. Scammers often try to move you to WhatsApp or other apps quickly.</li>
+                    <li><strong>Be wary of long distance:</strong> Be cautious of anyone who claims to be from your country but is "stuck overseas" or "travelling for work".</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 className="text-xl font-bold text-brand-primary mb-3 flex items-center gap-2">
+                    <span className="text-2xl">☕</span> Meeting in Person
+                </h3>
+                <ul className="list-disc pl-5 space-y-2">
+                    <li><strong>Meet in public:</strong> Always meet in a busy, public place for the first few dates. Never meet at your home or theirs.</li>
+                    <li><strong>Tell a friend:</strong> Let a friend or family member know where you are going and who you are meeting. Share your live location if possible.</li>
+                    <li><strong>Video Call first:</strong> Use Twingle's Video Call feature to verify the person looks like their photos before meeting up.</li>
+                    <li><strong>Control your transport:</strong> Drive yourself or use a ride-share app so you can leave whenever you want. Don't rely on your date for transportation.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3 className="text-xl font-bold text-brand-primary mb-3 flex items-center gap-2">
+                    <span className="text-2xl">🚨</span> Reporting & Blocking
+                </h3>
+                <p>If anyone makes you feel uncomfortable, harasses you, or violates our guidelines, please report them immediately. </p>
+                <p className="mt-2"><strong>How to Report:</strong> Go to their profile or chat &rarr; Tap the 3 dots &rarr; Select "Report".</p>
+                <div className="bg-red-50 border border-red-200 p-4 rounded-xl mt-4">
+                    <h4 className="font-bold text-red-700 mb-1">Emergency Resources</h4>
+                    <p className="text-sm text-red-900">If you are in immediate danger, call local emergency services (112 in India) immediately.</p>
+                </div>
+            </section>
+        </div>
+    </LegalLayout>
+);
