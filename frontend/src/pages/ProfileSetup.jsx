@@ -59,11 +59,19 @@ const ProfileSetup = () => {
         if (!profile.relationship_intents || profile.relationship_intents.length === 0) return toast.error('Select at least one intent');
         if (profile.photos && profile.photos.length === 0) return toast.warning('Please add a photo to start matching!');
 
+        // Sanitize data before sending
+        const payload = { ...profile };
+        if (payload.height_cm === '') payload.height_cm = null;
+
         try {
-            await api.patch('/profile/', profile);
+            await api.patch('/profile/', payload);
             toast.success('Profile updated successfully!');
         } catch (err) {
-            toast.error('Failed to update profile');
+            console.error("Profile update error:", err);
+            const errorMsg = err.response?.data ?
+                Object.values(err.response.data).flat().join(', ') :
+                'Failed to update profile';
+            toast.error(errorMsg || 'Failed to update profile');
         }
     };
 

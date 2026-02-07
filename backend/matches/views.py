@@ -200,12 +200,23 @@ class SwipeView(views.APIView):
 
         # Check for Match
         is_match = False
+        match_details = None
+        
         if action == 'like':
             reverse_swipe = Swipe.objects.filter(swiper=target_user, target=user, action='like').exists()
             if reverse_swipe:
                 match = Match.objects.create()
                 match.users.add(user, target_user)
                 is_match = True
+                
+                # Get details for popup
+                target_profile = getattr(target_user, 'profile', None)
+                target_photo = target_user.photos.filter(is_primary=True).first() or target_user.photos.first()
+                match_details = {
+                    "user_id": target_user.id,
+                    "name": target_profile.first_name if target_profile else "User",
+                    "photo": target_photo.image.url if target_photo else None
+                }
                 
                 # Notify both users
                 from channels.layers import get_channel_layer
@@ -251,7 +262,8 @@ class SwipeView(views.APIView):
         
         return response.Response({
             "status": "success",
-            "is_match": is_match
+            "is_match": is_match,
+            "match_details": match_details
         })
 
 class UndoSwipeView(views.APIView):

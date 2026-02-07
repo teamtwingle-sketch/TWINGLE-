@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
-import { Heart, X, Undo, Zap, Star, MapPin, Check } from 'lucide-react';
+import { Heart, X, Undo, Zap, Star, MapPin, Check, MessageCircle } from 'lucide-react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 
@@ -81,12 +81,68 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
     );
 };
 
+const MatchPopup = ({ user, match, onClose, onChat }) => {
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="relative w-full max-w-md bg-white rounded-3xl p-6 text-center shadow-2xl overflow-hidden">
+                {/* Background Decor */}
+                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-rose-400 to-orange-500 opacity-20" />
+
+                <h2 className="relative text-4xl font-black text-rose-500 font-outfit mb-2 drop-shadow-sm rotate-[-2deg]">It's a Match!</h2>
+                <p className="relative text-slate-500 font-medium mb-8">You and {match.name} liked each other</p>
+
+                <div className="relative flex items-center justify-center gap-4 mb-8">
+                    {/* User Photo */}
+                    <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden -rotate-6">
+                        <img src={user.photo} className="w-full h-full object-cover" alt="You" />
+                    </div>
+                    {/* Heart Icon */}
+                    <div className="absolute z-10 bg-white p-2 rounded-full shadow-lg">
+                        <Heart className="text-rose-500 fill-rose-500 animate-pulse" size={32} />
+                    </div>
+                    {/* Matched Photo */}
+                    <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden rotate-6">
+                        <img
+                            src={match.photo ? (match.photo.startsWith('http') ? match.photo : `http://127.0.0.1:8000${match.photo}`) : 'https://via.placeholder.com/150'}
+                            className="w-full h-full object-cover"
+                            alt={match.name}
+                        />
+                    </div>
+                </div>
+
+                <div className="space-y-3 relative z-10">
+                    <button
+                        onClick={() => onChat(match.user_id)}
+                        className="w-full py-3.5 bg-gradient-to-r from-rose-500 to-orange-500 text-white font-bold rounded-xl shadow-lg shadow-rose-200 active:scale-95 transition-transform flex items-center justify-center gap-2"
+                    >
+                        <MessageCircle size={20} />
+                        Send a Message
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="w-full py-3.5 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 active:scale-95 transition-all"
+                    >
+                        Keep Swiping
+                    </button>
+                </div>
+
+                {/* Confetti Effect (CSS only for simplicity) */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    {/* Can add confetti library later if needed */}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const Discovery = () => {
     const [users, setUsers] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [profileCompleted, setProfileCompleted] = useState(true);
     const [selectedUser, setSelectedUser] = useState(null);
+    const [matchData, setMatchData] = useState(null); // { match_details }
+    const [myProfile, setMyProfile] = useState(null); // To show my photo in popup
 
     useEffect(() => {
         checkProfile();
@@ -97,6 +153,10 @@ const Discovery = () => {
         try {
             const res = await api.get('/profile/');
             const p = res.data;
+            setMyProfile({
+                photo: p.photos?.[0]?.image ? (p.photos[0].image.startsWith('http') ? p.photos[0].image : `http://127.0.0.1:8000${p.photos[0].image}`) : 'https://via.placeholder.com/150'
+            });
+
             if (!p.gender || !p.dob || !p.relationship_intents?.length || !p.photos?.length) {
                 setProfileCompleted(false);
                 toast.warning("Please complete your profile to start matching!");
@@ -120,10 +180,10 @@ const Discovery = () => {
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
             if (res.data.is_match) {
-                toast.success("It's a Match! 🎉", {
-                    position: "top-center",
-                    autoClose: 5000,
-                });
+                // Show Popup instead of Toast
+                setMatchData(res.data.match_details);
+                // Trigger haptics
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
             }
             setCurrentIndex(prev => prev + 1);
         } catch (err) {
@@ -158,6 +218,16 @@ const Discovery = () => {
 
     return (
         <div className="flex-1 flex flex-col p-4 w-full h-full relative overflow-hidden">
+            {/* Match Popup */}
+            {matchData && (
+                <MatchPopup
+                    user={myProfile}
+                    match={matchData}
+                    onClose={() => setMatchData(null)}
+                    onChat={(id) => window.location.href = `/chat/${id}`}
+                />
+            )}
+
             {/* SEO Heading */}
             <h1 className="sr-only">Twingle - The Best Mallu Dating App for Malayalis | Number One Malayalam Dating Site</h1>
 
