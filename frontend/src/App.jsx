@@ -23,10 +23,7 @@ const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 const DownloadApp = lazy(() => import('./pages/DownloadApp'));
 
 // Lazy load Legal pages
-const Terms = lazy(() => import('./pages/Legal').then(module => ({ default: module.Terms })));
-const Privacy = lazy(() => import('./pages/Legal').then(module => ({ default: module.Privacy })));
-const Guidelines = lazy(() => import('./pages/Legal').then(module => ({ default: module.Guidelines })));
-const Safety = lazy(() => import('./pages/Legal').then(module => ({ default: module.Safety })));
+import { Terms, Privacy, Guidelines, Safety } from './pages/Legal';
 
 // Lazy Utility Components
 const GlobalToast = lazy(() => import('./components/GlobalToast'));
