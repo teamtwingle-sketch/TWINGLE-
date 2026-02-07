@@ -5,16 +5,34 @@ import { Outlet, NavLink, Link, useLocation, matchPath } from 'react-router-dom'
 import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles, Bell } from 'lucide-react';
 import api from '../api/client';
 
+import MatchPopup from './MatchPopup';
+
 const AppLayout = ({ children }) => {
     const isStaff = localStorage.getItem('is_staff') === 'true';
     const location = useLocation();
     const [unreadCount, setUnreadCount] = useState(0);
+    const [matchPopupData, setMatchPopupData] = useState(null);
+    const [myPhoto, setMyPhoto] = useState(null);
 
     // Check if we are in a specific chat window
     // We want to hide the global header/nav only for the specific chat room
     const isChatWindow = matchPath("/chat/:userId", location.pathname);
 
     const isFullScreenPage = isChatWindow;
+
+    // Fetch My Photo on Mount
+    useEffect(() => {
+        const fetchMyPhoto = async () => {
+            try {
+                const res = await api.get('/profile/');
+                if (res.data.photos && res.data.photos.length > 0) {
+                    const p = res.data.photos[0].image;
+                    setMyPhoto(p.startsWith('http') ? p : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${p}`);
+                }
+            } catch (e) { }
+        };
+        fetchMyPhoto();
+    }, []);
 
     // Poll for unread messages
     useEffect(() => {
@@ -68,6 +86,12 @@ const AppLayout = ({ children }) => {
             try {
                 const data = JSON.parse(e.data);
                 if (data.type === 'match_notification') {
+                    // If I am NOT the initiator (passive match), show the popup
+                    if (!data.is_initiator) {
+                        setMatchPopupData(data);
+                    }
+
+                    // Always show toast for visibility
                     import('react-toastify').then(({ toast }) => {
                         toast.success(`It's a Match! You matched with ${data.partner_name} 💖`, {
                             icon: "💘",
@@ -85,6 +109,23 @@ const AppLayout = ({ children }) => {
 
     return (
         <div className="flex flex-col h-[100dvh] bg-slate-50">
+            {/* Global Match Popup */}
+            {matchPopupData && (
+                <MatchPopup
+                    user={{ photo: myPhoto }}
+                    match={{
+                        name: matchPopupData.partner_name,
+                        photo: matchPopupData.partner_photo,
+                        user_id: matchPopupData.partner_id
+                    }}
+                    onClose={() => setMatchPopupData(null)}
+                    onChat={(id) => {
+                        setMatchPopupData(null);
+                        window.location.href = `/chat/${id}`;
+                    }}
+                />
+            )}
+
             {/* Top Header - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
                 <header className="h-16 px-6 border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-10 flex items-center justify-between shadow-sm">

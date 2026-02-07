@@ -246,17 +246,22 @@ class SwipeView(views.APIView):
                     {
                         "type": "match_notification",
                         "partner_id": target_user.id,
-                        "partner_name": getattr(target_user, 'profile', user).first_name if hasattr(target_user, 'profile') else "Someone"
+                        "partner_name": getattr(target_user, 'profile', user).first_name if hasattr(target_user, 'profile') else "Someone",
+                        "partner_photo": target_photo.image.url if target_photo else None,
+                        "is_initiator": True
                     }
                 )
                 
                 # Notify Limit (Target)
+                my_photo = user.photos.filter(is_primary=True).first() or user.photos.first()
                 async_to_sync(channel_layer.group_send)(
                     f"user_{target_user.id}",
                     {
                         "type": "match_notification",
                         "partner_id": user.id,
-                        "partner_name": getattr(user, 'profile', user).first_name if hasattr(user, 'profile') else "Someone"
+                        "partner_name": getattr(user, 'profile', user).first_name if hasattr(user, 'profile') else "Someone",
+                        "partner_photo": my_photo.image.url if my_photo else None,
+                        "is_initiator": False
                     }
                 )
         
