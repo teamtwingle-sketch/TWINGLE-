@@ -85,7 +85,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'type': 'match_notification',
             'partner_id': event['partner_id'],
-            'partner_name': event['partner_name']
+            'partner_name': event['partner_name'],
+            'partner_photo': event.get('partner_photo'),
+            'is_initiator': event.get('is_initiator', False)
         }))
 
     @database_sync_to_async

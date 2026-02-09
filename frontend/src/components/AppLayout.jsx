@@ -107,10 +107,14 @@ const AppLayout = ({ children }) => {
                 const data = JSON.parse(e.data);
                 if (data.type === 'match_notification') {
                     console.log("Match Notification Received:", data);
-                    // Show popup for BOTH users (initiator and receiver)
-                    setMatchPopupData(data);
 
-                    // Increment new match badge if not currently on matches page
+                    // Only show popup for the PASSIVE user (receiver). 
+                    // Initiator sees it via Discovery API response immediately.
+                    if (!data.is_initiator) {
+                        setMatchPopupData(data);
+                    }
+
+                    // always Increment new match badge if not currently on matches page
                     if (location.pathname !== '/matches') {
                         setNewMatchCount(prev => prev + 1);
                     }
