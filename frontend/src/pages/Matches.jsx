@@ -64,7 +64,7 @@ const Matches = () => {
                             {matches.map(match => (
                                 <div key={match.id} className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md group cursor-pointer" onClick={() => navigate(`/chat/${match.user_id}`)}>
                                     <img
-                                        src={match.photo ? (match.photo.startsWith('http') ? match.photo : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${match.photo}`) : 'https://via.placeholder.com/150'}
+                                        src={match.photo ? (match.photo.startsWith('http') ? match.photo : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || ''}${match.photo}`) : 'https://via.placeholder.com/150'}
                                         className="w-full h-full object-cover"
                                         alt={match.name}
                                         onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=User'; }}
@@ -100,7 +100,7 @@ const Matches = () => {
                             {sentLikes.map(user => (
                                 <div key={user.user_id} className="relative aspect-[3/4] rounded-2xl overflow-hidden grayscale-[50%] opacity-90 border-2 border-slate-200" onClick={() => navigate(`/profile/${user.user_id}`)}>
                                     <img
-                                        src={user.photo ? (user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${user.photo}`) : 'https://via.placeholder.com/150'}
+                                        src={user.photo ? (user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || ''}${user.photo}`) : 'https://via.placeholder.com/150'}
                                         className="w-full h-full object-cover"
                                         alt={user.name}
                                         onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=User'; }}
