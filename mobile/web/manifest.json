@@ -1,11 +1,11 @@
 {
-    "name": "twingle_mobile",
-    "short_name": "twingle_mobile",
+    "name": "Twingle",
+    "short_name": "Twingle",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#ffffff",
+    "theme_color": "#ec4899",
+    "description": "Twingle is the No. 1 Mallu Dating App for Malayalis.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

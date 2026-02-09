@@ -176,7 +176,7 @@ const Discovery = () => {
             )}
 
             {/* SEO Heading */}
-            <h1 className="sr-only">Twingle - The Best Mallu Dating App for Malayalis | Number One Malayalam Dating Site</h1>
+            <h1 className="sr-only">Twingle - The No. 1 Mallu Dating App for Malayalis | Best Malayalam Dating Site</h1>
 
             <div className="flex-1 relative w-full flex items-center justify-center my-4">
                 {users.length > currentIndex ? (

@@ -17,7 +17,7 @@ const Landing = () => {
                     {/* Title is STATIC for LCP */}
                     <h1 className="text-5xl font-black mb-4 tracking-tight font-outfit">Twingle</h1>
                     <p className="text-xl opacity-90 mb-10 max-w-md mx-auto font-medium">
-                        The Number 1 Dating Platform For Malayalis. Find Your Special Someone In Kerala.
+                        The No. 1 Mallu Dating App For Malayalis. Find Your Special Someone In Kerala.
                     </p>
 
                     <div className="flex flex-col gap-4 w-full max-w-xs mx-auto animate-fade-in-up">
