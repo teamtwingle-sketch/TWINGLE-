@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 import { Camera, Save, LogOut, ChevronDown, X, Download, Check, Clock, UploadCloud } from 'lucide-react';
@@ -17,6 +17,79 @@ const ProfileSetup = () => {
         photos: []
     });
     const [loading, setLoading] = useState(true);
+
+    // Camera Logic
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+    const [capturedImage, setCapturedImage] = useState(null);
+
+    const startCamera = async () => {
+        try {
+            setIsCameraOpen(true);
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            // Small delay to ensure ref is attached
+            setTimeout(() => {
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                }
+            }, 100);
+        } catch (err) {
+            toast.error("Camera access denied or not available");
+            setIsCameraOpen(false);
+        }
+    };
+
+    const stopCamera = () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+            const tracks = videoRef.current.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+        }
+        setIsCameraOpen(false);
+    };
+
+    const capturePhoto = () => {
+        if (videoRef.current && canvasRef.current) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            const context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(blob => {
+                setCapturedImage(blob);
+                stopCamera();
+            }, 'image/jpeg', 0.8);
+        }
+    };
+
+    const retakePhoto = () => {
+        setCapturedImage(null);
+        startCamera();
+    };
+
+    const submitVerification = async () => {
+        if (!capturedImage) return;
+
+        const formData = new FormData();
+        formData.append('image', capturedImage, 'verification_live.jpg');
+
+        try {
+            const toastId = toast.loading("Uploading verification...");
+            await api.post('/verification/request/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            toast.update(toastId, { render: "Verification requested!", type: "success", isLoading: false, autoClose: 3000 });
+            fetchProfile();
+            setCapturedImage(null);
+        } catch (err) {
+            toast.dismiss();
+            toast.error(err.response?.data?.error || "Failed to upload.");
+        }
+    };
 
     useEffect(() => {
         fetchProfile();
@@ -323,37 +396,49 @@ const ProfileSetup = () => {
                             </p>
 
                             {profile.is_premium ? (
-                                <div className="flex flex-col gap-3">
-                                    <label className="block w-full p-4 border-2 border-dashed border-slate-300 rounded-xl text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={async (e) => {
-                                                const file = e.target.files[0];
-                                                if (!file) return;
+                                <div className="flex flex-col gap-4">
+                                    {/* Camera Interface */}
+                                    {isCameraOpen ? (
+                                        <div className="relative rounded-2xl overflow-hidden bg-black aspect-[3/4] flex flex-col items-center justify-center">
+                                            <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover transform scale-x-[-1]" />
+                                            <canvas ref={canvasRef} className="hidden" />
 
-                                                const formData = new FormData();
-                                                formData.append('image', file);
-
-                                                try {
-                                                    const toastId = toast.loading("Uploading verification...");
-                                                    await api.post('/verification/request/', formData, {
-                                                        headers: { 'Content-Type': 'multipart/form-data' }
-                                                    });
-                                                    toast.update(toastId, { render: "Verification requested!", type: "success", isLoading: false, autoClose: 3000 });
-                                                    fetchProfile();
-                                                } catch (err) {
-                                                    toast.dismiss();
-                                                    toast.error(err.response?.data?.error || "Failed to upload.");
-                                                }
-                                            }}
-                                        />
-                                        <div className="flex flex-col items-center gap-2 text-slate-500">
-                                            <UploadCloud size={24} />
-                                            <span className="font-bold text-sm">Upload Selfie with ID</span>
+                                            <div className="absolute bottom-4 flex gap-4 z-20">
+                                                <button onClick={stopCamera} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white">
+                                                    <X size={24} />
+                                                </button>
+                                                <button onClick={capturePhoto} className="p-4 bg-white rounded-full text-brand-primary shadow-lg border-4 border-white/50">
+                                                    <Camera size={32} />
+                                                </button>
+                                            </div>
                                         </div>
-                                    </label>
+                                    ) : capturedImage ? (
+                                        <div className="space-y-4">
+                                            <div className="relative rounded-2xl overflow-hidden aspect-[3/4]">
+                                                {/* Display Blob Preview */}
+                                                <img src={URL.createObjectURL(capturedImage)} className="w-full h-full object-cover" alt="Preview" />
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={retakePhoto} className="flex-1 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl">
+                                                    Retake
+                                                </button>
+                                                <button onClick={submitVerification} className="flex-1 py-3 bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-200">
+                                                    Submit
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={startCamera}
+                                            className="w-full py-4 border-2 border-dashed border-blue-300 bg-blue-50 rounded-xl text-blue-600 font-bold flex flex-col items-center gap-2 hover:bg-blue-100 transition-colors"
+                                        >
+                                            <div className="p-3 bg-white rounded-full shadow-sm">
+                                                <Camera size={24} />
+                                            </div>
+                                            <span>Take Verification Selfie</span>
+                                            <span className="text-xs font-normal opacity-70">Live camera only</span>
+                                        </button>
+                                    )}
                                 </div>
                             ) : (
                                 <Link to="/subscription" className="block w-full py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold text-center rounded-xl shadow-lg shadow-orange-200">
