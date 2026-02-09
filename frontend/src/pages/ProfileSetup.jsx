@@ -14,7 +14,10 @@ const ProfileSetup = () => {
         bio: '',
         relationship_intents: [],
         height_cm: '',
-        photos: []
+        relationship_intents: [],
+        height_cm: '',
+        photos: [],
+        verification_attempts: 0 // New field to track attempts
     });
     const [loading, setLoading] = useState(true);
 
@@ -79,6 +82,18 @@ const ProfileSetup = () => {
     const submitVerification = async () => {
         if (!capturedImage) return;
 
+        // Check Monthly Limit (3 attempts)
+        const localAttempts = JSON.parse(localStorage.getItem('verification_attempts') || '{"count": 0}');
+        // Use backend count if available, otherwise fallback to local
+        const currentCount = profile.verification_attempts || localAttempts.count;
+
+        if (currentCount >= 3) {
+            toast.error("Monthly verification limit reached (3 attempts). Please try again next month.");
+            setCapturedImage(null); // Reset captured image
+            setIsCameraOpen(false); // Close camera interface
+            return;
+        }
+
         const formData = new FormData();
         formData.append('image', capturedImage, 'verification_live.jpg');
 
@@ -88,6 +103,12 @@ const ProfileSetup = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.update(toastId, { render: "Verification requested!", type: "success", isLoading: false, autoClose: 3000 });
+
+            // Update Local Count
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            const newCount = (localAttempts.count || 0) + 1;
+            localStorage.setItem('verification_attempts', JSON.stringify({ month: currentMonth, count: newCount }));
+
             fetchProfile();
             setCapturedImage(null);
         } catch (err) {
@@ -116,8 +137,18 @@ const ProfileSetup = () => {
                 interested_in: res.data.interested_in || 'female',
                 district: res.data.district || 'ernakulam',
                 relationship_intents: res.data.relationship_intents || [],
-                photos: res.data.photos || []
+                relationship_intents: res.data.relationship_intents || [],
+                photos: res.data.photos || [],
+                verification_attempts: res.data.verification_attempts || 0
             });
+
+            // Sync with local storage for extra safety if backend doesn't persist
+            const localAttempts = JSON.parse(localStorage.getItem('verification_attempts') || '{}');
+            const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+            if (localAttempts.month !== currentMonth) {
+                localStorage.setItem('verification_attempts', JSON.stringify({ month: currentMonth, count: 0 }));
+            }
+
             setLoading(false);
         } catch (err) {
             console.error(err);
