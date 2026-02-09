@@ -50,9 +50,11 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
         >
             <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 <img
-                    src={user.photos?.[0] ? (user.photos[0].startsWith('http') ? user.photos[0] : `http://127.0.0.1:8000${user.photos[0]}`) : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
+                    src={user.photos?.[0] ? (user.photos[0].startsWith('http') ? user.photos[0] : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${user.photos[0]}`) : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
                     className="w-full h-full object-cover pointer-events-none"
                     alt={user.first_name}
+                    data-testid="swipe-card-img"
+                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400x600?text=No+Image'; }}
                 />
 
                 {/* Indicators */}
@@ -101,7 +103,7 @@ const Discovery = () => {
             const res = await api.get('/profile/');
             const p = res.data;
             setMyProfile({
-                photo: p.photos?.[0]?.image ? (p.photos[0].image.startsWith('http') ? p.photos[0].image : `http://127.0.0.1:8000${p.photos[0].image}`) : 'https://via.placeholder.com/150'
+                photo: p.photos?.[0]?.image ? (p.photos[0].image.startsWith('http') ? p.photos[0].image : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${p.photos[0].image}`) : 'https://via.placeholder.com/150'
             });
 
             if (!p.gender || !p.dob || !p.relationship_intents?.length || !p.photos?.length) {
@@ -248,8 +250,9 @@ const Discovery = () => {
                         <div className="mt-8">
                             <div className="w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-lg mb-6">
                                 <img
-                                    src={selectedUser.photos?.[0] ? (selectedUser.photos[0].startsWith('http') ? selectedUser.photos[0] : `http://127.0.0.1:8000${selectedUser.photos[0]}`) : ''}
+                                    src={selectedUser.photos?.[0] ? (selectedUser.photos[0].startsWith('http') ? selectedUser.photos[0] : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${selectedUser.photos[0]}`) : ''}
                                     className="w-full h-full object-cover"
+                                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400x600?text=No+Image'; }}
                                 />
                             </div>
                             <div className="flex items-center gap-2">

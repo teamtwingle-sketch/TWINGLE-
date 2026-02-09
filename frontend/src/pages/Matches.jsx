@@ -63,7 +63,12 @@ const Matches = () => {
                         <div className="grid grid-cols-2 gap-4">
                             {matches.map(match => (
                                 <div key={match.id} className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-md group cursor-pointer" onClick={() => navigate(`/chat/${match.user_id}`)}>
-                                    <img src={match.photo ? (match.photo.startsWith('http') ? match.photo : `http://127.0.0.1:8000${match.photo}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" alt="" />
+                                    <img
+                                        src={match.photo ? (match.photo.startsWith('http') ? match.photo : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${match.photo}`) : 'https://via.placeholder.com/150'}
+                                        className="w-full h-full object-cover"
+                                        alt={match.name}
+                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=User'; }}
+                                    />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
                                     <div className="absolute bottom-3 left-3 text-white">
                                         <p className="font-bold">{match.name}</p>
@@ -94,7 +99,12 @@ const Matches = () => {
                         <div className="grid grid-cols-2 gap-4">
                             {sentLikes.map(user => (
                                 <div key={user.user_id} className="relative aspect-[3/4] rounded-2xl overflow-hidden grayscale-[50%] opacity-90 border-2 border-slate-200" onClick={() => navigate(`/profile/${user.user_id}`)}>
-                                    <img src={user.photo ? (user.photo.startsWith('http') ? user.photo : `http://127.0.0.1:8000${user.photo}`) : 'https://via.placeholder.com/150'} className="w-full h-full object-cover" alt="" />
+                                    <img
+                                        src={user.photo ? (user.photo.startsWith('http') ? user.photo : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 'http://localhost:8000'}${user.photo}`) : 'https://via.placeholder.com/150'}
+                                        className="w-full h-full object-cover"
+                                        alt={user.name}
+                                        onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=User'; }}
+                                    />
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                         <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold border border-white/30">Pending</span>
                                     </div>
