@@ -21,6 +21,7 @@ const ProfileSetup = () => {
     // Camera Logic
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
+    const streamRef = useRef(null);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
     const [capturedImage, setCapturedImage] = useState(null);
 
@@ -28,6 +29,8 @@ const ProfileSetup = () => {
         try {
             setIsCameraOpen(true);
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            streamRef.current = stream;
+
             // Small delay to ensure ref is attached
             setTimeout(() => {
                 if (videoRef.current) {
@@ -41,9 +44,11 @@ const ProfileSetup = () => {
     };
 
     const stopCamera = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const tracks = videoRef.current.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        if (videoRef.current) {
             videoRef.current.srcObject = null;
         }
         setIsCameraOpen(false);
@@ -93,6 +98,13 @@ const ProfileSetup = () => {
 
     useEffect(() => {
         fetchProfile();
+
+        // Cleanup camera on unmount
+        return () => {
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+            }
+        };
     }, []);
 
     const fetchProfile = async () => {
