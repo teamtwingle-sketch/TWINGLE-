@@ -19,7 +19,9 @@ const Matches = () => {
     const fetchMatches = async () => {
         try {
             const res = await api.get('/matches/');
-            setMatches(res.data);
+            // Deduplicate matches based on user_id to prevent duplicates in UI
+            const uniqueMatches = Array.from(new Map(res.data.map(item => [item.user_id, item])).values());
+            setMatches(uniqueMatches);
             setLoading(false);
         } catch (err) {
             console.error(err);
