@@ -34,10 +34,6 @@
     ],
     "rewrites": [
         {
-            "source": "/(favicon.ico|favicon.svg|twingle-logo.png|manifest.json|robots.txt|sitemap.xml|downloads/.*)",
-            "destination": "/$1"
-        },
-        {
             "source": "/((?!.*\\.).*)",
             "destination": "/index.html"
         }
