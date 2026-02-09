@@ -1,6 +1,24 @@
 {
     "headers": [
         {
+            "source": "/favicon.svg",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "image/svg+xml"
+                }
+            ]
+        },
+        {
+            "source": "/manifest.json",
+            "headers": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/manifest+json"
+                }
+            ]
+        },
+        {
             "source": "/downloads/(.*).apk",
             "headers": [
                 {
