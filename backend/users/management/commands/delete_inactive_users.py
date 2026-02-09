@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = 'Deletes users inactive for more than 30 days'
 
     def handle(self, *args, **options):
-        threshold = timezone.now() - timedelta(days=30)
+        threshold = timezone.now() - timedelta(days=60)
         # Exclude staff/admin
         users = User.objects.filter(last_activity__lt=threshold).exclude(is_staff=True).exclude(is_superuser=True)
         count = users.count()
