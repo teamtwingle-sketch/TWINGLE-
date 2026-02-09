@@ -63,6 +63,17 @@ const AppLayout = ({ children }) => {
         return () => clearInterval(interval);
     }, []);
 
+    // Listen for custom match event (from Discovery page)
+    useEffect(() => {
+        const handleNewMatch = () => {
+            if (location.pathname !== '/matches') {
+                setNewMatchCount(prev => prev + 1);
+            }
+        };
+        window.addEventListener('trigger-new-match', handleNewMatch);
+        return () => window.removeEventListener('trigger-new-match', handleNewMatch);
+    }, [location.pathname]);
+
     // Global WebSocket for Notifications (Matches)
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -88,10 +99,14 @@ const AppLayout = ({ children }) => {
 
         const ws = new WebSocket(wsUrl);
 
+        ws.onopen = () => console.log("WS Connected");
+        ws.onerror = (e) => console.log("WS Error", e);
+
         ws.onmessage = (e) => {
             try {
                 const data = JSON.parse(e.data);
                 if (data.type === 'match_notification') {
+                    console.log("Match Notification Received:", data);
                     // Show popup for BOTH users (initiator and receiver)
                     setMatchPopupData(data);
 

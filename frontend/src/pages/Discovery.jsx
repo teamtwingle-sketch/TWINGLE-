@@ -131,6 +131,8 @@ const Discovery = () => {
             if (res.data.is_match) {
                 // Show Popup instead of Toast
                 setMatchData(res.data.match_details);
+                // Trigger global badge update
+                window.dispatchEvent(new Event('trigger-new-match'));
                 // Trigger haptics
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
             }
