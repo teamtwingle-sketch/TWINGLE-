@@ -403,7 +403,7 @@ const ProfileSetup = () => {
                     ) : (
                         <div>
                             <p className="text-sm text-slate-500 mb-4">
-                                Get a Blue Tick to show you are real. <br />
+                                Get a Blue Tick! Take a selfie showing your face and <b>waving "Hi"</b> with your hand. <br />
                                 <span className="text-xs font-bold text-slate-400 uppercase">Premium Users Only</span>
                             </p>
 
@@ -414,6 +414,10 @@ const ProfileSetup = () => {
                                         <div className="relative rounded-2xl overflow-hidden bg-black aspect-[3/4] flex flex-col items-center justify-center">
                                             <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 w-full h-full object-cover transform scale-x-[-1]" />
                                             <canvas ref={canvasRef} className="hidden" />
+
+                                            <div className="absolute top-4 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full z-20">
+                                                <p className="text-white text-xs font-bold">Wave "Hi" with your hand! 👋</p>
+                                            </div>
 
                                             <div className="absolute bottom-4 flex gap-4 z-20">
                                                 <button onClick={stopCamera} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white">
@@ -447,7 +451,7 @@ const ProfileSetup = () => {
                                             <div className="p-3 bg-white rounded-full shadow-sm">
                                                 <Camera size={24} />
                                             </div>
-                                            <span>Take Verification Selfie</span>
+                                            <span>Take Selfie (Face + Hand Wave 👋)</span>
                                             <span className="text-xs font-normal opacity-70">Live camera only</span>
                                         </button>
                                     )}
