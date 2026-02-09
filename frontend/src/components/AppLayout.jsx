@@ -12,6 +12,7 @@ const AppLayout = ({ children }) => {
     const location = useLocation();
     const [unreadCount, setUnreadCount] = useState(0);
     const [matchPopupData, setMatchPopupData] = useState(null);
+    const [newMatchCount, setNewMatchCount] = useState(0);
     const [myPhoto, setMyPhoto] = useState(null);
 
     // Check if we are in a specific chat window
@@ -32,7 +33,12 @@ const AppLayout = ({ children }) => {
             } catch (e) { }
         };
         fetchMyPhoto();
-    }, []);
+
+        // Clear new match count if on matches page
+        if (location.pathname === '/matches') {
+            setNewMatchCount(0);
+        }
+    }, [location.pathname]);
 
     // Poll for unread messages
     useEffect(() => {
@@ -86,9 +92,12 @@ const AppLayout = ({ children }) => {
             try {
                 const data = JSON.parse(e.data);
                 if (data.type === 'match_notification') {
-                    // If I am NOT the initiator (passive match), show the popup
-                    if (!data.is_initiator) {
-                        setMatchPopupData(data);
+                    // Show popup for BOTH users (initiator and receiver)
+                    setMatchPopupData(data);
+
+                    // Increment new match badge if not currently on matches page
+                    if (location.pathname !== '/matches') {
+                        setNewMatchCount(prev => prev + 1);
                     }
 
                     // Always show toast for visibility
@@ -160,7 +169,7 @@ const AppLayout = ({ children }) => {
             {!isFullScreenPage && (
                 <nav className="h-20 bg-white border-t border-slate-200 flex items-center justify-around px-2 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.04)] z-20">
                     <NavItem to="/" icon={<Flame />} label="Discover" />
-                    <NavItem to="/matches" icon={<Star />} label="Matches" />
+                    <NavItem to="/matches" icon={<Star />} label="Matches" badgeCount={newMatchCount} />
                     <NavItem to="/public-chat" icon={<Sparkles />} label="Hub" />
                     <NavItem to="/chats" icon={<MessageCircle />} label="Chats" badgeCount={unreadCount} />
                     <NavItem to="/profile-setup" icon={<User />} label="Profile" />
