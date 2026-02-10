@@ -65,7 +65,18 @@ const AppLayout = ({ children }) => {
 
     // Listen for custom match event (from Discovery page)
     useEffect(() => {
-        const handleNewMatch = () => {
+        const handleNewMatch = (e) => {
+            // e.detail contains match info from Discovery API response
+            if (e.detail) {
+                // Normalize data to match WebSocket structure
+                setMatchPopupData({
+                    partner_id: e.detail.user_id,
+                    partner_name: e.detail.name,
+                    partner_photo: e.detail.photo,
+                    is_initiator: true // Since this event comes from local action (swipe)
+                });
+            }
+
             if (location.pathname !== '/matches') {
                 setNewMatchCount(prev => prev + 1);
             }

@@ -129,10 +129,10 @@ const Discovery = () => {
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
             if (res.data.is_match) {
-                // Show Popup instead of Toast
-                setMatchData(res.data.match_details);
-                // Trigger global badge update
-                window.dispatchEvent(new Event('trigger-new-match'));
+                // Show Popup via global event (handled in AppLayout)
+                window.dispatchEvent(new CustomEvent('trigger-new-match', {
+                    detail: res.data.match_details
+                }));
                 // Trigger haptics
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
             }
@@ -170,14 +170,7 @@ const Discovery = () => {
     return (
         <div className="flex-1 flex flex-col p-4 w-full h-full relative overflow-hidden">
             {/* Match Popup */}
-            {matchData && (
-                <MatchPopup
-                    user={myProfile}
-                    match={matchData}
-                    onClose={() => setMatchData(null)}
-                    onChat={(id) => window.location.href = `/chat/${id}`}
-                />
-            )}
+            {/* Match Popup is now handled globally in AppLayout */}
 
             {/* SEO Heading */}
             <h1 className="sr-only">Twingle - The No. 1 Mallu Dating App for Malayalis | Best Malayalam Dating Site</h1>

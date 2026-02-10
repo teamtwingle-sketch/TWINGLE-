@@ -27,9 +27,15 @@ const MatchPopup = ({ user, match, onClose, onChat }) => {
                     {/* Matched Photo */}
                     <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl overflow-hidden rotate-6">
                         <img
-                            src={match.photo || match.partner_photo ? ((match.photo || match.partner_photo).startsWith('http') ? (match.photo || match.partner_photo) : `http://127.0.0.1:8000${match.photo || match.partner_photo}`) : 'https://via.placeholder.com/150'}
+                            src={(() => {
+                                const p = match.photo || match.partner_photo;
+                                if (!p) return 'https://via.placeholder.com/150';
+                                if (p.startsWith('http')) return p;
+                                return `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || ''}${p}`;
+                            })()}
                             className="w-full h-full object-cover"
                             alt={match.name || match.partner_name}
+                            onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=User'; }}
                         />
                     </div>
                 </div>
