@@ -137,6 +137,10 @@ const AppLayout = ({ children }) => {
                             autoClose: 5000
                         });
                     });
+
+                    // Signal NotificationBell to update
+                    window.dispatchEvent(new Event('new-notification'));
+
                     // Trigger haptics
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                 }
@@ -239,7 +243,10 @@ const NotificationBell = () => {
     const [unread, setUnread] = useState(false);
 
     const toggle = () => {
-        if (!open) fetchNotifs();
+        if (!open) {
+            fetchNotifs();
+            setUnread(false); // Clear badge when opening
+        }
         setOpen(!open);
     };
 
@@ -247,9 +254,18 @@ const NotificationBell = () => {
         try {
             const res = await api.get('/notifications/');
             setNotifications(res.data);
-            setUnread(false); // Clear badge locally for now (should ideally check if any is_read=False)
+            // We only clear unread on 'toggle' (open), so we don't setUnread(false) here if it was triggered by a new event
         } catch (e) { }
     };
+
+    useEffect(() => {
+        const handleNewNotif = () => {
+            setUnread(true);
+            fetchNotifs();
+        };
+        window.addEventListener('new-notification', handleNewNotif);
+        return () => window.removeEventListener('new-notification', handleNewNotif);
+    }, []);
 
     return (
         <div className="relative">
