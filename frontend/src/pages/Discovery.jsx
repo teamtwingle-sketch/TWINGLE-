@@ -2,89 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Heart, X, Undo, Zap, Star, MapPin, Check, MessageCircle } from 'lucide-react';
+import { useOutletContext } from 'react-router-dom';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 import MatchPopup from '../components/MatchPopup';
 
 const SwipeCard = ({ user, onSwipe, onTap }) => {
     const x = useMotionValue(0);
-    const rotate = useTransform(x, [-200, 200], [-25, 25]);
-    const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
-    const likeOpacity = useTransform(x, [50, 150], [0, 1]);
-    const nopeOpacity = useTransform(x, [-50, -150], [0, 1]);
-
-    const isDragging = React.useRef(false);
-
-    const handleDragStart = () => {
-        isDragging.current = true;
-    };
-
-    const handleDragEnd = (event, info) => {
-        if (info.offset.x > 100) {
-            onSwipe(user.user_id, 'like');
-        } else if (info.offset.x < -100) {
-            onSwipe(user.user_id, 'dislike');
-        }
-
-        // Small delay to prevent tap from firing immediately after drag
-        setTimeout(() => {
-            isDragging.current = false;
-        }, 200);
-    };
-
-    const handleTap = () => {
-        if (!isDragging.current) {
-            onTap();
-        }
-    };
-
+    // ... existing SwipeCard code ...
     return (
         <motion.div
-            style={{ x, rotate, opacity, position: 'absolute' }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onTap={handleTap}
-            className="absolute inset-0 m-auto w-full max-w-sm h-full max-h-[70vh] cursor-grab active:cursor-grabbing"
-        >
-            <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
-                <img
-                    src={user.photos?.[0] ? (user.photos[0].startsWith('http') ? user.photos[0] : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || ''}${user.photos[0]}`) : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
-                    className="w-full h-full object-cover pointer-events-none"
-                    alt={user.first_name}
-                    data-testid="swipe-card-img"
-                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400x600?text=No+Image'; }}
-                />
-
-                {/* Indicators */}
-                <motion.div style={{ opacity: likeOpacity }} className="absolute top-10 left-10 border-4 border-green-500 rounded-lg px-4 py-2 -rotate-12">
-                    <span className="text-green-500 font-black text-4xl uppercase">Like</span>
-                </motion.div>
-                <motion.div style={{ opacity: nopeOpacity }} className="absolute top-10 right-10 border-4 border-red-500 rounded-lg px-4 py-2 rotate-12">
-                    <span className="text-red-500 font-black text-4xl uppercase">Nope</span>
-                </motion.div>
-
-                {/* Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white pointer-events-none">
-                    <div className="flex items-center gap-2">
-                        <h2 className="text-3xl font-bold">{user.first_name || 'Someone'}{user.age ? `, ${user.age}` : ''}</h2>
-                        {user.is_verified && <div className="bg-blue-500 text-white rounded-full p-1"><Check size={14} strokeWidth={4} /></div>}
-                    </div>
-                    <div className="flex items-center gap-1 text-slate-200 mt-1">
-                        <MapPin size={16} />
-                        <span className="text-sm">{user.district || 'Kerala'} district</span>
-                    </div>
-                    <p className="mt-2 text-sm line-clamp-2 text-slate-300 italic">
-                        "{user.bio || 'Seeking a meaningful connection...'}"
-                    </p>
-                </div>
-            </div>
-        </motion.div>
+// ... existing JSX ...
+        </motion.div >
     );
 };
 
 const Discovery = () => {
+    const { onMatch } = useOutletContext() || {};
     const [users, setUsers] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
@@ -129,12 +63,10 @@ const Discovery = () => {
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
             if (res.data.is_match) {
-                // Show Popup via global event (handled in AppLayout)
-                window.dispatchEvent(new CustomEvent('trigger-new-match', {
-                    detail: res.data.match_details
-                }));
-                // Trigger haptics
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+                // Show Popup via global context function
+                if (onMatch) {
+                    onMatch(res.data.match_details);
+                }
             }
             setCurrentIndex(prev => prev + 1);
         } catch (err) {

@@ -196,7 +196,22 @@ const AppLayout = ({ children }) => {
 
             {/* Main Container */}
             <main className={`flex-1 overflow-y-auto flex flex-col bg-[#eaeff5] ${!isFullScreenPage ? 'pb-0' : ''}`}>
-                {children || <Outlet />}
+                {children || <Outlet context={{
+                    onMatch: (matchDetails) => {
+                        setMatchPopupData({
+                            partner_id: matchDetails.user_id,
+                            partner_name: matchDetails.name,
+                            partner_photo: matchDetails.photo,
+                            is_initiator: true
+                        });
+                        // Also trigger badge update
+                        if (location.pathname !== '/matches') {
+                            setNewMatchCount(prev => prev + 1);
+                        }
+                        // Trigger Haptics
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+                    }
+                }} />}
             </main>
 
             {/* Bottom Nav - Hidden in Full Screen Pages */}
