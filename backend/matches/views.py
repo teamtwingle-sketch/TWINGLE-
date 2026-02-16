@@ -95,7 +95,8 @@ class DiscoveryView(views.APIView):
         # Sort by compatibility score
         scored_results.sort(key=lambda x: x['score'], reverse=True)
         
-        return response.Response(scored_results[:10])
+        # Increased limit to 50 to ensure new users are visible
+        return response.Response(scored_results[:50])
 
 class MatchListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
@@ -186,7 +187,9 @@ class SwipeView(views.APIView):
             user.last_swipe_date = timezone.now().date()
             user.save()
 
-        if user.swipes_today >= user.daily_swipe_limit:
+        # Temporary override: Increase limit to 100 for all users for testing
+        limit = max(user.daily_swipe_limit, 100)
+        if user.swipes_today >= limit:
              return response.Response({"error": f"Daily swipe limit reached. Upgrade for more."}, status=status.HTTP_403_FORBIDDEN)
 
         target_user = User.objects.get(id=target_id)
