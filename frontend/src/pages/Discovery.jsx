@@ -14,6 +14,7 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
     const likeOpacity = useTransform(x, [50, 150], [0, 1]);
     const nopeOpacity = useTransform(x, [-50, -150], [0, 1]);
 
+    const [leaveX, setLeaveX] = useState(null);
     const isDragging = React.useRef(false);
 
     const handleDragStart = () => {
@@ -22,8 +23,10 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
 
     const handleDragEnd = (event, info) => {
         if (info.offset.x > 100) {
+            setLeaveX(1000);
             onSwipe(user.user_id, 'like');
         } else if (info.offset.x < -100) {
+            setLeaveX(-1000);
             onSwipe(user.user_id, 'dislike');
         }
 
@@ -41,6 +44,8 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
     return (
         <motion.div
             style={{ x, rotate, opacity, position: 'absolute' }}
+            animate={leaveX ? { x: leaveX, opacity: 0 } : undefined}
+            transition={{ type: 'tween', duration: 0.2 }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             onDragStart={handleDragStart}
@@ -140,11 +145,12 @@ const Discovery = ({ onMatch: propOnMatch }) => {
                     window.dispatchEvent(new CustomEvent('trigger-new-match', { detail: res.data.match_details }));
                 }
             }
-            setCurrentIndex(prev => prev + 1);
         } catch (err) {
             if (err.response?.status === 403) {
                 toast.info(err.response.data.error);
             }
+        } finally {
+            setCurrentIndex(prev => prev + 1);
         }
     };
 
