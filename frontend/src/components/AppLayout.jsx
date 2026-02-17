@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useLocation, matchPath } from 'react-router-dom';
 import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles, Bell } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
-import soundManager from '../utils/sounds';
 import api from '../api/client';
 
 import MatchPopup from './MatchPopup';
@@ -131,7 +130,6 @@ const AppLayout = ({ children }) => {
                     if (!data.is_initiator) {
                         console.log("Setting Match Popup Data for Receiver");
                         setMatchPopupData(data);
-                        soundManager.play('match'); // Play match sound for receiver
                     }
 
                     // always Increment new match badge if not currently on matches page
