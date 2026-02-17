@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useLocation, matchPath } from 'react-router-dom';
 import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles, Bell } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
+import soundManager from '../utils/sounds';
 import api from '../api/client';
 
 import MatchPopup from './MatchPopup';
@@ -117,13 +118,20 @@ const AppLayout = ({ children }) => {
         ws.onmessage = (e) => {
             try {
                 const data = JSON.parse(e.data);
+
+                // ... (in onmessage handler)
                 if (data.type === 'match_notification') {
-                    console.log("Match Notification Received:", data);
+                    console.log("Match Notification Received (WS):", data);
+
+                    // Explicitly log the initiator status
+                    console.log("Is Initiator:", data.is_initiator);
 
                     // Only show popup for the PASSIVE user (receiver). 
                     // Initiator sees it via Discovery API response immediately.
                     if (!data.is_initiator) {
+                        console.log("Setting Match Popup Data for Receiver");
                         setMatchPopupData(data);
+                        soundManager.play('match'); // Play match sound for receiver
                     }
 
                     // always Increment new match badge if not currently on matches page
@@ -137,6 +145,7 @@ const AppLayout = ({ children }) => {
                             icon: "💘",
                             autoClose: 5000
                         });
+                        console.log("Toast dispatched");
                     });
 
                     // Signal NotificationBell to update

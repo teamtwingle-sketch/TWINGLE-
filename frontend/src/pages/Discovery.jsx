@@ -6,6 +6,7 @@ import { useOutletContext } from 'react-router-dom';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 import MatchPopup from '../components/MatchPopup';
+import soundManager from '../utils/sounds';
 
 const SwipeCard = ({ user, onSwipe, onTap }) => {
     const x = useMotionValue(0);
@@ -23,8 +24,10 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
     const handleDragEnd = (event, info) => {
         if (info.offset.x > 100) {
             onSwipe(user.user_id, 'like');
+            soundManager.play('swipe');
         } else if (info.offset.x < -100) {
             onSwipe(user.user_id, 'dislike');
+            soundManager.play('swipe');
         }
 
         // Small delay to prevent tap from firing immediately after drag
@@ -131,6 +134,7 @@ const Discovery = ({ onMatch: propOnMatch }) => {
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
             if (res.data.is_match) {
+                soundManager.play('match');
                 toast.success("It's a Match! 💖");
                 // Show Popup via global context function OR event dispatch
                 if (onMatch) {
