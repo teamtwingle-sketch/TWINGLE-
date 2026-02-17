@@ -131,6 +131,7 @@ const Discovery = ({ onMatch: propOnMatch }) => {
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
             if (res.data.is_match) {
+                toast.success("It's a Match! 💖");
                 // Show Popup via global context function OR event dispatch
                 if (onMatch) {
                     onMatch(res.data.match_details);
