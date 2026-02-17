@@ -84,8 +84,9 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
     );
 };
 
-const Discovery = () => {
-    const { onMatch } = useOutletContext() || {};
+const Discovery = ({ onMatch: propOnMatch }) => {
+    const { onMatch: contextOnMatch } = useOutletContext() || {};
+    const onMatch = propOnMatch || contextOnMatch;
     const [users, setUsers] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
