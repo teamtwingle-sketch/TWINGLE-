@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Static Import (Critical for LCP on Landing)
 import Landing from './pages/Landing';

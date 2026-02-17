@@ -187,8 +187,8 @@ class SwipeView(views.APIView):
             user.last_swipe_date = timezone.now().date()
             user.save()
 
-        # Temporary override: Increase limit to 100 for all users for testing
-        limit = max(user.daily_swipe_limit, 100)
+        # Use actual user limit
+        limit = user.daily_swipe_limit
         if user.swipes_today >= limit:
              return response.Response({"error": f"Daily swipe limit reached. Upgrade for more."}, status=status.HTTP_403_FORBIDDEN)
 

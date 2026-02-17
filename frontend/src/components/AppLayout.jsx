@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useLocation, matchPath } from 'react-router-dom';
 import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles, Bell } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import api from '../api/client';
 
 import MatchPopup from './MatchPopup';
@@ -153,21 +154,24 @@ const AppLayout = ({ children }) => {
     return (
         <div className="flex flex-col h-[100dvh] bg-slate-50">
             {/* Global Match Popup */}
-            {matchPopupData && (
-                <MatchPopup
-                    user={{ photo: myPhoto }}
-                    match={{
-                        name: matchPopupData.partner_name,
-                        photo: matchPopupData.partner_photo,
-                        user_id: matchPopupData.partner_id
-                    }}
-                    onClose={() => setMatchPopupData(null)}
-                    onChat={(id) => {
-                        setMatchPopupData(null);
-                        window.location.href = `/chat/${id}`;
-                    }}
-                />
-            )}
+            <AnimatePresence>
+                {matchPopupData && (
+                    <MatchPopup
+                        key="match-popup"
+                        user={{ photo: myPhoto }}
+                        match={{
+                            name: matchPopupData.partner_name,
+                            photo: matchPopupData.partner_photo,
+                            user_id: matchPopupData.partner_id
+                        }}
+                        onClose={() => setMatchPopupData(null)}
+                        onChat={(id) => {
+                            setMatchPopupData(null);
+                            window.location.href = `/chat/${id}`;
+                        }}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Top Header - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
