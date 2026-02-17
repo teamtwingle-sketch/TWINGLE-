@@ -175,7 +175,8 @@ const ChatWindow = () => {
         // Poll every 3s to ensure messages load even if WS fails, and to update 'Active Now' status
         const interval = setInterval(() => {
             pollCalls();
-            fetchMessages();
+            // Only update messages via poll if WS is NOT connected to avoid overwriting optimistic/real-time state
+            fetchMessages(wsStatus !== 'connected');
         }, 3000);
 
         return () => {
@@ -422,11 +423,18 @@ const ChatWindow = () => {
     const scrollToBottom = () => scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
     const handleScroll = (e) => setShowScrollButton(e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight > 300);
     const fetchOtherUser = async () => { try { const res = await api.get(`/profile/${userId}/`); setOtherUser(res.data); } catch (e) { } };
-    const fetchMessages = async () => {
+
+    const fetchMessages = async (updateMessages = true) => {
         try {
             const res = await api.get(`/messages/?user_id=${userId}`);
-            if (Array.isArray(res.data)) setMessages(res.data);
-            else { setMessages(res.data.messages); setPartnerStatus(res.data.partner_status); }
+
+            // Always update partner status (online/offline) as it might come from HTTP
+            if (res.data.partner_status) setPartnerStatus(res.data.partner_status);
+
+            if (updateMessages) {
+                if (Array.isArray(res.data)) setMessages(res.data);
+                else { setMessages(res.data.messages); }
+            }
         } catch (e) { }
     };
     const handleInput = (e) => {
