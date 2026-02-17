@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { Heart, MessageCircle } from 'lucide-react';
 
 const MatchPopup = ({ user, match, onClose, onChat }) => {
     return (

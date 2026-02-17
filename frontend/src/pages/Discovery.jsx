@@ -130,9 +130,12 @@ const Discovery = () => {
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
             if (res.data.is_match) {
-                // Show Popup via global context function
+                // Show Popup via global context function OR event dispatch
                 if (onMatch) {
                     onMatch(res.data.match_details);
+                } else {
+                    // Fallback for when rendered as children (AppLayout prop)
+                    window.dispatchEvent(new CustomEvent('trigger-new-match', { detail: res.data.match_details }));
                 }
             }
             setCurrentIndex(prev => prev + 1);
