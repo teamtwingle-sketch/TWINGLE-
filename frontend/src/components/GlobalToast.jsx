@@ -32,6 +32,7 @@ export default function GlobalToast() {
         draggable
         pauseOnHover
         theme="light"
+        style={{ zIndex: 10000 }} // Ensure it's above everything
         className="mt-4 px-4 sm:px-0"
         toastClassName="!rounded-2xl !shadow-xl !backdrop-blur-md !bg-white/90 !text-slate-800 !font-medium !border !border-slate-100/50"
         bodyClassName="!p-0 !m-0 !flex !items-center !gap-3"
