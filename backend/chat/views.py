@@ -267,7 +267,7 @@ class CallViewSet(viewsets.ModelViewSet):
         return response.Response(data)
 
 class PublicMessageSerializer(serializers.ModelSerializer):
-    sender_name = serializers.ReadOnlyField(source='sender.first_name')
+    sender_name = serializers.SerializerMethodField()
     reply_to = serializers.SerializerMethodField()
     
     class Meta:
@@ -276,12 +276,29 @@ class PublicMessageSerializer(serializers.ModelSerializer):
         read_only_fields = ['sender', 'timestamp', 'reply_to']
         extra_kwargs = {'parent_message': {'write_only': True}}
 
+    def get_sender_name(self, obj):
+        try:
+            if hasattr(obj.sender, 'profile') and obj.sender.profile.first_name:
+                return obj.sender.profile.first_name
+        except Exception:
+            pass
+        return obj.sender.first_name or "User"
+
     def get_reply_to(self, obj):
         if obj.parent_message:
+            name = "User"
+            try:
+                if hasattr(obj.parent_message.sender, 'profile') and obj.parent_message.sender.profile.first_name:
+                    name = obj.parent_message.sender.profile.first_name
+                elif obj.parent_message.sender.first_name:
+                    name = obj.parent_message.sender.first_name
+            except Exception:
+                pass
+
             return {
                 "id": obj.parent_message.id, 
                 "content": obj.parent_message.content,
-                "sender_name": obj.parent_message.sender.first_name
+                "sender_name": name
             }
         return None
 
@@ -292,7 +309,7 @@ class PublicChatViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Return in timeline order (oldest first) for frontend, but slice from newest
-        return PublicMessage.objects.order_by('-timestamp')[:100]
+        return PublicMessage.objects.select_related('sender', 'sender__profile').order_by('-timestamp')[:100]
 
     def list(self, request, *args, **kwargs):
         # Auto-delete messages older than 24 hours
@@ -300,7 +317,7 @@ class PublicChatViewSet(viewsets.ModelViewSet):
         PublicMessage.objects.filter(timestamp__lt=cutoff).delete()
 
         # We want the last 100 messages, but in chronological order
-        queryset = PublicMessage.objects.order_by('-timestamp')[:100]
+        queryset = PublicMessage.objects.select_related('sender', 'sender__profile').order_by('-timestamp')[:100]
         serializer = self.get_serializer(queryset, many=True)
         # Reverse to show Old -> New
         return response.Response(reversed(serializer.data))
