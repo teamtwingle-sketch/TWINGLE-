@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || (window.location.hostname === 'twingle.online' ? 'https://twingle-production.up.railway.app/api' : '/api'),
 });
 
 api.interceptors.request.use((config) => {

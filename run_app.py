@@ -2,10 +2,13 @@
 import subprocess
 import time
 import sys
+import os
 
 def start_backend():
+    env = os.environ.copy()
+    env["DEBUG"] = "True"
     print("Starting Django Backend...")
-    return subprocess.Popen(["./venv/bin/python", "backend/manage.py", "runserver", "8000"])
+    return subprocess.Popen(["./venv/bin/python", "backend/manage.py", "runserver", "8000"], env=env)
 
 def start_frontend():
     print("Starting Vite Frontend...")
