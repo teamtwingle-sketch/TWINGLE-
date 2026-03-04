@@ -51,9 +51,9 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onTap={handleTap}
-            className="absolute inset-0 m-auto w-full max-w-sm h-full max-h-[70vh] cursor-grab active:cursor-grabbing"
+            className="absolute inset-0 m-auto w-full max-w-sm h-full max-h-[70vh] cursor-grab active:cursor-grabbing pb-8 px-4"
         >
-            <div className="relative w-full h-full bg-white rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+            <div className="relative w-full h-full bg-white rounded-[32px] overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-white/50 ring-1 ring-slate-900/5">
                 <img
                     src={user.photos?.[0] ? (user.photos[0].startsWith('http') ? user.photos[0] : `${import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || ''}${user.photos[0]}`) : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=600'}
                     className="w-full h-full object-cover pointer-events-none"
@@ -71,14 +71,16 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
                 </motion.div>
 
                 {/* Info */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white pointer-events-none">
-                    <div className="flex items-center gap-2">
-                        <h2 className="text-3xl font-bold">{user.first_name || 'Someone'}{user.age ? `, ${user.age}` : ''}</h2>
-                        {user.is_verified && <div className="bg-blue-500 text-white rounded-full p-1"><Check size={14} strokeWidth={4} /></div>}
+                <div className="absolute bottom-0 left-0 right-0 p-8 pt-20 bg-gradient-to-t from-black via-black/50 to-transparent text-white pointer-events-none">
+                    <div className="flex items-center gap-2 mb-1">
+                        <h2 className="text-[32px] font-[900] tracking-tight">{user.first_name || 'Someone'}{user.age ? `, ${user.age}` : ''}</h2>
+                        {user.is_verified && <div className="bg-blue-500 text-white rounded-full p-1 border-2 border-white shadow-sm"><Check size={12} strokeWidth={4} /></div>}
                     </div>
-                    <div className="flex items-center gap-1 text-slate-200 mt-1">
-                        <MapPin size={16} />
-                        <span className="text-sm">{user.district || 'Kerala'} district</span>
+                    <div className="flex items-center gap-1.5 text-slate-200 mt-1">
+                        <div className="bg-black/30 backdrop-blur-md p-1 rounded-full text-white/90">
+                            <MapPin size={14} />
+                        </div>
+                        <span className="text-[15px] font-medium">{user.district || 'Kerala'} district</span>
                     </div>
                     <p className="mt-2 text-sm line-clamp-2 text-slate-300 italic">
                         "{user.bio || 'Seeking a meaningful connection...'}"
@@ -155,6 +157,7 @@ const Discovery = ({ onMatch: propOnMatch }) => {
     };
 
     const handleUndo = async () => {
+        if (navigator.vibrate) navigator.vibrate(40);
         try {
             const res = await api.post('/swipe/undo/');
             toast.success("Undone!");
@@ -167,6 +170,7 @@ const Discovery = ({ onMatch: propOnMatch }) => {
     };
 
     const handleButtonSwipe = (action) => {
+        if (navigator.vibrate) navigator.vibrate([30, 50]);
         if (users.length <= currentIndex) return;
         const target = users[currentIndex];
         handleSwipe(target.user_id, action);
@@ -213,27 +217,30 @@ const Discovery = ({ onMatch: propOnMatch }) => {
             </div>
 
             {/* Control Buttons */}
-            <div className="h-24 shrink-0 flex items-center justify-center gap-6 pb-4">
+            <div className="h-[100px] shrink-0 flex items-center justify-center gap-5 pb-6 pt-2 w-full max-w-[360px] mx-auto select-none">
                 <button
                     onClick={handleUndo}
-                    className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg text-yellow-500 active:scale-95 transition-transform"
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-[0_8px_20px_rgba(0,0,0,0.06)] text-yellow-500 active:scale-90 active:bg-yellow-50 transition-all active:shadow-sm"
                 >
-                    <Undo size={20} strokeWidth={2.5} />
+                    <Undo size={22} strokeWidth={2.5} />
                 </button>
                 <button
                     onClick={() => handleButtonSwipe('dislike')}
-                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-red-500 text-red-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-red-50 touch-manipulation"
+                    className="w-[70px] h-[70px] flex items-center justify-center rounded-full border border-red-100 text-red-500 bg-white shadow-[0_10px_25px_rgba(239,68,68,0.15)] transform active:scale-90 active:bg-red-50 transition-all touch-manipulation"
                 >
-                    <X size={32} strokeWidth={3} />
+                    <X size={36} strokeWidth={3} />
                 </button>
                 <button
                     onClick={() => handleButtonSwipe('like')}
-                    className="w-16 h-16 flex items-center justify-center rounded-full border-2 border-green-500 text-green-500 bg-white shadow-xl transform active:scale-90 transition-transform hover:bg-green-50 touch-manipulation"
+                    className="w-[70px] h-[70px] flex items-center justify-center rounded-full border border-green-100 text-green-500 bg-white shadow-[0_10px_25px_rgba(34,197,94,0.15)] transform active:scale-90 active:bg-green-50 transition-all touch-manipulation"
                 >
-                    <Heart size={32} fill="currentColor" />
+                    <Heart size={36} fill="currentColor" />
                 </button>
-                <button className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-lg text-purple-500 active:scale-95 transition-transform">
-                    <Zap size={20} strokeWidth={2.5} />
+                <button
+                    onClick={() => { if (navigator.vibrate) navigator.vibrate(40); }}
+                    className="w-12 h-12 flex items-center justify-center rounded-full bg-white shadow-[0_8px_20px_rgba(0,0,0,0.06)] text-purple-500 active:scale-90 active:bg-purple-50 transition-all active:shadow-sm"
+                >
+                    <Zap size={22} strokeWidth={2.5} />
                 </button>
             </div>
 

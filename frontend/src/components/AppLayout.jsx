@@ -182,23 +182,23 @@ const AppLayout = ({ children }) => {
 
             {/* Top Header - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
-                <header className="h-16 px-6 border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-10 flex items-center justify-between shadow-sm">
+                <header className="h-[68px] px-5 border-b border-slate-200/60 bg-white/80 backdrop-blur-2xl sticky top-0 z-10 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)] pt-[env(safe-area-inset-top,0px)]">
                     <Link to="/" className="flex items-center gap-2">
-                        <div className="w-9 h-9 bg-gradient-to-br from-pink-600 to-rose-700 rounded-xl shadow-lg flex items-center justify-center transform rotate-0 hover:rotate-3 transition-transform">
-                            <Sparkles className="text-white w-5 h-5 fill-white/80" />
+                        <div className="w-8 h-8 bg-gradient-to-br from-pink-600 to-rose-600 rounded-[10px] shadow-sm flex items-center justify-center transform hover:scale-105 active:scale-95 transition-all">
+                            <Sparkles className="text-white w-4 h-4 fill-white/90" />
                         </div>
-                        <span className="font-black text-xl tracking-tight text-slate-800 drop-shadow-sm">TWINGLE</span>
+                        <span className="font-[800] text-[22px] tracking-tight text-slate-800 drop-shadow-sm">TWINGLE</span>
                     </Link>
                     <div className="flex gap-2 items-center">
                         <NotificationBell />
 
                         {isStaff && (
-                            <NavLink to="/admin-dashboard" className="px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-full border border-slate-800 flex items-center gap-1 shadow-md">
+                            <NavLink to="/admin-dashboard" className="px-3 py-1.5 bg-slate-900 text-white text-[11px] font-black tracking-wide rounded-full shadow-md active:scale-95 transition-transform flex items-center gap-1">
                                 <ShieldAlert size={12} /> Admin
                             </NavLink>
                         )}
 
-                        <NavLink to="/subscription" className="px-3.5 py-1.5 bg-rose-50 text-rose-700 text-xs font-bold rounded-full border border-rose-200 shadow-sm hover:bg-rose-100 transition-colors">
+                        <NavLink to="/subscription" className="px-3.5 py-1.5 bg-gradient-to-r from-rose-50 to-pink-50 text-rose-700 text-[11px] font-black tracking-wide rounded-full border border-rose-200/50 shadow-sm hover:shadow-md active:scale-95 transition-all">
                             GO PREMIUM
                         </NavLink>
                     </div>
@@ -246,7 +246,7 @@ const AppLayout = ({ children }) => {
 
             {/* Bottom Nav - Hidden in Full Screen Pages */}
             {!isFullScreenPage && (
-                <nav className="h-20 bg-white border-t border-slate-200 flex items-center justify-around px-2 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.04)] z-20">
+                <nav className="h-[84px] bg-white/90 backdrop-blur-3xl border-t border-slate-200/40 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom,20px)] pt-1 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] z-20 shrink-0 select-none">
                     <NavItem to="/" icon={<Flame />} label="Discover" />
                     <NavItem to="/matches" icon={<Star />} label="Matches" badgeCount={newMatchCount} />
                     <NavItem to="/public-chat" icon={<Sparkles />} label="Hub" />
@@ -262,23 +262,29 @@ const NavItem = ({ to, icon, label, badgeCount }) => (
     <NavLink
         to={to}
         className={({ isActive }) => `
-      flex flex-col items-center justify-center gap-1 w-16 transition-all duration-300 relative
-      ${isActive ? 'text-brand-primary scale-110' : 'text-slate-500 hover:text-slate-700'}
+      flex flex-col items-center justify-center gap-[3px] w-16 transition-all duration-300 relative active:scale-90
+      ${isActive ? 'text-brand-primary' : 'text-slate-400 hover:text-slate-600'}
     `}
     >
-        <div className="relative">
-            {React.cloneElement(icon, {
-                size: 28,
-                strokeWidth: icon.type.name === 'Flame' && to === '/' ? 2.5 : 2,
-                className: "transition-all duration-300"
-            })}
-            {badgeCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white">
-                    {badgeCount > 9 ? '9+' : badgeCount}
+        {({ isActive }) => (
+            <>
+                <div className="relative">
+                    {React.cloneElement(icon, {
+                        size: 26,
+                        strokeWidth: isActive ? 3 : 2,
+                        className: `transition-all duration-300 ${isActive ? 'scale-110 drop-shadow-md' : 'scale-100'}`
+                    })}
+                    {badgeCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white ring-2 ring-white">
+                            {badgeCount > 9 ? '9+' : badgeCount}
+                        </span>
+                    )}
+                </div>
+                <span className={`text-[10px] tracking-wide transition-all ${isActive ? 'font-black scale-105' : 'font-semibold'}`}>
+                    {label}
                 </span>
-            )}
-        </div>
-        <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+            </>
+        )}
     </NavLink>
 );
 
