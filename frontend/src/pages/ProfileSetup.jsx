@@ -136,8 +136,7 @@ const ProfileSetup = () => {
                 gender: res.data.gender || 'male',
                 interested_in: res.data.interested_in || 'female',
                 district: res.data.district || 'ernakulam',
-                relationship_intents: res.data.relationship_intents || [],
-                relationship_intents: res.data.relationship_intents || [],
+                relationship_intents: Array.isArray(res.data.relationship_intents) ? res.data.relationship_intents : [],
                 photos: res.data.photos || [],
                 verification_attempts: res.data.verification_attempts || 0
             });
@@ -175,9 +174,17 @@ const ProfileSetup = () => {
         if (!profile.relationship_intents || profile.relationship_intents.length === 0) return toast.error('Select at least one intent');
         if (profile.photos && profile.photos.length === 0) return toast.warning('Please add a photo to start matching!');
 
-        // Sanitize data before sending
-        const payload = { ...profile };
-        if (payload.height_cm === '') payload.height_cm = null;
+        // Sanitize data before sending (Do not send Image URLs or read-only fields back to DRF as JSON)
+        const payload = {
+            first_name: profile.first_name,
+            dob: profile.dob,
+            gender: profile.gender,
+            interested_in: profile.interested_in,
+            district: profile.district,
+            bio: profile.bio,
+            relationship_intents: profile.relationship_intents,
+            height_cm: profile.height_cm === '' ? null : profile.height_cm,
+        };
 
         try {
             await api.patch('/profile/', payload);
