@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useLocation, matchPath } from 'react-router-dom';
-import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles, Bell } from 'lucide-react';
+import { Flame, Star, MessageCircle, User, LayoutDashboard, ShieldAlert, Sparkles, Bell, Download } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import api from '../api/client';
 
@@ -192,6 +192,10 @@ const AppLayout = ({ children }) => {
                     <div className="flex gap-2 items-center">
                         <NotificationBell />
 
+                        <NavLink to="/download" className="px-3 py-1.5 bg-slate-900 text-white text-[11px] font-black tracking-wide rounded-full shadow-md active:scale-95 transition-transform flex items-center gap-1">
+                            <Download size={12} /> GET APP
+                        </NavLink>
+
                         {isStaff && (
                             <NavLink to="/admin-dashboard" className="px-3 py-1.5 bg-slate-900 text-white text-[11px] font-black tracking-wide rounded-full shadow-md active:scale-95 transition-transform flex items-center gap-1">
                                 <ShieldAlert size={12} /> Admin
@@ -199,7 +203,7 @@ const AppLayout = ({ children }) => {
                         )}
 
                         <NavLink to="/subscription" className="px-3.5 py-1.5 bg-gradient-to-r from-rose-50 to-pink-50 text-rose-700 text-[11px] font-black tracking-wide rounded-full border border-rose-200/50 shadow-sm hover:shadow-md active:scale-95 transition-all">
-                            GO PREMIUM
+                            PREMIUM
                         </NavLink>
                     </div>
                 </header>
