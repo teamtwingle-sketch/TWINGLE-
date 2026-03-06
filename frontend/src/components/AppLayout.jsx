@@ -192,10 +192,6 @@ const AppLayout = ({ children }) => {
                     <div className="flex gap-2 items-center">
                         <NotificationBell />
 
-                        <NavLink to="/download" className="px-3 py-1.5 bg-slate-900 text-white text-[11px] font-black tracking-wide rounded-full shadow-md active:scale-95 transition-transform flex items-center gap-1">
-                            <Download size={12} /> GET APP
-                        </NavLink>
-
                         {isStaff && (
                             <NavLink to="/admin-dashboard" className="px-3 py-1.5 bg-slate-900 text-white text-[11px] font-black tracking-wide rounded-full shadow-md active:scale-95 transition-transform flex items-center gap-1">
                                 <ShieldAlert size={12} /> Admin

@@ -540,6 +540,21 @@ const ProfileSetup = () => {
                     </div>
                 </section>
 
+                {/* Get App Section */}
+                <section className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-6 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                    <div className="relative z-10 flex items-center justify-between">
+                        <div className="text-white space-y-1">
+                            <h2 className="text-lg font-black tracking-tight">Get Twingle App</h2>
+                            <p className="text-xs text-slate-300 font-medium opacity-90">Smoother, faster dating experience with push notifications.</p>
+                        </div>
+                        <Link to="/download" className="shrink-0 bg-white text-slate-900 px-4 py-3 rounded-xl font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                            <Download size={16} className="text-brand-primary" strokeWidth={3} />
+                            Get App
+                        </Link>
+                    </div>
+                </section>
+
                 <div className="pt-4 space-y-4">
                     <button
                         onClick={handleSave}
