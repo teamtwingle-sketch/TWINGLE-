@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Twingle needs access to the camera for video calling and profile picture updates.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Twingle needs access to the microphone for audio and video calling.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Twingle needs access to the photo library for uploading profile pictures.</string>
 </dict>
 </plist>
