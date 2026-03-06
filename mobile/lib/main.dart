@@ -123,6 +123,15 @@ class _WebAppScreenState extends State<WebAppScreen> {
                 useOnDownloadStart: true,            // VERY IMPORTANT TO ENABLE DOWNLOADS
                 javaScriptEnabled: true,
                 transparentBackground: true,
+                // Speed & Performance Settings for WebSockets and App memory
+                cacheEnabled: true,
+                domStorageEnabled: true,
+                databaseEnabled: true,
+                hardwareAcceleration: true,
+                supportZoom: false,
+                // Bypass Google Login (403 disallowed_useragent) by spoofing standard Mobile Chrome User-Agent
+                userAgent: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+                mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
               ),
               onWebViewCreated: (controller) {
                 webViewController = controller;
