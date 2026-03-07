@@ -130,11 +130,22 @@ class _WebAppScreenState extends State<WebAppScreen> {
                 hardwareAcceleration: true,
                 supportZoom: false,
                 // Bypass Google Login (403 disallowed_useragent) by spoofing standard Mobile Chrome User-Agent
-                userAgent: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+                userAgent: "Mozilla/5.0 (Linux; Android 13; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
                 mixedContentMode: MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+                supportMultipleWindows: true,
+                javaScriptCanOpenWindowsAutomatically: true,
               ),
               onWebViewCreated: (controller) {
                 webViewController = controller;
+              },
+              onCreateWindow: (controller, createWindowAction) async {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return WindowManager(createWindowAction: createWindowAction);
+                  },
+                );
+                return true;
               },
               onLoadStart: (controller, url) {
                 setState(() { _isLoading = true; });
@@ -194,3 +205,39 @@ class _WebAppScreenState extends State<WebAppScreen> {
     );
   }
 }
+
+class WindowManager extends StatelessWidget {
+  final CreateWindowAction createWindowAction;
+
+  const WindowManager({super.key, required this.createWindowAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog.fullscreen(
+      child: Stack(
+        children: [
+          InAppWebView(
+            windowId: createWindowAction.windowId,
+            initialSettings: InAppWebViewSettings(
+              javaScriptEnabled: true,
+              userAgent: "Mozilla/5.0 (Linux; Android 13; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+            ),
+            onCloseWindow: (controller) {
+              Navigator.pop(context);
+            },
+          ),
+          Positioned(
+            top: 20,
+            right: 20,
+            child: FloatingActionButton(
+              mini: true,
+              child: const Icon(Icons.close),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
