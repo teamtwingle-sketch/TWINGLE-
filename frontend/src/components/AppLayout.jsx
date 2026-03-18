@@ -151,6 +151,7 @@ const AppLayout = ({ children }) => {
                         // Trigger haptics
                         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                     }
+                }
             } catch (err) { }
         };
 
