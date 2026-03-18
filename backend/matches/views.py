@@ -214,7 +214,7 @@ class ReceivedLikesView(generics.ListAPIView):
             })
             
         return response.Response({
-            "is_premium": user.tier in ['gold', 'platinum'],
+            "is_premium": getattr(user, 'is_premium', False) or (bool(user.tier) and user.tier.lower() in ['gold', 'platinum']),
             "likes": results
         })
 
