@@ -17,8 +17,15 @@ const PublicChat = () => {
     useEffect(() => {
         fetchHistory();
         connectWS();
+        
+        // Robust fallback for multi-worker cloud deployments without Redis
+        const intervalId = setInterval(() => {
+            fetchHistory();
+        }, 3000);
+
         return () => {
             if (wsRef.current) wsRef.current.close();
+            clearInterval(intervalId);
         };
     }, []);
 
@@ -32,7 +39,12 @@ const PublicChat = () => {
         try {
             const res = await api.get('/public-chat/');
             if (Array.isArray(res.data)) {
-                setMessages(res.data);
+                setMessages(prev => {
+                    if (prev.length === res.data.length && prev.length > 0 && prev[prev.length - 1].id === res.data[res.data.length - 1].id) {
+                        return prev; // No new messages, don't trigger re-render
+                    }
+                    return res.data;
+                });
             }
         } catch (err) {
             console.error(err);
