@@ -13,6 +13,17 @@ class DiscoveryView(views.APIView):
     def get(self, request):
         user = request.user
         profile, created = Profile.objects.get_or_create(user=user)
+        
+        from django.utils import timezone
+        if user.last_swipe_date < timezone.now().date():
+            user.swipes_today = 0
+            user.last_swipe_date = timezone.now().date()
+            # If we were using `user.save()`, but since we might not want to save prematurely, we can just save it.
+            user.save()
+
+        if user.swipes_today >= user.daily_swipe_limit:
+             return response.Response([], status=status.HTTP_200_OK) # returning empty list so it gracefully shows "no profiles" instead of an error crash.
+
 
         # Basic filtering logic
         # 1. Not myself
@@ -167,6 +178,45 @@ class SentLikesView(generics.ListAPIView):
             })
             
         return response.Response(results)
+
+class ReceivedLikesView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        user = request.user
+        
+        they_liked_me = Swipe.objects.filter(target=user, action='like')
+        liker_ids = they_liked_me.values_list('swiper_id', flat=True)
+
+        matches = Match.objects.filter(users=user)
+        matched_user_ids = set()
+        for m in matches:
+             for u in m.users.all():
+                 if u.id != user.id: matched_user_ids.add(u.id)
+
+        blocked_ids = set(Block.objects.filter(blocker=user).values_list('blocked_user_id', flat=True))
+        blocked_by_ids = set(Block.objects.filter(blocked_user=user).values_list('blocker_id', flat=True))
+        
+        final_ids = set(liker_ids) - matched_user_ids - blocked_ids - blocked_by_ids
+        
+        likers = User.objects.filter(id__in=final_ids).select_related('profile').prefetch_related('photos')
+        
+        results = []
+        for target in likers:
+            profile = getattr(target, 'profile', None)
+            photo = target.photos.filter(is_primary=True).first() or target.photos.first()
+            
+            results.append({
+                "user_id": target.id,
+                "name": profile.first_name if profile else "User",
+                "age": profile.age if profile else None,
+                "photo": photo.image.url if photo else None,
+            })
+            
+        return response.Response({
+            "is_premium": user.tier in ['gold', 'platinum'],
+            "likes": results
+        })
 
 class SwipeView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)

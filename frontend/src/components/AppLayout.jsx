@@ -125,33 +125,32 @@ const AppLayout = ({ children }) => {
                     // Explicitly log the initiator status
                     console.log("Is Initiator:", data.is_initiator);
 
-                    // Only show popup for the PASSIVE user (receiver). 
+                    // Only show popup and toasts for the PASSIVE user (receiver). 
                     // Initiator sees it via Discovery API response immediately.
                     if (!data.is_initiator) {
                         console.log("Setting Match Popup Data for Receiver");
                         setMatchPopupData(data);
-                    }
+                        
+                        // Increment new match badge if not currently on matches page
+                        if (location.pathname !== '/matches') {
+                            setNewMatchCount(prev => prev + 1);
+                        }
 
-                    // always Increment new match badge if not currently on matches page
-                    if (location.pathname !== '/matches') {
-                        setNewMatchCount(prev => prev + 1);
-                    }
-
-                    // Always show toast for visibility
-                    import('react-toastify').then(({ toast }) => {
-                        toast.success(`It's a Match! You matched with ${data.partner_name} 💖`, {
-                            icon: "💘",
-                            autoClose: 5000
+                        // Always show toast for visibility
+                        import('react-toastify').then(({ toast }) => {
+                            toast.success(`It's a Match! You matched with ${data.partner_name} 💖`, {
+                                icon: "💘",
+                                autoClose: 5000
+                            });
+                            console.log("Toast dispatched");
                         });
-                        console.log("Toast dispatched");
-                    });
 
-                    // Signal NotificationBell to update
-                    window.dispatchEvent(new Event('new-notification'));
+                        // Signal NotificationBell to update
+                        window.dispatchEvent(new Event('new-notification'));
 
-                    // Trigger haptics
-                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                }
+                        // Trigger haptics
+                        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    }
             } catch (err) { }
         };
 

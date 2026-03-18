@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Heart, X, Undo, Zap, Star, MapPin, Check, MessageCircle } from 'lucide-react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { toast } from 'react-toastify';
 import MatchPopup from '../components/MatchPopup';
@@ -93,6 +93,7 @@ const SwipeCard = ({ user, onSwipe, onTap }) => {
 
 const Discovery = ({ onMatch: propOnMatch }) => {
     const { onMatch: contextOnMatch } = useOutletContext() || {};
+    const navigate = useNavigate();
     const onMatch = propOnMatch || contextOnMatch;
     const [users, setUsers] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -149,7 +150,10 @@ const Discovery = ({ onMatch: propOnMatch }) => {
             }
         } catch (err) {
             if (err.response?.status === 403) {
-                toast.info(err.response.data.error);
+                toast.info(err.response.data.error || "Daily limit reached. Upgrading...");
+                setUsers([]); // Clear remaining cards to stop further swiping
+                // Auto-navigate to payment page after brief pause
+                setTimeout(() => navigate('/subscription'), 800);
             }
         } finally {
             setCurrentIndex(prev => prev + 1);
