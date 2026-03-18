@@ -143,6 +143,11 @@ const Discovery = ({ onMatch: propOnMatch }) => {
         if (limitReached) return;
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
+            
+            if (res.data.limit_reached) {
+                setLimitReached(true);
+            }
+
             if (res.data.is_match) {
                 toast.success("It's a Match! 💖");
                 // Show Popup via global context function OR event dispatch

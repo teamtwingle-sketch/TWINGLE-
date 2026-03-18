@@ -326,7 +326,8 @@ class SwipeView(views.APIView):
         return response.Response({
             "status": "success",
             "is_match": is_match,
-            "match_details": match_details
+            "match_details": match_details,
+            "limit_reached": user.swipes_today >= limit
         })
 
 class UndoSwipeView(views.APIView):
