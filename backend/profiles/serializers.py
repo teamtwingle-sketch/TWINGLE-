@@ -82,9 +82,23 @@ class PublicProfileSerializer(ProfileSerializer):
 
 class BasicProfileSerializer(serializers.ModelSerializer):
     photos = UserPhotoSerializer(many=True, read_only=True, source='user.photos')
+    is_matched = serializers.SerializerMethodField()
+    has_liked = serializers.SerializerMethodField()
     
     class Meta:
         model = Profile
         fields = (
-            'id', 'first_name', 'age', 'gender', 'district', 'bio', 'photos', 'is_verified'
+            'id', 'first_name', 'age', 'gender', 'district', 'bio', 'photos', 'is_verified', 'is_matched', 'has_liked'
         )
+
+    def get_is_matched(self, obj):
+        request = self.context.get('request')
+        if not request: return False
+        from matches.models import Match
+        return Match.objects.filter(users=request.user).filter(users=obj.user).exists()
+
+    def get_has_liked(self, obj):
+        request = self.context.get('request')
+        if not request: return False
+        from matches.models import Swipe
+        return Swipe.objects.filter(swiper=request.user, target=obj.user, action='like').exists()
