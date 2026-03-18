@@ -21,7 +21,10 @@ class DiscoveryView(views.APIView):
             # If we were using `user.save()`, but since we might not want to save prematurely, we can just save it.
             user.save()
 
-        if user.swipes_today >= user.daily_swipe_limit:
+        is_premium = getattr(user, 'is_premium', False) or (bool(user.tier) and user.tier.lower() in ['gold', 'platinum'])
+        limit = 1000000 if is_premium else user.daily_swipe_limit
+        
+        if user.swipes_today >= limit:
              return response.Response([], status=status.HTTP_200_OK) # returning empty list so it gracefully shows "no profiles" instead of an error crash.
 
 
@@ -238,7 +241,9 @@ class SwipeView(views.APIView):
             user.save()
 
         # Use actual user limit
-        limit = user.daily_swipe_limit
+        is_premium = getattr(user, 'is_premium', False) or (bool(user.tier) and user.tier.lower() in ['gold', 'platinum'])
+        limit = 1000000 if is_premium else user.daily_swipe_limit
+        
         if user.swipes_today >= limit:
              return response.Response({"error": f"Daily swipe limit reached. Upgrade for more."}, status=status.HTTP_403_FORBIDDEN)
 
