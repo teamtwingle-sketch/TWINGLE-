@@ -102,6 +102,7 @@ const Discovery = ({ onMatch: propOnMatch }) => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [matchData, setMatchData] = useState(null); // { match_details }
     const [myProfile, setMyProfile] = useState(null); // To show my photo in popup
+    const [limitReached, setLimitReached] = useState(false);
 
     useEffect(() => {
         checkProfile();
@@ -127,6 +128,9 @@ const Discovery = ({ onMatch: propOnMatch }) => {
     const fetchDiscovery = async () => {
         try {
             const res = await api.get('/discovery/');
+            if (res.data.length === 0) {
+                 // Check if it's empty due to limit or just no users? We don't definitively know, but we trust the backend.
+            }
             setUsers(res.data);
             setLoading(false);
         } catch (err) {
@@ -136,6 +140,7 @@ const Discovery = ({ onMatch: propOnMatch }) => {
     };
 
     const handleSwipe = async (targetId, action) => {
+        if (limitReached) return;
         try {
             const res = await api.post('/swipe/', { target_id: targetId, action });
             if (res.data.is_match) {
@@ -150,10 +155,10 @@ const Discovery = ({ onMatch: propOnMatch }) => {
             }
         } catch (err) {
             if (err.response?.status === 403) {
-                toast.info(err.response.data.error || "Daily limit reached. Upgrading...");
-                setUsers([]); // Clear remaining cards to stop further swiping
-                // Auto-navigate to payment page after brief pause
-                setTimeout(() => navigate('/subscription'), 800);
+                setLimitReached(true);
+                setUsers([]); // Clear cards immediately
+            } else {
+                toast.error(err.response?.data?.error || "Swipe failed");
             }
         } finally {
             setCurrentIndex(prev => prev + 1);
@@ -174,6 +179,7 @@ const Discovery = ({ onMatch: propOnMatch }) => {
     };
 
     const handleButtonSwipe = (action) => {
+        if (limitReached) return;
         if (navigator.vibrate) navigator.vibrate([30, 50]);
         if (users.length <= currentIndex) return;
         const target = users[currentIndex];
@@ -182,6 +188,24 @@ const Discovery = ({ onMatch: propOnMatch }) => {
 
     if (loading) return <div className="flex-1 flex items-center justify-center font-bold text-slate-400">Finding matches...</div>;
     if (!profileCompleted) return <div className="flex-1 flex items-center justify-center font-bold text-slate-400">Redirecting to profile setup...</div>;
+
+    if (limitReached) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50 h-full w-full absolute inset-0 z-50">
+                <div className="bg-gradient-to-br from-rose-500 to-pink-500 w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-rose-200 animate-pulse">
+                    <Heart size={48} fill="white" className="text-transparent" />
+                </div>
+                <h2 className="text-3xl font-black text-slate-800 mb-3 tracking-tight">Out of Swipes!</h2>
+                <p className="text-slate-500 mb-8 max-w-sm px-4">You've hit your daily limit of 8 free swipes. Discover more matches and keep the connections going by grabbing a Premium tier.</p>
+                <button 
+                    onClick={() => navigate('/subscription')} 
+                    className="bg-slate-900 border border-slate-800 text-white font-black px-10 py-4 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.15)] active:scale-95 transition-all text-sm w-full max-w-[280px] flex items-center justify-center gap-2"
+                >
+                    <Zap size={18} className="text-yellow-400" fill="currentColor" /> UNLOCK PREMIUM
+                </button>
+            </div>
+        );
+    }
 
     const currentBatch = users.slice(currentIndex, currentIndex + 2).reverse();
 
