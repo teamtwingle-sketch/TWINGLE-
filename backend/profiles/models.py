@@ -96,3 +96,42 @@ class UserPhoto(models.Model):
     
     def __str__(self):
         return f"Photo for {self.user.email}"
+
+    def save(self, *args, **kwargs):
+        if self.image and not self.image._committed:
+            import os
+            import io
+            from PIL import Image, ImageOps
+            from django.core.files.base import ContentFile
+            
+            try:
+                # Open image
+                img = Image.open(self.image)
+                
+                # Correct orientation
+                img = ImageOps.exif_transpose(img)
+                
+                # Convert to RGB
+                if img.mode in ('RGBA', 'LA', 'P'):
+                    img = img.convert('RGB')
+                
+                # Resize
+                img.thumbnail((1000, 1000), Image.Resampling.LANCZOS)
+                
+                # Compress in-memory
+                output = io.BytesIO()
+                img.save(output, format='JPEG', quality=80, optimize=True)
+                output.seek(0)
+                
+                # Update file field
+                filename = os.path.splitext(os.path.basename(self.image.name))[0] + '.jpg'
+                self.image.save(
+                    filename,
+                    ContentFile(output.read()),
+                    save=False
+                )
+            except Exception as e:
+                # Log or print error, fallback to default saving if anything fails
+                print(f"Error compressing image: {e}")
+                
+        super().save(*args, **kwargs)
