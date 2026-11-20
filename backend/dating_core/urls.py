@@ -19,7 +19,7 @@ from profiles.views import ProfileDetailView, PublicProfileDetailView, InterestL
 from django.views.generic import TemplateView
 from matches.views import DiscoveryView, SwipeView, MatchListView, SentLikesView, UndoSwipeView, ReceivedLikesView
 from chat.views import ChatViewSet, ChatListView, TypingView, CallViewSet, PublicChatViewSet
-from payments.views import SubscriptionPlanListView, PaymentRequestCreateView, MyPaymentStatusView
+from payments.views import SubscriptionPlanListView, PaymentRequestCreateView, MyPaymentStatusView, RedeemCouponView
 from reports.views import ReportCreateView, BlockCreateView
 from rest_framework.routers import DefaultRouter
 
@@ -72,6 +72,7 @@ urlpatterns = [
     path('api/plans/', SubscriptionPlanListView.as_view(), name='plan_list'),
     path('api/payments/submit/', PaymentRequestCreateView.as_view(), name='payment_submit'),
     path('api/payments/status/', MyPaymentStatusView.as_view(), name='payment_status'),
+    path('api/payments/redeem-coupon/', RedeemCouponView.as_view(), name='redeem_coupon'),
     
     # Safety
     path('api/report/', ReportCreateView.as_view(), name='report_create'),
