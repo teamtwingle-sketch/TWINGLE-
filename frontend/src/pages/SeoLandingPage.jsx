@@ -282,7 +282,7 @@ const SeoLandingPage = ({ forcedSlug }) => {
             <Link
               key={d.slug}
               to={`/dating/${d.slug}`}
-              className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50/50 transition-all shadow-2xs"
+              className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50/50 transition-all shadow-sm"
             >
               {d.name}
             </Link>

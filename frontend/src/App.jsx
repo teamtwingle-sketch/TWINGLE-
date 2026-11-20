@@ -2,8 +2,10 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Static Import (Critical for LCP on Landing)
+// Static Import (Critical for LCP on Landing and SEO Pages)
 import Landing from './pages/Landing';
+import SeoLandingPage from './pages/SeoLandingPage';
+import DistrictDatingPage from './pages/DistrictDatingPage';
 
 // Components
 import PageLoader from './components/PageLoader';
@@ -22,8 +24,6 @@ const AppLayout = lazy(() => import('./components/AppLayout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const PublicProfile = lazy(() => import('./pages/PublicProfile'));
 const DownloadApp = lazy(() => import('./pages/DownloadApp'));
-const SeoLandingPage = lazy(() => import('./pages/SeoLandingPage'));
-const DistrictDatingPage = lazy(() => import('./pages/DistrictDatingPage'));
 
 // Lazy load Legal pages
 import { Terms, Privacy, Guidelines, Safety } from './pages/Legal';
