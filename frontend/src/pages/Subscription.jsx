@@ -134,6 +134,52 @@ const Subscription = () => {
         }
     }, [selectedPlan, status]);
 
+    const renderRedeemSection = () => (
+        <div className="bg-gradient-to-br from-rose-50 via-white to-pink-50 p-6 rounded-3xl border-2 border-rose-100 shadow-sm space-y-4">
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-primary to-rose-500 text-white flex items-center justify-center shadow-md shadow-rose-200">
+                    <Gift size={20} />
+                </div>
+                <div>
+                    <h3 className="font-black text-slate-900 text-base font-outfit">Have a Redeem Code?</h3>
+                    <p className="text-xs text-slate-500 font-medium">Apply a 12-digit code to unlock the 90-Day Platinum Plan instantly.</p>
+                </div>
+            </div>
+
+            {couponSuccess ? (
+                <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm font-bold animate-fade-in-up">
+                    <Sparkles className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <div>
+                        <p>{couponSuccess.message || 'Coupon Applied Successfully!'}</p>
+                        <p className="text-xs font-normal text-emerald-700 mt-0.5">
+                            Platinum Plan unlocked for 90 days.
+                        </p>
+                    </div>
+                </div>
+            ) : (
+                <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                    <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.replace(/\s+/g, ''))}
+                        placeholder="Enter 12-digit redeem code"
+                        maxLength={24}
+                        className="flex-1 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary text-slate-900 shadow-xs"
+                    />
+                    <button
+                        onClick={handleApplyCoupon}
+                        disabled={applyingCoupon || !couponCode.trim()}
+                        className="px-6 py-3.5 bg-brand-primary text-white font-black text-sm rounded-2xl hover:opacity-95 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-rose-200 shrink-0"
+                    >
+                        {applyingCoupon ? 'Applying...' : 'Apply Coupon'}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+
+    const hasPlatinumPlan = plans.some(p => p.duration_days === 90 || p.name.toLowerCase().includes('platinum'));
+
     return (
         <div className="p-6 pb-24 space-y-8">
             <div>
@@ -158,77 +204,44 @@ const Subscription = () => {
                 )}
             </div>
 
-            {/* Redeem Coupon / Promo Code Card */}
-            <div className="bg-gradient-to-br from-rose-50 via-white to-pink-50 p-6 rounded-3xl border-2 border-rose-100 shadow-sm space-y-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-primary to-rose-500 text-white flex items-center justify-center shadow-md shadow-rose-200">
-                        <Gift size={20} />
-                    </div>
-                    <div>
-                        <h3 className="font-black text-slate-900 text-base font-outfit">Have a Redeem Code?</h3>
-                        <p className="text-xs text-slate-500 font-medium">Apply a 12-digit code to unlock the 90-Day Platinum Plan instantly.</p>
-                    </div>
-                </div>
-
-                {couponSuccess ? (
-                    <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center gap-3 text-emerald-800 text-sm font-bold animate-fade-in-up">
-                        <Sparkles className="w-5 h-5 text-emerald-600 shrink-0" />
-                        <div>
-                            <p>{couponSuccess.message || 'Coupon Applied Successfully!'}</p>
-                            <p className="text-xs font-normal text-emerald-700 mt-0.5">
-                                Platinum Plan unlocked for 90 days.
-                            </p>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                        <input
-                            type="text"
-                            value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value.replace(/\s+/g, ''))}
-                            placeholder="Enter 12-digit redeem code"
-                            maxLength={24}
-                            className="flex-1 px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-brand-primary/40 focus:border-brand-primary text-slate-900 shadow-xs"
-                        />
-                        <button
-                            onClick={handleApplyCoupon}
-                            disabled={applyingCoupon || !couponCode.trim()}
-                            className="px-6 py-3.5 bg-brand-primary text-white font-black text-sm rounded-2xl hover:opacity-95 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-rose-200 shrink-0"
-                        >
-                            {applyingCoupon ? 'Applying...' : 'Apply Coupon'}
-                        </button>
-                    </div>
-                )}
-            </div>
-
             {/* Plans List */}
             <div className="space-y-4">
-                {plans.map(plan => (
-                    <div
-                        key={plan.id}
-                        onClick={() => setSelectedPlan(plan.id)}
-                        className={`p-5 rounded-3xl border-2 transition-all cursor-pointer ${selectedPlan === plan.id ? 'border-brand-primary bg-brand-primary/5 shadow-md' : 'border-slate-100 bg-white'
-                            }`}
-                    >
-                        <div className="flex justify-between items-center mb-4">
-                            <div>
-                                <h3 className="font-bold text-lg">{plan.name}</h3>
-                                <p className="text-sm text-slate-500">{plan.duration_days} Days</p>
-                            </div>
-                            <div className="text-2xl font-black text-brand-primary">₹{Math.round(plan.price)}</div>
-                        </div>
-                        <ul className="space-y-2">
-                            {(plan.description || '').split(',').map(f => (
-                                <li key={f} className="text-xs text-slate-600 flex items-center gap-2">
-                                    <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
-                                        <Check size={10} className="text-green-600" />
+                {plans.map(plan => {
+                    const isPlatinum = plan.duration_days === 90 || plan.name.toLowerCase().includes('platinum');
+                    return (
+                        <div key={plan.id} className="space-y-4">
+                            <div
+                                onClick={() => setSelectedPlan(plan.id)}
+                                className={`p-5 rounded-3xl border-2 transition-all cursor-pointer ${selectedPlan === plan.id ? 'border-brand-primary bg-brand-primary/5 shadow-md' : 'border-slate-100 bg-white'
+                                    }`}
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <div>
+                                        <h3 className="font-bold text-lg">{plan.name}</h3>
+                                        <p className="text-sm text-slate-500">{plan.duration_days} Days</p>
                                     </div>
-                                    {f.trim()}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
+                                    <div className="text-2xl font-black text-brand-primary">₹{Math.round(plan.price)}</div>
+                                </div>
+                                <ul className="space-y-2">
+                                    {(plan.description || '').split(',').map(f => (
+                                        <li key={f} className="text-xs text-slate-600 flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                                                <Check size={10} className="text-green-600" />
+                                            </div>
+                                            {f.trim()}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            {/* Placed directly under the Platinum 90 Days Plan */}
+                            {isPlatinum && renderRedeemSection()}
+                        </div>
+                    );
+                })}
+
+                {/* Fallback if platinum is not returned by the API list */}
+                {!hasPlatinumPlan && renderRedeemSection()}
             </div>
 
             {/* UPI Payment Section */}
