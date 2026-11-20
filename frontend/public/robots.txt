@@ -1,5 +1,21 @@
 User-agent: *
 Allow: /
+Allow: /mallu-dating-app
+Allow: /mallu-dating-website
+Allow: /malayalis-dating-app
+Allow: /malayalam-dating-app
+Allow: /best-mallu-dating-app
+Allow: /affordable-dating-app-for-mallus
+Allow: /dating/
+Allow: /download
+Allow: /login
+Allow: /register
+Allow: /terms
+Allow: /privacy
+Allow: /guidelines
+Allow: /safety
+
+# Disallow private user-specific endpoints
 Disallow: /admin-dashboard
 Disallow: /profile-setup
 Disallow: /subscription
@@ -7,5 +23,6 @@ Disallow: /matches
 Disallow: /profile/
 Disallow: /chat/
 Disallow: /chats
+Disallow: /api/
 
 Sitemap: https://twingle.online/sitemap.xml

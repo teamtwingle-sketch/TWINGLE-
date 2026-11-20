@@ -32,6 +32,7 @@
             ]
         }
     ],
+    "cleanUrls": true,
     "rewrites": [
         {
             "source": "/((?!.*\\.).*)",

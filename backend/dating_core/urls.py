@@ -102,3 +102,8 @@ if settings.DEBUG:
     # Static is handled by WhiteNoise in production, but we keep this for dev
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
+# SPA Catch-all Route: Serves index.html for all client-side and programmatic SEO routes
+urlpatterns += [
+    re_path(r'^(?!api/|admin/|media/|static/|sitemap\.xml|robots\.txt).*$', TemplateView.as_view(template_name='index.html')),
+]
+
