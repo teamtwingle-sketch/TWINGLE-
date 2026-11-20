@@ -7,7 +7,6 @@ Allow: /malayalam-dating-app
 Allow: /best-mallu-dating-app
 Allow: /affordable-dating-app-for-mallus
 Allow: /dating/
-Allow: /download
 Allow: /login
 Allow: /register
 Allow: /terms

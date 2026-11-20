@@ -23,7 +23,6 @@ const Matches = lazy(() => import('./pages/Matches'));
 const AppLayout = lazy(() => import('./components/AppLayout'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const PublicProfile = lazy(() => import('./pages/PublicProfile'));
-const DownloadApp = lazy(() => import('./pages/DownloadApp'));
 
 // Lazy load Legal pages
 import { Terms, Privacy, Guidelines, Safety } from './pages/Legal';
@@ -56,7 +55,7 @@ function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/guidelines" element={<Guidelines />} />
             <Route path="/safety" element={<Safety />} />
-            <Route path="/download" element={<DownloadApp />} />
+            <Route path="/download" element={<Navigate to="/" replace />} />
 
             {/* Programmatic SEO Routes */}
             <Route path="/mallu-dating-app" element={<SeoLandingPage forcedSlug="mallu-dating-app" />} />

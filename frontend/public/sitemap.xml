@@ -50,14 +50,6 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- App Download -->
-  <url>
-    <loc>https://twingle.online/download</loc>
-    <lastmod>2026-02-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
   <!-- District Programmatic SEO Pages -->
   <url>
     <loc>https://twingle.online/dating/kochi-ernakulam</loc>

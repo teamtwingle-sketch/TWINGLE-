@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Shield, Zap, MessageCircle, Sparkles, ChevronDown, ChevronUp, MapPin, Download, CheckCircle2 } from 'lucide-react';
+import { Heart, Shield, Zap, MessageCircle, Sparkles, ChevronDown, ChevronUp, MapPin, CheckCircle2 } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import { PROGRAMMATIC_PAGES, KERALA_DISTRICTS } from '../data/seoPagesData';
 
@@ -188,7 +188,6 @@ const Landing = () => {
                     <Link to="/mallu-dating-website" className="hover:text-rose-600">Mallu Dating Website</Link>
                     <Link to="/best-mallu-dating-app" className="hover:text-rose-600">Best Dating App</Link>
                     <Link to="/affordable-dating-app-for-mallus" className="hover:text-rose-600">Affordable Plans</Link>
-                    <Link to="/download" className="hover:text-rose-600">Download APK</Link>
                     <Link to="/privacy" className="hover:text-rose-600">Privacy</Link>
                     <Link to="/terms" className="hover:text-rose-600">Terms</Link>
                     <Link to="/safety" className="hover:text-rose-600">Safety</Link>

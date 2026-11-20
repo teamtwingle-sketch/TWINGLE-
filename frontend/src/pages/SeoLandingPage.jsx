@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { 
-  Sparkles, ShieldCheck, Heart, Phone, MapPin, 
-  CheckCircle2, ChevronDown, ChevronUp, Download, 
-  ArrowRight, Users, Zap, Lock, Star, HelpCircle
+  Sparkles, Shield, Heart, Zap, MapPin, 
+  ChevronDown, ChevronUp
 } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import { PROGRAMMATIC_PAGES, KERALA_DISTRICTS } from '../data/seoPagesData';
@@ -25,7 +24,7 @@ const SeoLandingPage = ({ forcedSlug }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-white">
       {/* Dynamic SEO Meta & JSON-LD Structured Data */}
       <SEOHead
         title={pageData.title}
@@ -36,206 +35,86 @@ const SeoLandingPage = ({ forcedSlug }) => {
         breadcrumbs={breadcrumbs}
       />
 
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/60 px-5 py-3.5 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-gradient-to-br from-pink-600 to-rose-600 rounded-xl shadow-sm flex items-center justify-center transform hover:scale-105 transition-all">
-            <Sparkles className="text-white w-5 h-5 fill-white/90" />
-          </div>
-          <span className="font-[900] text-2xl tracking-tight text-slate-900 font-outfit">TWINGLE</span>
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            to="/download"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
-          >
-            <Download size={14} /> Download APK
-          </Link>
-          <Link
-            to="/login"
-            className="px-4 py-2 rounded-full text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors"
-          >
-            Log In
-          </Link>
-          <Link
-            to="/register"
-            className="px-5 py-2 rounded-full text-xs font-black tracking-wide bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md shadow-rose-200 hover:shadow-rose-300 active:scale-95 transition-all"
-          >
-            JOIN FREE
-          </Link>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-16 px-6 sm:px-10 lg:px-16 bg-gradient-to-b from-rose-50/60 via-slate-50 to-white">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-rose-200/80 shadow-sm text-rose-600 text-xs font-black tracking-wide mb-6 animate-fade-in-up">
-            <Sparkles size={14} className="fill-rose-500" />
-            <span>{pageData.badge}</span>
+      {/* Hero Section - Matching the clean, spacious original web app layout */}
+      <section className="relative min-h-[85vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden gradient-bg text-white py-16">
+        <div className="z-10 max-w-2xl mx-auto">
+          <div className="animate-fade-in-up">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl border border-white/30">
+              <Sparkles className="w-12 h-12 fill-white animate-pulse" />
+            </div>
           </div>
 
-          {/* H1 Heading */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-[900] text-slate-900 tracking-tight font-outfit leading-[1.15] mb-6">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold tracking-wider uppercase mb-4 border border-white/20">
+            {pageData.badge}
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl font-black mb-4 tracking-tight font-outfit leading-tight">
             {pageData.h1}
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed mb-8">
+          <p className="text-lg sm:text-xl opacity-90 mb-10 max-w-lg mx-auto font-medium leading-relaxed">
             {pageData.heroSubtitle}
           </p>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <div className="flex flex-col gap-4 w-full max-w-xs mx-auto animate-fade-in-up">
             <Link
-              to="/register"
-              className="w-full sm:w-auto px-8 py-4 rounded-full font-black text-white text-base tracking-wide bg-gradient-to-r from-rose-500 to-pink-600 shadow-xl shadow-rose-200/60 hover:shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+              to="/login"
+              className="bg-white text-brand-primary font-black py-4 px-12 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all text-xl tracking-wide uppercase"
             >
-              Start Free Dating <ArrowRight size={18} />
+              Get Started
             </Link>
-            <Link
-              to="/download"
-              className="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-slate-800 text-base bg-white border border-slate-200 shadow-sm hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center gap-2"
-            >
-              <Download size={18} className="text-rose-500" /> Download Android APK
-            </Link>
-          </div>
-
-          {/* Key Stats Bar */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-white rounded-3xl border border-slate-200/70 shadow-[0_4px_25px_rgba(0,0,0,0.03)] text-left">
-            {pageData.keyStats.map((stat, i) => (
-              <div key={i} className="px-3 border-l-2 border-rose-500 first:border-none">
-                <p className="text-2xl font-black text-slate-900 font-outfit">{stat.value}</p>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5">{stat.label}</p>
-              </div>
-            ))}
+            <p className="text-sm font-medium opacity-80">
+              New here? <Link to="/register" className="underline hover:text-white font-bold">Create Account</Link>
+            </p>
           </div>
         </div>
+
+        {/* Decorative ambient elements */}
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-20 -right-20 w-80 h-80 bg-orange-400/20 rounded-full blur-3xl pointer-events-none"></div>
       </section>
 
-      {/* AI Overview / Quick Definition Box (Targeted for Google AI Overview snippet extraction) */}
-      <section className="max-w-4xl mx-auto px-6 py-6">
-        <div className="bg-gradient-to-r from-rose-500/5 via-pink-500/5 to-orange-500/5 border border-rose-200/60 rounded-3xl p-6 sm:p-8">
-          <div className="flex items-center gap-2 text-rose-600 font-black text-xs uppercase tracking-wider mb-2">
-            <Sparkles size={16} /> Key Takeaways for Malayali Singles
+      {/* 3 Clean, Airy Feature Cards */}
+      <section className="py-20 px-8 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-all">
+          <div className="w-14 h-14 rounded-2xl bg-rose-100/60 text-brand-primary flex items-center justify-center mb-5">
+            <Shield size={28} />
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 mb-3 font-outfit">
-            What makes Twingle the top choice for Mallu dating?
-          </h2>
-          <p className="text-slate-700 leading-relaxed text-sm sm:text-base font-medium">
-            {pageData.aiOverviewSnippet}
+          <h3 className="text-xl font-bold text-slate-900 mb-2 font-outfit">Safe & Verified</h3>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Live selfie verification with Blue Checkmark badge keeps fake profiles and catfish out of our Malayali community.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-all">
+          <div className="w-14 h-14 rounded-2xl bg-orange-100/60 text-orange-500 flex items-center justify-center mb-5">
+            <Heart size={28} className="fill-orange-500" />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2 font-outfit">Kerala Smart Matching</h3>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Find compatible Malayali singles across all 14 Kerala districts and global NRI hubs based on shared culture and values.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-center text-center p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:shadow-lg transition-all">
+          <div className="w-14 h-14 rounded-2xl bg-blue-100/60 text-blue-500 flex items-center justify-center mb-5">
+            <Zap size={28} />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 mb-2 font-outfit">Affordable Plans</h3>
+          <p className="text-slate-500 text-sm leading-relaxed">
+            Enjoy unlimited swipes and direct voice calling starting at just ₹199 via prepaid UPI with zero recurring card traps.
           </p>
         </div>
       </section>
 
-      {/* Highlights / Features Section */}
-      <section className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-outfit tracking-tight">
-            Designed for Authentic Malayali Connections
+      {/* Spacious FAQ Section (Optimized for Google Rich Snippets & AI Overview) */}
+      <section className="py-16 px-6 max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-black text-slate-900 font-outfit tracking-tight">
+            Frequently Asked Questions
           </h2>
-          <p className="text-slate-500 font-medium text-sm sm:text-base mt-2">
-            Modern dating features built around Kerala culture, safety, and transparency.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {pageData.highlightPoints.map((pt, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200/70 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-black mb-4">
-                {idx === 0 && <Heart size={20} className="fill-rose-500" />}
-                {idx === 1 && <MapPin size={20} />}
-                {idx === 2 && <Phone size={20} />}
-                {idx === 3 && <ShieldCheck size={20} />}
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2 font-outfit">{pt.title}</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">{pt.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Comparison Table Section (Crucial for "Best Mallu Dating App" & Competitor comparisons) */}
-      {pageData.comparisonTable && (
-        <section className="max-w-4xl mx-auto px-6 py-12">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-outfit tracking-tight">
-              Twingle vs. Other Dating Apps in Kerala
-            </h2>
-            <p className="text-slate-500 font-medium text-sm mt-2">
-              See why Malayalis are switching from generic apps to Twingle.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto bg-white rounded-3xl border border-slate-200/80 shadow-sm">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[11px]">
-                <tr>
-                  <th className="p-4 sm:p-5 font-bold">Feature / Capability</th>
-                  <th className="p-4 sm:p-5 font-black text-rose-600 bg-rose-50/50">Twingle (Our App)</th>
-                  <th className="p-4 sm:p-5 font-bold">Arike</th>
-                  <th className="p-4 sm:p-5 font-bold">Tinder</th>
-                  <th className="p-4 sm:p-5 font-bold">Bumble</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {pageData.comparisonTable.map((row, i) => (
-                  <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4 sm:p-5 font-semibold text-slate-800">{row.feature}</td>
-                    <td className="p-4 sm:p-5 font-bold text-rose-600 bg-rose-50/30">{row.twingle}</td>
-                    <td className="p-4 sm:p-5 text-slate-600">{row.arike}</td>
-                    <td className="p-4 sm:p-5 text-slate-500">{row.tinder}</td>
-                    <td className="p-4 sm:p-5 text-slate-500">{row.bumble}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
-      {/* Pricing / Affordability Breakdown */}
-      <section className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-slate-900 text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden shadow-xl">
-          <div className="relative z-10 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-rose-300 text-xs font-bold tracking-wide mb-4">
-              <Zap size={14} className="text-yellow-400" /> Transparent Pricing
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-black font-outfit tracking-tight mb-4">
-              Premium Dating Starting at Just ₹199
-            </h2>
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-medium">
-              Unlike international apps that quietly autorenew ₹1,200+ on your credit card every month, Twingle offers pure prepaid UPI convenience. Pay once, enjoy full freedom, zero auto-billing surprises.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <div className="bg-white/10 px-4 py-3 rounded-2xl border border-white/10">
-                <span className="text-xs text-slate-300 block">Gold Plan</span>
-                <span className="text-xl font-black text-rose-400">₹199 / 30 Days</span>
-              </div>
-              <div className="bg-white/10 px-4 py-3 rounded-2xl border border-white/10">
-                <span className="text-xs text-slate-300 block">Platinum Plan</span>
-                <span className="text-xl font-black text-yellow-400">₹499 / 90 Days</span>
-              </div>
-            </div>
-          </div>
-          <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-gradient-to-br from-rose-500/20 to-pink-500/30 rounded-full blur-3xl pointer-events-none"></div>
-        </div>
-      </section>
-
-      {/* FAQ Section with Schema.org Microdata Accordion */}
-      <section className="max-w-4xl mx-auto px-6 py-12">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-1.5 text-rose-600 text-xs font-black uppercase tracking-wider mb-2">
-            <HelpCircle size={16} /> Frequently Asked Questions
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-outfit tracking-tight">
-            Got Questions About Mallu Dating on Twingle?
-          </h2>
-          <p className="text-slate-500 font-medium text-sm mt-1">
-            Everything you need to know about safety, verification, and matching in Kerala.
+          <p className="text-slate-500 text-sm mt-2">
+            Everything you need to know about dating on Twingle in Kerala.
           </p>
         </div>
 
@@ -245,7 +124,7 @@ const SeoLandingPage = ({ forcedSlug }) => {
             return (
               <div
                 key={idx}
-                className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden transition-all"
+                className="bg-slate-50 rounded-2xl border border-slate-200/80 overflow-hidden transition-all"
               >
                 <button
                   onClick={() => toggleFaq(idx)}
@@ -259,7 +138,7 @@ const SeoLandingPage = ({ forcedSlug }) => {
                   )}
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-5 pt-1 text-slate-600 text-sm leading-relaxed border-t border-slate-100 font-medium">
+                  <div className="px-5 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-200/60 font-medium">
                     {faq.answer}
                   </div>
                 )}
@@ -269,77 +148,65 @@ const SeoLandingPage = ({ forcedSlug }) => {
         </div>
       </section>
 
-      {/* Kerala District Programmatic Links Hub */}
-      <section className="max-w-4xl mx-auto px-6 py-10 border-t border-slate-200/70">
-        <h3 className="text-lg font-bold text-slate-900 font-outfit mb-3 flex items-center gap-2">
-          <MapPin size={18} className="text-rose-500" /> Explore Malayali Dating by Kerala District & Region
-        </h3>
-        <p className="text-xs text-slate-500 mb-5">
-          Find singles in your city or hometown across Kerala and prominent NRI communities:
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {KERALA_DISTRICTS.map((d) => (
-            <Link
-              key={d.slug}
-              to={`/dating/${d.slug}`}
-              className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50/50 transition-all shadow-sm"
-            >
-              {d.name}
-            </Link>
-          ))}
+      {/* Kerala Districts Directory */}
+      <section className="py-12 px-6 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-lg font-bold text-slate-900 font-outfit mb-3 flex items-center gap-2">
+            <MapPin size={18} className="text-rose-500" /> Browse Malayali Singles by Kerala District:
+          </h3>
+          <p className="text-xs text-slate-500 mb-4">
+            Connect with verified singles in your hometown or region across Kerala:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {KERALA_DISTRICTS.map((d) => (
+              <Link
+                key={d.slug}
+                to={`/dating/${d.slug}`}
+                className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50/50 transition-all shadow-xs"
+              >
+                {d.name}
+              </Link>
+            ))}
+          </div>
+
+          {/* Related Programmatic Topics */}
+          <div className="mt-8 pt-6 border-t border-slate-200/60">
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+              Explore More Dating Topics
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.values(PROGRAMMATIC_PAGES).map((p) => (
+                <Link
+                  key={p.slug}
+                  to={`/${p.slug}`}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                    p.slug === pageData.slug
+                      ? 'bg-rose-50 text-rose-600 border-rose-200'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-rose-200 hover:text-rose-600'
+                  }`}
+                >
+                  {p.keyword}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
-
-      {/* Programmatic SEO Related Landing Pages Links */}
-      <section className="max-w-4xl mx-auto px-6 pb-12">
-        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">
-          Popular Malayalam Dating Topics
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {Object.values(PROGRAMMATIC_PAGES).map((p) => (
-            <Link
-              key={p.slug}
-              to={`/${p.slug}`}
-              className={`p-3 rounded-2xl text-xs font-bold border transition-all ${
-                p.slug === pageData.slug
-                  ? 'bg-rose-50 text-rose-600 border-rose-200'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-rose-200 hover:text-rose-600'
-              }`}
-            >
-              {p.keyword} →
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Bottom Sticky CTA on Mobile */}
-      <div className="sticky bottom-0 z-30 sm:hidden bg-white/95 backdrop-blur-md p-3 border-t border-slate-200 flex gap-2">
-        <Link
-          to="/register"
-          className="flex-1 py-3 text-center bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black text-sm rounded-full shadow-md"
-        >
-          JOIN FREE NOW
-        </Link>
-        <Link
-          to="/download"
-          className="px-4 py-3 bg-slate-900 text-white font-bold text-sm rounded-full flex items-center justify-center"
-        >
-          <Download size={18} />
-        </Link>
-      </div>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-slate-200 bg-white text-center text-slate-500 text-xs">
-        <p className="font-semibold text-slate-700 mb-2">© 2026 Twingle. Kerala’s Leading Dating Application for Malayalis.</p>
-        <p className="max-w-md mx-auto text-[11px] text-slate-400 mb-4">
-          Safe, verified, and community-driven. Dedicated to connecting Keralites in Kochi, Thiruvananthapuram, Kozhikode, Thrissur, Bangalore, and across the globe.
+      <footer className="py-12 border-t border-slate-100 text-center text-slate-500 text-sm bg-white">
+        <p className="font-bold text-slate-700">© 2026 Twingle. Made with ❤️ for Kerala.</p>
+        <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+          The No. 1 Mallu Dating App & Website for Malayalis in Kerala, Bangalore, Dubai, and worldwide.
         </p>
-        <div className="flex justify-center gap-6 font-bold uppercase tracking-widest text-[10px]">
+        <div className="flex justify-center flex-wrap gap-6 mt-6 font-bold text-[10px] uppercase tracking-widest">
+          <Link to="/mallu-dating-app" className="hover:text-rose-600">Mallu Dating App</Link>
+          <Link to="/mallu-dating-website" className="hover:text-rose-600">Mallu Dating Website</Link>
+          <Link to="/best-mallu-dating-app" className="hover:text-rose-600">Best Dating App</Link>
+          <Link to="/affordable-dating-app-for-mallus" className="hover:text-rose-600">Affordable Plans</Link>
           <Link to="/privacy" className="hover:text-rose-600">Privacy</Link>
           <Link to="/terms" className="hover:text-rose-600">Terms</Link>
           <Link to="/safety" className="hover:text-rose-600">Safety</Link>
-          <Link to="/guidelines" className="hover:text-rose-600">Guidelines</Link>
-          <Link to="/download" className="hover:text-rose-600">Download APK</Link>
         </div>
       </footer>
     </div>

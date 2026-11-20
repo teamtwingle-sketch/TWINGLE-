@@ -97,7 +97,6 @@ const SEOHead = ({
         applicationCategory: 'DatingApplication',
         url: 'https://twingle.online',
         image: 'https://twingle.online/twingle-logo.png',
-        downloadUrl: 'https://twingle.online/download',
         softwareVersion: '2.4.0',
         author: {
           '@type': 'Organization',

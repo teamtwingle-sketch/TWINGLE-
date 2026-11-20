@@ -203,8 +203,8 @@ export const PROGRAMMATIC_PAGES = {
         answer: 'Absolutely! Our chat interface natively supports Malayalam script (മലയാളം), Manglish, and English with emoji reactions, voice notes, and instant replies.'
       },
       {
-        question: 'How do I download the Malayalam dating app for Android?',
-        answer: 'You can download the verified Twingle Android APK directly from our official download page at https://twingle.online/download.'
+        question: 'Do I need to download an app to use Twingle?',
+        answer: 'No app download is required. Twingle is a web application accessible directly from any mobile or desktop browser at https://twingle.online, offering instant access without taking up storage.'
       }
     ]
   },

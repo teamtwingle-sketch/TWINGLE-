@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../api/client';
 import { toast } from 'react-toastify';
-import { Camera, Save, LogOut, ChevronDown, X, Download, Check, Clock, UploadCloud } from 'lucide-react';
+import { Camera, Save, LogOut, ChevronDown, X, Check, Clock, UploadCloud } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const compressImage = (file, maxWidth = 1000, maxHeight = 1000, quality = 0.85) => {
@@ -600,21 +600,6 @@ const ProfileSetup = () => {
                         <Save size={20} strokeWidth={2.5} />
                         Save Changes
                     </button>
-
-                    {/* Get App Section */}
-                    <section className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-6 shadow-xl relative overflow-hidden mt-4">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                        <div className="relative z-10 flex items-center justify-between">
-                            <div className="text-white space-y-1">
-                                <h2 className="text-lg font-black tracking-tight">Get Twingle App</h2>
-                                <p className="text-xs text-slate-300 font-medium opacity-90">Smoother, faster dating experience with push notifications.</p>
-                            </div>
-                            <Link to="/download" className="shrink-0 bg-white text-slate-900 px-4 py-3 rounded-xl font-bold text-sm shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
-                                <Download size={16} className="text-brand-primary" strokeWidth={3} />
-                                Get App
-                            </Link>
-                        </div>
-                    </section>
 
                     <Link to="/terms" className="block text-center text-xs text-slate-400 font-semibold hover:text-slate-600 py-2">
                         Terms & Conditions • Privacy Policy

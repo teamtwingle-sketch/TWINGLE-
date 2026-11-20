@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Sparkles, MapPin, Heart, ShieldCheck, Download, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, MapPin, Heart, Shield, CheckCircle2 } from 'lucide-react';
 import SEOHead from '../components/SEOHead';
 import { KERALA_DISTRICTS } from '../data/seoPagesData';
 
@@ -15,11 +15,11 @@ const DistrictDatingPage = () => {
   const faqs = [
     {
       question: `How can I meet single Malayalis in ${districtData.name}?`,
-      answer: `Twingle allows you to filter specifically for ${districtData.district} district. Profiles in your area receive algorithmic priority (+5 points compatibility score), making it simple to match and meet locally.`
+      answer: `Twingle allows you to filter specifically for ${districtData.district} district. Profiles in your area receive algorithmic priority, making it simple to match and meet locally.`
     },
     {
       question: `Is Twingle popular in ${districtData.name}?`,
-      answer: `Yes! ${districtData.name} has a large, active community of verified Malayali men and women seeking friendship, casual dates, and serious relationships on Twingle.`
+      answer: `Yes! ${districtData.name} has a large, active community of verified Malayali men and women seeking friendship, dating, and serious relationships on Twingle.`
     },
     {
       question: `What are good date ideas in ${districtData.name}?`,
@@ -34,7 +34,7 @@ const DistrictDatingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen bg-white">
       <SEOHead
         title={pageTitle}
         description={pageDescription}
@@ -44,75 +44,58 @@ const DistrictDatingPage = () => {
         breadcrumbs={breadcrumbs}
       />
 
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/60 px-5 py-3.5 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-gradient-to-br from-pink-600 to-rose-600 rounded-xl shadow-sm flex items-center justify-center transform hover:scale-105 transition-all">
-            <Sparkles className="text-white w-5 h-5 fill-white/90" />
-          </div>
-          <span className="font-[900] text-2xl tracking-tight text-slate-900 font-outfit">TWINGLE</span>
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            to="/login"
-            className="px-4 py-2 rounded-full text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors"
-          >
-            Log In
-          </Link>
-          <Link
-            to="/register"
-            className="px-5 py-2 rounded-full text-xs font-black tracking-wide bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-md shadow-rose-200 hover:shadow-rose-300 active:scale-95 transition-all"
-          >
-            JOIN FREE
-          </Link>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="pt-12 pb-16 px-6 sm:px-10 lg:px-16 bg-gradient-to-b from-rose-50/60 via-slate-50 to-white text-center">
-        <div className="max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-rose-200/80 shadow-sm text-rose-600 text-xs font-black tracking-wide mb-6">
-            <MapPin size={14} className="text-rose-500" />
-            <span>{districtData.district} Dating Hub</span>
+      {/* Hero Section */}
+      <section className="relative min-h-[80vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden gradient-bg text-white py-16">
+        <div className="z-10 max-w-2xl mx-auto">
+          <div className="animate-fade-in-up">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl border border-white/30">
+              <Sparkles className="w-12 h-12 fill-white animate-pulse" />
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-[900] text-slate-900 tracking-tight font-outfit leading-tight mb-4">
-            Dating in {districtData.name} for Malayali Singles
+          <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold tracking-wider uppercase mb-4 border border-white/20">
+            {districtData.district} Dating Hub
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl font-black mb-4 tracking-tight font-outfit leading-tight">
+            Dating in {districtData.name}
           </h1>
-          <p className="text-slate-600 text-base sm:text-lg font-medium leading-relaxed mb-8">
+
+          <p className="text-lg sm:text-xl opacity-90 mb-10 max-w-lg mx-auto font-medium leading-relaxed">
             {districtData.description}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+          <div className="flex flex-col gap-4 w-full max-w-xs mx-auto animate-fade-in-up">
             <Link
-              to="/register"
-              className="w-full sm:w-auto px-8 py-4 rounded-full font-black text-white text-base bg-gradient-to-r from-rose-500 to-pink-600 shadow-xl shadow-rose-200 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+              to="/login"
+              className="bg-white text-brand-primary font-black py-4 px-12 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all text-xl tracking-wide uppercase"
             >
-              Meet {districtData.district} Singles <ArrowRight size={18} />
+              Get Started
             </Link>
-            <Link
-              to="/mallu-dating-app"
-              className="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-slate-700 text-base bg-white border border-slate-200 shadow-sm hover:bg-slate-50 active:scale-95 transition-all"
-            >
-              About the App
-            </Link>
+            <p className="text-sm font-medium opacity-80">
+              New here? <Link to="/register" className="underline hover:text-white font-bold">Create Account</Link>
+            </p>
           </div>
         </div>
+
+        {/* Ambient shapes */}
+        <div className="absolute top-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-20 -right-20 w-80 h-80 bg-orange-400/20 rounded-full blur-3xl pointer-events-none"></div>
       </section>
 
       {/* Popular Date Spots in District */}
-      <section className="max-w-4xl mx-auto px-6 py-8">
-        <div className="bg-white p-7 sm:p-9 rounded-3xl border border-slate-200/80 shadow-sm">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 font-outfit mb-3 flex items-center gap-2">
-            <Heart size={20} className="text-rose-500 fill-rose-500" /> Popular First Date Spots in {districtData.name}
+      <section className="py-16 px-6 max-w-4xl mx-auto">
+        <div className="p-8 sm:p-10 rounded-3xl bg-slate-50 border border-slate-100">
+          <h2 className="text-2xl font-black text-slate-900 font-outfit mb-3 flex items-center gap-2">
+            <Heart size={22} className="text-rose-500 fill-rose-500" /> Popular First Date Spots in {districtData.name}
           </h2>
-          <p className="text-slate-600 text-sm mb-6">
+          <p className="text-slate-600 text-sm mb-6 leading-relaxed">
             Planning your first coffee or sunset meetup? Here are top date destinations favored by {districtData.district} couples on Twingle:
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {districtData.popularSpots.map((spot, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <CheckCircle2 size={16} className="text-rose-500 shrink-0" />
+              <div key={i} className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-200/70 shadow-xs">
+                <CheckCircle2 size={18} className="text-rose-500 shrink-0" />
                 <span className="text-sm font-bold text-slate-800">{spot}</span>
               </div>
             ))}
@@ -120,37 +103,61 @@ const DistrictDatingPage = () => {
         </div>
       </section>
 
-      {/* Other Kerala Districts */}
-      <section className="max-w-4xl mx-auto px-6 py-10 border-t border-slate-200/60 mt-10">
-        <h3 className="text-base font-bold text-slate-900 font-outfit mb-4">
-          Browse Other Kerala Dating Locations:
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {KERALA_DISTRICTS.map((d) => (
-            <Link
-              key={d.slug}
-              to={`/dating/${d.slug}`}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                d.slug === districtData.slug
-                  ? 'bg-rose-50 text-rose-600 border-rose-200'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-rose-200 hover:text-rose-600'
-              }`}
-            >
-              {d.name}
-            </Link>
+      {/* District Dating FAQs */}
+      <section className="py-12 px-6 max-w-4xl mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-black text-slate-900 font-outfit tracking-tight">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-slate-500 text-sm mt-1">
+            Meeting singles in {districtData.name} made simple.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => (
+            <div key={idx} className="bg-slate-50 rounded-2xl border border-slate-200/80 p-6">
+              <h3 className="font-bold text-slate-900 text-base mb-2">{faq.question}</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">{faq.answer}</p>
+            </div>
           ))}
         </div>
       </section>
 
+      {/* Other Kerala Districts Directory */}
+      <section className="py-12 px-6 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-base font-bold text-slate-900 font-outfit mb-4">
+            Browse Other Kerala Dating Locations:
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {KERALA_DISTRICTS.map((d) => (
+              <Link
+                key={d.slug}
+                to={`/dating/${d.slug}`}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                  d.slug === districtData.slug
+                    ? 'bg-rose-50 text-rose-600 border-rose-200'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-rose-200 hover:text-rose-600 shadow-xs'
+                }`}
+              >
+                {d.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="py-10 border-t border-slate-200 bg-white text-center text-slate-500 text-xs">
-        <p className="font-semibold text-slate-700 mb-2">© 2026 Twingle. {districtData.name} Dating Directory.</p>
-        <div className="flex justify-center gap-6 font-bold uppercase tracking-widest text-[10px]">
+      <footer className="py-12 border-t border-slate-100 bg-white text-center text-slate-500 text-sm">
+        <p className="font-bold text-slate-700">© 2026 Twingle. {districtData.name} Dating Directory.</p>
+        <div className="flex justify-center flex-wrap gap-6 mt-4 font-bold text-[10px] uppercase tracking-widest">
           <Link to="/" className="hover:text-rose-600">Home</Link>
           <Link to="/mallu-dating-app" className="hover:text-rose-600">Mallu Dating App</Link>
           <Link to="/best-mallu-dating-app" className="hover:text-rose-600">Best Dating App</Link>
           <Link to="/privacy" className="hover:text-rose-600">Privacy</Link>
           <Link to="/terms" className="hover:text-rose-600">Terms</Link>
+          <Link to="/safety" className="hover:text-rose-600">Safety</Link>
         </div>
       </footer>
     </div>
